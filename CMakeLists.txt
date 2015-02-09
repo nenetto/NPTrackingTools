@@ -65,7 +65,7 @@ if(${MYPROJECT_NAME}_USE_TTFAKE)
                         COMMAND ${CMAKE_COMMAND} -E make_directory  "${PROJECT_BINARY_DIR}/binary"
                         COMMAND ${CMAKE_COMMAND} -E copy            "${PROJECT_SOURCE_DIR}/src/NPTrackingTools.h"    "${PROJECT_BINARY_DIR}/include"
                         COMMAND ${CMAKE_COMMAND} -E copy            "${PROJECT_SOURCE_DIR}/src/trackablesettings.h"    "${PROJECT_BINARY_DIR}/include"
-                        COMMAND ${CMAKE_COMMAND} -E copy            "${PROJECT_BINARY_DIR}/${LIBRARY_NAME}/$<CONFIGURATION>/${LIBRARY_NAME}.dll"    "${PROJECT_BINARY_DIR}/binary")
+                        COMMAND ${CMAKE_COMMAND} -E copy            "${PROJECT_BINARY_DIR}/$<CONFIGURATION>/${LIBRARY_NAME}.dll"    "${PROJECT_BINARY_DIR}/binary")
 
 
 else()
