@@ -65,7 +65,8 @@ if(${MYPROJECT_NAME}_USE_TTFAKE)
                         COMMAND ${CMAKE_COMMAND} -E make_directory  "${PROJECT_BINARY_DIR}/binary"
                         COMMAND ${CMAKE_COMMAND} -E copy            "${PROJECT_SOURCE_DIR}/src/NPTrackingTools.h"    "${PROJECT_BINARY_DIR}/include"
                         COMMAND ${CMAKE_COMMAND} -E copy            "${PROJECT_SOURCE_DIR}/src/trackablesettings.h"    "${PROJECT_BINARY_DIR}/include"
-                        COMMAND ${CMAKE_COMMAND} -E copy            "${PROJECT_BINARY_DIR}/$<CONFIGURATION>/${LIBRARY_NAME}.dll"    "${PROJECT_BINARY_DIR}/binary")
+                        COMMAND ${CMAKE_COMMAND} -E copy            "${PROJECT_BINARY_DIR}/$<CONFIGURATION>/${LIBRARY_NAME}.dll"    "${PROJECT_BINARY_DIR}/binary"
+                        COMMAND ${CMAKE_COMMAND} -E copy            "${PROJECT_BINARY_DIR}/$<CONFIGURATION>/${LIBRARY_NAME}.lib"    "${PROJECT_BINARY_DIR}/binary")
 
 
 else()
@@ -76,7 +77,8 @@ else()
                         COMMAND ${CMAKE_COMMAND} -E make_directory  "${PROJECT_BINARY_DIR}/binary"
                         COMMAND ${CMAKE_COMMAND} -E copy            ${TrackingToolsAPI_INC}    "${PROJECT_BINARY_DIR}/include"
                         COMMAND ${CMAKE_COMMAND} -E copy            ${TrackingToolsAPI_INC2}    "${PROJECT_BINARY_DIR}/include"
-                        COMMAND ${CMAKE_COMMAND} -E copy            ${TrackingToolsAPI_DLL}    "${PROJECT_BINARY_DIR}/binary")
+                        COMMAND ${CMAKE_COMMAND} -E copy            ${TrackingToolsAPI_DLL}    "${PROJECT_BINARY_DIR}/binary"
+                        COMMAND ${CMAKE_COMMAND} -E copy            ${TrackingToolsAPI_LIB}    "${PROJECT_BINARY_DIR}/binary")
 
 
     set(${MYPROJECT_NAME}_DLL ${TrackingToolsAPI_DLL} CACHE INTERNAL "" FORCE)
