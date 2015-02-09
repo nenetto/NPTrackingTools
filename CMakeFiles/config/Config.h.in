@@ -1,0 +1,4 @@
+// the configured options and settings for Tutorial
+#define PROJ_NAME "${PROJECT_NAME}"
+#define VERSION_MAJOR ${${MYPROJECT_NAME}_VERSION_MAJOR}
+#define VERSION_MINOR ${${MYPROJECT_NAME}_VERSION_MINOR}
