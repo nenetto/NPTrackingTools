@@ -33,9 +33,16 @@ else()
     set(SHARED_TEMPLATE       ${TrackingToolsAPI_SHARED})
     set(DEFINITIONS_TEMPLATE  ${TrackingToolsAPI_DEFINITIONS})
 
+    # Check if x64
+    if( CMAKE_SIZEOF_VOID_P EQUAL 8 )
+      set(bits "x64")
+    else( CMAKE_SIZEOF_VOID_P EQUAL 8 )
+      set(bits "")
+    endif( CMAKE_SIZEOF_VOID_P EQUAL 8 )
+
     configure_file (
       "${PROJECT_SOURCE_DIR}/CMakeFiles/TemplateConfigFile.cmake.in"
-      "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
+      "${PROJECT_BINARY_DIR}/${PROJECT_NAME}${bits}Config.cmake"
       )
 
 

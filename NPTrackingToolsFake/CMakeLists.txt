@@ -42,7 +42,7 @@ get_filename_component(PARENT_BIN_DIR ${PROJECT_BINARY_DIR} DIRECTORY)
 
 configure_file (
   "${PARENT_SRC_DIR}/CMakeFiles/TemplateConfigFile.cmake.in"
-  "${PARENT_BIN_DIR}/${PROJECT_NAME}Config.cmake"
+  "${PARENT_BIN_DIR}/${PROJECT_NAME}${bits}Config.cmake"
   )
 
 
