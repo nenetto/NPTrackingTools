@@ -37,7 +37,7 @@ else()
       message("[FAIL] Optitrack Tracking Tools Library directory NOT found, please set TrackingToolsAPI_LIB_DIR")
     endif()
 
-    # Find Header file
+    # Find Headers file
     find_path(TrackingToolsAPI_INC_DIR NPTrackingTools.h
           DOC  "Dinamic Link Library of Tracking Tools API NPTrackingTools.dll"
           HINT "${TrackingToolsAPI_DIR}/inc"
@@ -48,30 +48,41 @@ else()
       message("[FAIL] Optitrack Tracking Tools Include directory NOT found, please set TrackingToolsAPI_INC_DIR")
     endif()
 
-    set(TrackingToolsAPI_INC "${TrackingToolsAPI_INC_DIR}/NPTrackingTools.h" CACHE PATH "" FORCE)
-    set(TrackingToolsAPI_INC2 "${TrackingToolsAPI_INC_DIR}/trackablesettings.h" CACHE PATH "" FORCE)
+    set(TrackingToolsAPI_INC "${TrackingToolsAPI_INC_DIR}/NPTrackingTools.h")
+    set(TrackingToolsAPI_INC2 "${TrackingToolsAPI_INC_DIR}/trackablesettings.h")
 
     # Load the proper library x64 or x32
     if( CMAKE_SIZEOF_VOID_P EQUAL 8 )
-      set( TrackingToolsAPI_DLL "${TrackingToolsAPI_LIB_DIR}/NPTrackingToolsx64.dll" )
-      find_library( TrackingToolsAPI_LIB
-      NAMES  NPTrackingToolsx64 gmodule12
-      PATHS  ${TrackingToolsAPI_LIB_DIR}
-      )
-    else( CMAKE_SIZEOF_VOID_P EQUAL 8 )
-      set( TrackingToolsAPI_DLL "${TrackingToolsAPI_LIB_DIR}/NPTrackingTools.dll" )
-      find_library( TrackingToolsAPI_LIB
-      NAMES  NPTrackingTools gmodule12
-      PATHS  ${TrackingToolsAPI_LIB_DIR}
-      )
-    endif( CMAKE_SIZEOF_VOID_P EQUAL 8 )
-      set( CMAKE_EXE_LINKER_FLAGS ${TrackingToolsAPI_LIB_DIR} CACHE PATH "" FORCE)
+      find_file(TrackingToolsAPI_DLL NPTrackingToolsx64.dll ${TrackingToolsAPI_LIB_DIR})
+      find_file(TrackingToolsAPI_LIB_FILE NPTrackingToolsx64.lib ${TrackingToolsAPI_LIB_DIR})
+      set(TrackingToolsAPI_LIB "NPTrackingToolsx64")
 
-    if(TrackingToolsAPI_LIB)
+    else( CMAKE_SIZEOF_VOID_P EQUAL 8 )
+      find_file(TrackingToolsAPI_DLL NPTrackingTools.dll ${TrackingToolsAPI_LIB_DIR})
+      find_file(TrackingToolsAPI_LIB_FILE NPTrackingTools.lib ${TrackingToolsAPI_LIB_DIR})
+      set(TrackingToolsAPI_LIB "NPTrackingTools")
+
+    endif( CMAKE_SIZEOF_VOID_P EQUAL 8 )
+
+    if(TrackingToolsAPI_LIB_FILE AND TrackingToolsAPI_DLL)
       #message("[OK] Optitrack Tracking Tools Library found @ ${TrackingToolsAPI_LIB}")
     else()
-      message("[FAIL] Optitrack Tracking Tools Library found NOT found, please set TrackingToolsAPI_LIB")
+      message("[FAIL] Optitrack Tracking Tools Library NOT found, please set TrackingToolsAPI_LIB")
+      unset(TrackingToolsAPI_LIB CACHE)
     endif()
+
+    # Find Headers file
+    find_path(TrackingToolsAPI_EXE TrackingTools.exe
+          DOC  "TrackingTools application"
+          HINT "${TrackingToolsAPI_DIR}"
+          )
+    if(TrackingToolsAPI_EXE)
+      #message("[OK] Optitrack Tracking Tools found @ ${TrackingToolsAPI_EXE}")
+    else()
+      message("[FAIL] Optitrack Tracking Tools NOT found, please set TrackingToolsAPI_EXE")
+    endif()
+
+    set(TrackingToolsAPI_EXE "${TrackingToolsAPI_DIR}/TrackingTools.exe")
 
     # Assume that if include and lib were found
     if(TrackingToolsAPI_DIR
@@ -80,23 +91,40 @@ else()
      AND TrackingToolsAPI_LIB
      AND TrackingToolsAPI_INC
      AND TrackingToolsAPI_DLL
-     AND TrackingToolsAPI_INC2)
+     AND TrackingToolsAPI_INC2
+     AND TrackingToolsAPI_EXE)
+
+    set(TrackingToolsAPI_FOUND "YES")
+    set(TrackingToolsAPI_INCLUDE_DIRS ${TrackingToolsAPI_INC_DIR} CACHE PATH "")
+    set(TrackingToolsAPI_SOURCE_DIRS "")
+    set(TrackingToolsAPI_BINARY_DIRS "")
+    set(TrackingToolsAPI_EXECUTABLES ${TrackingToolsAPI_EXE} CACHE FILEPATH "")
+    set(TrackingToolsAPI_LIBRARIES ${TrackingToolsAPI_LIB} CACHE STRING "")
+    set(TrackingToolsAPI_SHARED ON)
+    set(TrackingToolsAPI_DEFINITIONS "")
+
+    unset(TrackingToolsAPI_DIR CACHE)
+    unset(TrackingToolsAPI_LIB_DIR CACHE)
+    unset(TrackingToolsAPI_INC_DIR CACHE)
+    unset(TrackingToolsAPI_LIB CACHE)
+    unset(TrackingToolsAPI_INC CACHE)
+    unset(TrackingToolsAPI_DLL CACHE)
+    unset(TrackingToolsAPI_INC2 CACHE)
+    unset(TrackingToolsAPI_EXE CACHE)
+    unset(TrackingToolsAPI_LIB_FILE CACHE)
 
 
-      set(TrackingToolsAPI_FOUND "YES" CACHE PATH "" FORCE)
-
-      set( TrackingToolsAPI_INCLUDE_DIRS  ${TrackingToolsAPI_INC_DIR} CACHE PATH "" FORCE)
-      set( TrackingToolsAPI_LIBRARIES ${TrackingToolsAPI_LIB} CACHE PATH "" FORCE)
-
-      mark_as_advanced(
-        TrackingToolsAPI_DIR
-        TrackingToolsAPI_INC_DIR
-        TrackingToolsAPI_INC
-        TrackingToolsAPI_LIB_DIR
-        TrackingToolsAPI_LIB
-        TrackingToolsAPI_DLL
-        TrackingToolsAPI_INC2
+      mark_as_advanced( FORCE
+        TrackingToolsAPI_FOUND
+        TrackingToolsAPI_INCLUDE_DIRS
+        TrackingToolsAPI_SOURCE_DIRS
+        TrackingToolsAPI_BINARY_DIRS
+        TrackingToolsAPI_EXECUTABLES
+        TrackingToolsAPI_LIBRARIES
+        TrackingToolsAPI_SHARED
+        TrackingToolsAPI_DEFINITIONS
       )
+
 
     endif()
 
