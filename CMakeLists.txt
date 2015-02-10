@@ -43,7 +43,7 @@ else()
     message(WARNING "NPTrackingTools NOT FOUND, using fake NPTrackingTools...")
     message(WARNING "                setting USE_NPTrackingTools_FAKE to ON..")
     set(USE_NPTrackingTools_FAKE ON FORCE)
-    add_subdirectory(NPTrackingToolsFake)
+    add_subdirectory(NPTrackingToolsFake NPTrackingTools)
   endif()
 
 
