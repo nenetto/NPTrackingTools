@@ -55,12 +55,12 @@ else()
     if( CMAKE_SIZEOF_VOID_P EQUAL 8 )
       find_file(TrackingToolsAPI_DLL NPTrackingToolsx64.dll ${TrackingToolsAPI_LIB_DIR})
       find_file(TrackingToolsAPI_LIB_FILE NPTrackingToolsx64.lib ${TrackingToolsAPI_LIB_DIR})
-      set(TrackingToolsAPI_LIB "NPTrackingToolsx64.lib")
+      set(TrackingToolsAPI_LIB "NPTrackingToolsx64")
 
     else( CMAKE_SIZEOF_VOID_P EQUAL 8 )
       find_file(TrackingToolsAPI_DLL NPTrackingTools.dll ${TrackingToolsAPI_LIB_DIR})
       find_file(TrackingToolsAPI_LIB_FILE NPTrackingTools.lib ${TrackingToolsAPI_LIB_DIR})
-      set(TrackingToolsAPI_LIB "NPTrackingTools.lib")
+      set(TrackingToolsAPI_LIB "NPTrackingTools")
 
     endif( CMAKE_SIZEOF_VOID_P EQUAL 8 )
 
