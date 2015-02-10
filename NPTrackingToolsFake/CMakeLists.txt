@@ -16,13 +16,9 @@ include_directories(include)
 # Check if x64
 if( CMAKE_SIZEOF_VOID_P EQUAL 8 )
   set(bits "x64")
-
 else( CMAKE_SIZEOF_VOID_P EQUAL 8 )
   set(bits "")
-
 endif( CMAKE_SIZEOF_VOID_P EQUAL 8 )
-
-
 
 # Create NPTrackingTools library
 add_library(${PROJECT_NAME}${bits} SHARED ${${PROJECT_NAME}_SRC_FILES})
