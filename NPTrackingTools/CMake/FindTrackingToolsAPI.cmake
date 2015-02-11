@@ -100,19 +100,9 @@ else()
     set(TrackingToolsAPI_BINARY_DIRS "" CACHE PATH "" FORCE)
     set(TrackingToolsAPI_EXECUTABLES ${TrackingToolsAPI_EXE} CACHE FILEPATH "" FORCE)
     set(TrackingToolsAPI_LIBRARIES ${TrackingToolsAPI_LIB} CACHE STRING "" FORCE)
+    set(TrackingToolsAPI_LIB_DIR ${TrackingToolsAPI_LIB_DIR} CACHE PATH "" FORCE)
     set(TrackingToolsAPI_SHARED ON FORCE)
     set(TrackingToolsAPI_DEFINITIONS "" CACHE sTRING "" FORCE)
-
-    unset(TrackingToolsAPI_DIR CACHE)
-    unset(TrackingToolsAPI_LIB_DIR CACHE)
-    unset(TrackingToolsAPI_INC_DIR CACHE)
-    unset(TrackingToolsAPI_LIB CACHE)
-    unset(TrackingToolsAPI_INC CACHE)
-    unset(TrackingToolsAPI_DLL CACHE)
-    unset(TrackingToolsAPI_INC2 CACHE)
-    unset(TrackingToolsAPI_EXE CACHE)
-    unset(TrackingToolsAPI_LIB_FILE CACHE)
-
 
       mark_as_advanced( FORCE
         TrackingToolsAPI_FOUND
@@ -123,6 +113,7 @@ else()
         TrackingToolsAPI_LIBRARIES
         TrackingToolsAPI_SHARED
         TrackingToolsAPI_DEFINITIONS
+        TrackingToolsAPI_LIB_DIR
       )
 
 

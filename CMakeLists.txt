@@ -1,52 +1,71 @@
-# Minimum version of CMake required
-cmake_minimum_required (VERSION 2.8.11)
-
-# Create option for fake API use
-option(USE_NPTrackingTools_FAKE OFF)
-
-if(USE_NPTrackingTools_FAKE)
-  add_subdirectory(NPTrackingToolsFake NPTrackingTools)
-
-else()
-  message("=======================================")
-  message(" Using REAL NPTrackingTools API        ")
-  message("=======================================")
-
-  message(" Attempt to find NPTrackingTools in the system...")
-
-  # Find TrackingTools API (if exist)
-  include("${PROJECT_SOURCE_DIR}/CMakeFiles/FindTrackingToolsAPI.cmake")
-
-  if(TrackingToolsAPI_FOUND)
-    message(" REAL NPTrackingTools API  FOUND       ")
-    message(" Generating target and CMake Configuration File")
-
-    # Generate the NPTrackingTools target
-    set(PROJECT_NAME NPTrackingTools)
-
-    # Add a configuration file
-    set(INCLUDE_DIR_TEMPLATE  ${TrackingToolsAPI_INCLUDE_DIRS})
-    set(SOURCE_DIR_TEMPLATE   ${TrackingToolsAPI_SOURCE_DIRS})
-    set(EXECUTABLES_TEMPLATE  ${TrackingToolsAPI_EXECUTABLES})
-    set(LIBRARY_TEMPLATE      ${TrackingToolsAPI_LIBRARIES})
-    set(BINARY_DIR_TEMPLATE   ${TrackingToolsAPI_BINARY_DIRS})
-    set(SHARED_TEMPLATE       ${TrackingToolsAPI_SHARED})
-    set(DEFINITIONS_TEMPLATE  ${TrackingToolsAPI_DEFINITIONS})
-
-    configure_file (
-      "${PROJECT_SOURCE_DIR}/CMakeFiles/TemplateConfigFile.cmake.in"
-      "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
-      )
+cmake_minimum_required(VERSION 2.8.7)
 
 
-  else()
-    message(WARNING "NPTrackingTools NOT FOUND, using fake NPTrackingTools...")
-    message(WARNING "                setting USE_NPTrackingTools_FAKE to ON..")
-    set(USE_NPTrackingTools_FAKE ON FORCE)
-    add_subdirectory(NPTrackingToolsFake NPTrackingTools)
-  endif()
+set(PROJECT_NAME "NPTrackingTools" CACHE STRING "")
+project(${PROJECT_NAME})
+set(DESTDIR "${CMAKE_CURRENT_BINARY_DIR}/install" CACHE PATH "" FORCE)
+
+# CMakeAll
+list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMake")
+find_package(CMakeAll REQUIRED)
 
 
+# version
+set(TestOptitrack_VERSION_MAJOR 1)
+set(TestOptitrack_VERSION_MINOR 1)
+cma_git_revision(${PROJECT_SOURCE_DIR} TestOptitrack_VERSION_PATCH)
+set(TestOptitrack_VERSION "${${PROJECT_NAME}_VERSION_MAJOR}.${${PROJECT_NAME}_VERSION_MINOR}.${${PROJECT_NAME}_VERSION_PATCH}")
 
 
+# configure projects
+file(GLOB ${PROJECT_NAME}_PROJECTS "${PROJECT_SOURCE_DIR}/Projects/*.cmake")
+cma_add_projects(${${PROJECT_NAME}_PROJECTS})
+
+cma_print_projects()
+message(STATUS "${PROJECT_NAME} ${${PROJECT_NAME}_VERSION}")
+
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" AND APPLE)
+  set(CMAKE_CXX_FLAGS "-stdlib=libstdc++ ${CMAKE_CXX_FLAGS}")
 endif()
+
+cma_configure_projects()
+
+if(${PROJECT_NAME}_BUILD_PACKAGING)
+  set(CPACK_GENERATOR "ZIP")
+  set(CPACK_PACKAGE_NAME "${PROJECT_NAME}")
+  set(CPACK_PACKAGE_VENDOR "nenetto")
+  set(CPACK_PACKAGE_VERSION_MAJOR ${${PROJECT_NAME}_VERSION_MAJOR})
+  set(CPACK_PACKAGE_VERSION_MINOR ${${PROJECT_NAME}_VERSION_MINOR})
+  set(CPACK_PACKAGE_VERSION_PATCH ${${PROJECT_NAME}_VERSION_PATCH})
+  set(CPACK_PACKAGE_VERSION ${${PROJECT_NAME}_VERSION})
+endif()
+
+
+# configure files
+file(WRITE ${PROJECT_BINARY_DIR}/CMake.h "#ifndef __CMake_h\n#define __CMake_h\n\n")
+file(WRITE ${PROJECT_BINARY_DIR}/CMake.py "")
+file(WRITE ${PROJECT_BINARY_DIR}/CMake.m "")
+get_cmake_property(VARIABLES VARIABLES)
+foreach (KEY ${VARIABLES})
+  if(KEY MATCHES "^${PROJECT_NAME}_")
+    file(TO_NATIVE_PATH "${${KEY}}" VALUE)
+    if(WIN32)
+      string(REPLACE "\\" "\\\\" VALUE "${VALUE}")
+    endif()
+    file(APPEND ${PROJECT_BINARY_DIR}/CMake.h "#define ${KEY} \"${VALUE}\"\n")
+    file(APPEND ${PROJECT_BINARY_DIR}/CMake.py "${KEY} = '${VALUE}'\n")
+    file(APPEND ${PROJECT_BINARY_DIR}/CMake.m "${KEY} = '${VALUE}';\n")
+  endif()
+endforeach()
+file(APPEND ${PROJECT_BINARY_DIR}/CMake.h "\n#endif  // __CMake_h\n")
+
+
+# configure launcher
+cma_configure_launcher("${PROJECT_SOURCE_DIR}/CMake/Launcher.cmake")
+
+cma_launcher_target(Terminal
+  NAME run_Terminal)
+cma_launcher_shortcut(Terminal
+  NAME Terminal)
+
+
