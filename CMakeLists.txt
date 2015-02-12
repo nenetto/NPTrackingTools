@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.0.2)
 set(PROJECT_NAME "NPTrackingTools" CACHE STRING "")
 project(${PROJECT_NAME})
 option(DESTDIR "${CMAKE_CURRENT_BINARY_DIR}/install")
-set(DESTDIR "${CMAKE_CURRENT_BINARY_DIR}/install" CACHE PATH "" FORCE)
+
 
 # CMakeAll
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMake")
