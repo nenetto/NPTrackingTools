@@ -47,6 +47,14 @@ struct Marker;
 
 //== RIGID BODY STARTUP / SHUTDOWN ==================================================-----
 
+/** \fn TT_Initialize()
+ *  \brief This function attempts to initialize the Tracking Tools tracking API.
+ *
+ *  It should be called before attempting to use other compontents of the API.  It returns information about whether or not it succeeded.
+ *   
+ *  @return 0  if succeeded, 10 if a valid license is not found, and 11 if it was unable to initialize.
+ *  
+ */
 TTAPI   NPRESULT TT_Initialize();      //== Initialize Library ======================-----
 TTAPI   NPRESULT TT_Shutdown();        //== Shutdown Library ========================-----
 TTAPI   NPRESULT TT_FinalCleanup();    //== This shuts down device driver, call =====-----
