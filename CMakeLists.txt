@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.7)
+cmake_minimum_required(VERSION 3.0.2)
 
 
 set(PROJECT_NAME "NPTrackingTools" CACHE STRING "")
@@ -9,12 +9,15 @@ set(DESTDIR "${CMAKE_CURRENT_BINARY_DIR}/install" CACHE PATH "" FORCE)
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMake")
 find_package(CMakeAll REQUIRED)
 
+# options
+option(${PROJECT_NAME}_BUILD_DOCUMENTATION "Support for Doxygen documentation" OFF)
+option(${PROJECT_NAME}_BUILD_PACKAGING "Support for CPack packaging" ON)
 
 # version
-set(TestOptitrack_VERSION_MAJOR 1)
-set(TestOptitrack_VERSION_MINOR 1)
-cma_git_revision(${PROJECT_SOURCE_DIR} TestOptitrack_VERSION_PATCH)
-set(TestOptitrack_VERSION "${${PROJECT_NAME}_VERSION_MAJOR}.${${PROJECT_NAME}_VERSION_MINOR}.${${PROJECT_NAME}_VERSION_PATCH}")
+set(${PROJECT_NAME}_VERSION_MAJOR 1)
+set(${PROJECT_NAME}_VERSION_MINOR 1)
+cma_git_revision(${PROJECT_SOURCE_DIR} ${PROJECT_NAME}_VERSION_PATCH)
+set(${PROJECT_NAME}_VERSION "${${PROJECT_NAME}_VERSION_MAJOR}.${${PROJECT_NAME}_VERSION_MINOR}.${${PROJECT_NAME}_VERSION_PATCH}")
 
 
 # configure projects
@@ -38,6 +41,12 @@ if(${PROJECT_NAME}_BUILD_PACKAGING)
   set(CPACK_PACKAGE_VERSION_MINOR ${${PROJECT_NAME}_VERSION_MINOR})
   set(CPACK_PACKAGE_VERSION_PATCH ${${PROJECT_NAME}_VERSION_PATCH})
   set(CPACK_PACKAGE_VERSION ${${PROJECT_NAME}_VERSION})
+endif()
+
+# Documentation
+if(${PROJECT_NAME}_BUILD_DOCUMENTATION AND NOT USE_Doxygen)
+  message("${PROJECT_NAME}_BUILD_DOCUMENTATION is enabling Doxygen")
+  set(USE_Doxygen ON CACHE BOOL "" FORCE)
 endif()
 
 

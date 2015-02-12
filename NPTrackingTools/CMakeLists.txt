@@ -1,11 +1,21 @@
 # Minimum version of CMake required
-cmake_minimum_required (VERSION 2.8.11)
+cmake_minimum_required (VERSION 3.0.2)
+set(CMAKE_MACOSX_RPATH 0)
 
 project(NPTrackingTools C CXX)
-set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_BINARY_DIR}/../install) ## Where to install the lib
 
 # Create option for fake API use
 option(USE_NPTrackingTools_FAKE OFF)
+
+# Add a configuration file
+if(NOT WIN32)
+  set(WIN32SYSTEMFLAG "WIN32" CACHE STRING "")
+endif()
+
+configure_file (
+  "${PROJECT_SOURCE_DIR}/CMake/Config.h.in"
+  "${PROJECT_BINARY_DIR}/CmakeFilesHeader/Config.h"
+  FORCE)
 
 if(USE_NPTrackingTools_FAKE)
   include(NPTrackingToolsFakeConfiguration.cmake)
@@ -49,7 +59,11 @@ else()
     install(FILES "${TrackingToolsAPI_LIB_DIR}/${TrackingToolsAPI_LIBRARIES}.lib" DESTINATION lib)
     install(FILES "${TrackingToolsAPI_LIB_DIR}/${TrackingToolsAPI_LIBRARIES}.dll" DESTINATION bin)
 
-    file(GLOB ${PROJECT_NAME}_HDR_FILES ${TrackingToolsAPI_INCLUDE_DIRS}/*.h)
+    # Setting the public headers of the library
+    file(GLOB ${PROJECT_NAME}_SOURCE_HDR_FILES ${TrackingToolsAPI_INCLUDE_DIRS}/*.h)
+    file(GLOB ${PROJECT_NAME}_CMAKE_HDR_FILES ${PROJECT_BINARY_DIR}/CmakeFilesHeader/*.h)
+    list(APPEND ${PROJECT_NAME}_HDR_FILES ${${PROJECT_NAME}_SOURCE_HDR_FILES} ${${PROJECT_NAME}_CMAKE_HDR_FILES})
+
     install(FILES ${${PROJECT_NAME}_HDR_FILES} DESTINATION inc)
 
     # install the configure files
@@ -86,12 +100,40 @@ else()
       )
 
   else()
-    message(WARNING "NPTrackingTools NOT FOUND, using fake NPTrackingTools...")
-    message(WARNING "                setting USE_NPTrackingTools_FAKE to ON..")
+    message("NPTrackingTools NOT FOUND, using fake NPTrackingTools...")
+    message("                setting USE_NPTrackingTools_FAKE to ON..")
     set(USE_NPTrackingTools_FAKE ON FORCE)
     include(NPTrackingToolsFakeConfiguration.cmake)
   endif()
 
+endif()
+
+# Documentation
+option(BUILD_DOCUMENTATION "" OFF)
+
+if(BUILD_DOCUMENTATION)
+    find_package(Doxygen)
+    option(BUILD_DOCUMENTATION "Create and install the HTML based API documentation (requires Doxygen)" ${DOXYGEN_FOUND})
+
+    if(BUILD_DOCUMENTATION)
+        if(NOT DOXYGEN_FOUND)
+            message(FATAL_ERROR "Doxygen is needed to build the documentation.")
+        endif()
+
+        set(doxyfile_in ${CMAKE_CURRENT_SOURCE_DIR}/doc/Doxyfile.in)
+        set(doxyfile ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
+
+        configure_file(${doxyfile_in} ${doxyfile} @ONLY)
+
+        add_custom_command(
+            TARGET ${PROJECT_NAME} POST_BUILD
+            COMMAND ${DOXYGEN_EXECUTABLE} ${doxyfile}
+            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+            COMMENT "Generating API documentation with Doxygen"
+            VERBATIM)
+
+        install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/html DESTINATION doc/${PROJECT_NAME})
+    endif()
 endif()
 
 

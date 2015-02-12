@@ -1,8 +1,7 @@
-cmake_minimum_required(VERSION 2.8.7)
+cmake_minimum_required(VERSION 3.0.2)
 
 # Project for the executable
 project(TestOptitrack C CXX)
-set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_BINARY_DIR}/../install) ## Where to install the lib
 
 # Add cpp files that form the library
 file(GLOB ${PROJECT_NAME}_SRC_FILES source/*.cpp)
@@ -16,6 +15,34 @@ add_executable(${PROJECT_NAME} ${${PROJECT_NAME}_SRC_FILES})
 ###############################
 find_package ( NPTrackingTools )
 target_link_libraries(${PROJECT_NAME} NPTrackingTools)
+
+# Documentation
+option(BUILD_DOCUMENTATION "" OFF)
+
+if(BUILD_DOCUMENTATION)
+    find_package(Doxygen)
+    option(BUILD_DOCUMENTATION "Create and install the HTML based API documentation (requires Doxygen)" ${DOXYGEN_FOUND})
+
+    if(BUILD_DOCUMENTATION)
+        if(NOT DOXYGEN_FOUND)
+            message(FATAL_ERROR "Doxygen is needed to build the documentation.")
+        endif()
+
+        set(doxyfile_in ${CMAKE_CURRENT_SOURCE_DIR}/doc/Doxyfile.in)
+        set(doxyfile ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
+
+        configure_file(${doxyfile_in} ${doxyfile} @ONLY)
+
+        add_custom_command(
+            TARGET ${PROJECT_NAME} POST_BUILD
+            COMMAND ${DOXYGEN_EXECUTABLE} ${doxyfile}
+            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+            COMMENT "Generating API documentation with Doxygen"
+            VERBATIM)
+
+        install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/html DESTINATION doc/${PROJECT_NAME})
+    endif()
+endif()
 
 
 

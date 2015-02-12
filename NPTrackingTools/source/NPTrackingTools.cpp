@@ -1,6 +1,6 @@
 
 #include <stdio.h>
-#define NPTRACKINGTOOLS_EXPORTS
+#include "Config.h"
 #include "NPTrackingTools.h"
 
 TTAPI   NPRESULT TT_Initialize()

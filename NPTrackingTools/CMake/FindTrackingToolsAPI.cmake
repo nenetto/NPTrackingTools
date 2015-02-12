@@ -8,8 +8,10 @@
 if( NOT WIN32)
 
     set(EP_OPTION_NAME OFF)
-    message( WARNING "Optitrack only have API dinamic link libraries for Windows Systems. Please complain to: http://forums.naturalpoint.com/" )
+    message("Optitrack only have API dinamic link libraries for Windows Systems. Please complain to: http://forums.naturalpoint.com/" )
     set(TrackingToolsAPI_FOUND OFF)
+    mark_as_advanced( FORCE
+        TrackingToolsAPI_FOUND)
 
 else()
 

@@ -8,15 +8,17 @@ message("=======================================")
 # Add cpp files that form the library
 file(GLOB ${PROJECT_NAME}_SRC_FILES source/*.cpp)
 
-# Headers (all are public)
-include_directories(include)
-
 # Create NPTrackingTools library
 add_library(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_SRC_FILES})
 
 # Setting the public headers of the library
 file(GLOB ${PROJECT_NAME}_SOURCE_HDR_FILES ${PROJECT_SOURCE_DIR}/include/*.h)
-list(APPEND ${PROJECT_NAME}_HDR_FILES ${${PROJECT_NAME}_SOURCE_HDR_FILES})
+file(GLOB ${PROJECT_NAME}_CMAKE_HDR_FILES ${PROJECT_BINARY_DIR}/CmakeFilesHeader/*.h)
+list(APPEND ${PROJECT_NAME}_HDR_FILES ${${PROJECT_NAME}_SOURCE_HDR_FILES} ${${PROJECT_NAME}_CMAKE_HDR_FILES})
+
+# Headers (all are public)
+include_directories(include)
+include_directories(${PROJECT_BINARY_DIR}/CmakeFilesHeader)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${${PROJECT_NAME}_HDR_FILES}")
 

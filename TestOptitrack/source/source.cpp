@@ -13,6 +13,6 @@ int main (int argc, char *argv[])
   NPRESULT result = TT_Initialize();
   //int result = 0;
 
-  fprintf(stdout, "[TestOptitrack]: End of TT_Initialize, result %g \n",result);
+  fprintf(stdout, "[TestOptitrack]: End of TT_Initialize, result %i \n",result);
   return 0;
 }
