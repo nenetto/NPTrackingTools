@@ -7,11 +7,6 @@ project(NPTrackingTools C CXX)
 # Create option for fake API use
 option(USE_NPTrackingTools_FAKE OFF)
 
-# Add a configuration file
-if(NOT WIN32)
-  set(WIN32SYSTEMFLAG "WIN32" CACHE STRING "")
-endif()
-
 configure_file (
   "${PROJECT_SOURCE_DIR}/CMake/Config.h.in"
   "${PROJECT_BINARY_DIR}/CmakeFilesHeader/Config.h"
