@@ -29,6 +29,10 @@ if(BUILD_DOCUMENTATION)
             message(FATAL_ERROR "Doxygen is needed to build the documentation.")
         endif()
 
+        if(EXISTS ${doxyfile})
+          file(REMOVE ${doxyfile})
+        endif()
+
         set(doxyfile_in ${CMAKE_CURRENT_SOURCE_DIR}/doc/Doxyfile.in)
         set(doxyfile ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
 

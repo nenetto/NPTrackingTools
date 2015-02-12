@@ -145,7 +145,7 @@ if(BUILD_DOCUMENTATION)
         set(doxyfile_in ${CMAKE_CURRENT_SOURCE_DIR}/doc/Doxyfile.in)
         set(doxyfile ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
 
-        if(EXIST ${doxyfile})
+        if(EXISTS ${doxyfile})
           file(REMOVE ${doxyfile})
         endif()
         configure_file(${doxyfile_in} ${doxyfile} @ONLY)
