@@ -56,7 +56,7 @@ float trackableMarkerPositionXPointCloud, trackableMarkerPositionYPointCloud, tr
 
 
 //== NPRIGIDBODY PUBLIC INTERFACE ===================================================-----
-                 //== TTAPI   NPRESULT Defines Call Success/Failure ====-----
+                 //== NPRESULT Defines Call Success/Failure ====-----
 
 //== RIGID BODY STARTUP / SHUTDOWN ==================================================-----
 
@@ -69,16 +69,16 @@ float trackableMarkerPositionXPointCloud, trackableMarkerPositionYPointCloud, tr
  *  @return 0  if succeeded, 10 if a valid license is not found, and 11 if it was unable to initialize.
  *  
  */
-TTAPI   NPRESULT TT_Initialize() {
+NPRESULT TT_Initialize() {
     
     if (FAIL_INVALIDLICENSE) {
-        return TTAPI   NPRESULT_INVALIDLICENSE; //A valid Tracking tools license was not found.
+        return NPRESULT_INVALIDLICENSE; //A valid Tracking tools license was not found.
     }
     else if (FAIL_UNABLETOINITIALIZE){
-        return TTAPI   NPRESULT_UNABLETOINITIALIZE;
+        return NPRESULT_UNABLETOINITIALIZE;
     }
     else{
-        return TTAPI   NPRESULT_SUCCESS;
+        return NPRESULT_SUCCESS;
     }
 }   
 
@@ -90,12 +90,12 @@ TTAPI   NPRESULT TT_Initialize() {
     \return 0  if succeeded, and 3 if it was unable to initialize.
 
 */
-TTAPI   NPRESULT TT_Shutdown()  {
+NPRESULT TT_Shutdown()  {
     if (FAIL_UNABLETOSHUTDOWN){
-        return TTAPI   NPRESULT_FAILED;
+        return NPRESULT_FAILED;
     }
     else{
-        return TTAPI   NPRESULT_SUCCESS;
+        return NPRESULT_SUCCESS;
     }
 }
 
@@ -109,18 +109,18 @@ TTAPI   NPRESULT TT_Shutdown()  {
     \return 0  if succeeded, and 3 if it was unable to initialize.
 
 */
-TTAPI   NPRESULT TT_FinalCleanup(){
+NPRESULT TT_FinalCleanup(){
     if (FAIL_UNABLETOCLEANUP){
-        return TTAPI   NPRESULT_FAILED;
+        return NPRESULT_FAILED;
     }
     else {
-        return TTAPI   NPRESULT_SUCCESS;
+        return NPRESULT_SUCCESS;
     }
 }   
 //== this before exiting your application. ===----- 
 
 
-TTAPI   NPRESULT TT_LoadCalibration(const char *filename){
+NPRESULT TT_LoadCalibration(const char *filename){
     ifstream calFile;
     calFile.open(filename, ios::in);
     std::string stringFilename(filename); //Convert filename from const char to string.
@@ -128,19 +128,19 @@ TTAPI   NPRESULT TT_LoadCalibration(const char *filename){
     if (stringFilename.substr(stringFilename.find_last_of(".")) != ".cal") { 
     //Check that the extension of the file is ".cal". First a substring is created from the last point of the original 
     //string until the end, and then this substring is compared to the desired extension: ".cal".
-        return TTAPI   NPRESULT_INVALIDCALFILE; //Invalid calibration file.
+        return NPRESULT_INVALIDCALFILE; //Invalid calibration file.
     }else if (FAIL_FAILED){ //Maybe !calFile.good() or !calFile.is_open().
     //If calFile.good(), which is a boolean, is false --> the file does not exist.
-        return TTAPI   NPRESULT_LOADFAILED; //The file or path specified is no valid.
+        return NPRESULT_LOADFAILED; //The file or path specified is no valid.
     }
     else {
-        return TTAPI   NPRESULT_SUCCESS; //Method succeeded.
+        return NPRESULT_SUCCESS; //Method succeeded.
     }
     calFile.close();
 
 }
 
-TTAPI   NPRESULT TT_LoadTrackables(const char *filename){ //== Load Trackables ======----[Si]
+NPRESULT TT_LoadTrackables(const char *filename){ //== Load Trackables ======----[Si]
     ifstream trackablesFile;
     trackablesFile.open(filename, ios::in); //ios::in --> abre para lectura, situándose al principio.
     std::string stringFilename(filename); //Convert filename from const char to string.
@@ -150,26 +150,26 @@ TTAPI   NPRESULT TT_LoadTrackables(const char *filename){ //== Load Trackables =
         //
         //Check that the extension of the file is ".txt". First a substring is created from the last point of the original 
         //string until the end, and then this substring is compared to the desired extension: ".txt".
-        return TTAPI   NPRESULT_INVALIDFILE; //Invalid file.
+        return NPRESULT_INVALIDFILE; //Invalid file.
     }
     else if (FAIL_FAILED){ 
         
-        return TTAPI   NPRESULT_LOADFAILED; //The file or path specified is no valid.
+        return NPRESULT_LOADFAILED; //The file or path specified is no valid.
     }
     else {
-        return TTAPI   NPRESULT_SUCCESS; //Method succeeded.
+        return NPRESULT_SUCCESS; //Method succeeded.
     }
     trackablesFile.close();
 }
-TTAPI   NPRESULT TT_SaveTrackables(const char *filename){ //== Save Trackables ======---- (NO HAY INFO DE FUNCIÓN EN DOCUMENTO)
+NPRESULT TT_SaveTrackables(const char *filename){ //== Save Trackables ======---- (NO HAY INFO DE FUNCIÓN EN DOCUMENTO)
     ofstream trackablesFile;
     trackablesFile.open(filename, ios::app);
     //INCOMPLETE
     trackablesFile.close();
-    return (TTAPI   NPRESULT_SUCCESS);
+    return (NPRESULT_SUCCESS);
 
 }
-TTAPI   NPRESULT TT_AddTrackables(const char *filename){ //== Add  Trackables ======----[Si]
+NPRESULT TT_AddTrackables(const char *filename){ //== Add  Trackables ======----[Si]
     ifstream trackablesFile;
     trackablesFile.open(filename, ios::app); //ios::app --> abre el archivo para añadir data al final.
     std::string stringFilename(filename); //Convert filename from const char to string.
@@ -179,43 +179,43 @@ TTAPI   NPRESULT TT_AddTrackables(const char *filename){ //== Add  Trackables ==
         //
         //Check that the extension of the file is ".txt". First a substring is created from the last point of the original 
         //string until the end, and then this substring is compared to the desired extension: ".txt".
-        return TTAPI   NPRESULT_INVALIDFILE; //Invalid file.
+        return NPRESULT_INVALIDFILE; //Invalid file.
     }
     else if (FAIL_FAILED){
 
-        return TTAPI   NPRESULT_LOADFAILED; //The file or path specified is no valid.
+        return NPRESULT_LOADFAILED; //The file or path specified is no valid.
     }
     else {
-        return TTAPI   NPRESULT_SUCCESS; //Method succeeded.
+        return NPRESULT_SUCCESS; //Method succeeded.
     }
     trackablesFile.close();
 }
 
-TTAPI   NPRESULT TT_Update(){                     //== Process incoming camera data -[Si]
+NPRESULT TT_Update(){                     //== Process incoming camera data -[Si]
     if (FAIL_INVALIDLICENSE){
-        return TTAPI   NPRESULT_INVALIDLICENSE; //A valid Rigid Body license was not found.
+        return NPRESULT_INVALIDLICENSE; //A valid Rigid Body license was not found.
     }
     else if (FAIL_NOFRAMEAVAILABLE){
-        return TTAPI   NPRESULT_NOFRAMEAVAILABLE; // No tracking data was found.
+        return NPRESULT_NOFRAMEAVAILABLE; // No tracking data was found.
     }
     else {
-        return TTAPI   NPRESULT_SUCCESS; // Method succeeded.
+        return NPRESULT_SUCCESS; // Method succeeded.
     }
 }
 
-TTAPI   NPRESULT TT_UpdateSingleFrame(){               //== Process incoming camera data -[Si]
+NPRESULT TT_UpdateSingleFrame(){               //== Process incoming camera data -[Si]
     if (FAIL_INVALIDLICENSE){
-        return TTAPI   NPRESULT_INVALIDLICENSE; //A valid Rigid Body license was not found.
+        return NPRESULT_INVALIDLICENSE; //A valid Rigid Body license was not found.
     }
     else if (FAIL_NOFRAMEAVAILABLE){
-        return TTAPI   NPRESULT_NOFRAMEAVAILABLE; // No tracking data was found.
+        return NPRESULT_NOFRAMEAVAILABLE; // No tracking data was found.
     }
     else {
-        return TTAPI   NPRESULT_SUCCESS; // Method succeeded.
+        return NPRESULT_SUCCESS; // Method succeeded.
     }
 }
 
-TTAPI   NPRESULT TT_LoadProject(const char *filename){ //== Load Project File ==========--[Si]
+NPRESULT TT_LoadProject(const char *filename){ //== Load Project File ==========--[Si]
     ifstream projectFile;
     projectFile.open(filename, ios::in); //ios::in --> abre para lectura, situándose al principio.
     std::string stringFilename(filename); //Convert filename from const char to string.
@@ -225,24 +225,24 @@ TTAPI   NPRESULT TT_LoadProject(const char *filename){ //== Load Project File ==
         //
         //Check that the extension of the file is ".txt". First a substring is created from the last point of the original 
         //string until the end, and then this substring is compared to the desired extension: ".txt".
-        return TTAPI   NPRESULT_INVALIDFILE; //Invalid file.
+        return NPRESULT_INVALIDFILE; //Invalid file.
     }
     else if (FAIL_FAILED){
 
-        return TTAPI   NPRESULT_LOADFAILED; //The file or path specified is no valid.
+        return NPRESULT_LOADFAILED; //The file or path specified is no valid.
     }
     else {
-        return TTAPI   NPRESULT_SUCCESS; //Method succeeded.
+        return NPRESULT_SUCCESS; //Method succeeded.
     }
     projectFile.close();
 }
 
-TTAPI   NPRESULT TT_SaveProject(const char *filename){ //== Save Project File ==========--[Si]
+NPRESULT TT_SaveProject(const char *filename){ //== Save Project File ==========--[Si]
     ofstream projectFile;
     projectFile.open(filename, ios::app);
     //INCOMPLETE
     projectFile.close();
-    return (TTAPI   NPRESULT_SUCCESS);
+    return (NPRESULT_SUCCESS);
 }
 
 //== FRAME ==========================================================================-----[Si]
@@ -355,12 +355,12 @@ void     TT_ClearTrackableList(){             //== Clear all trackables   =====-
     cout << "  List of rigid body definitions cleared!\n";
 }
 
-TTAPI   NPRESULT TT_RemoveTrackable(int Index){       //== Remove single trackable ====---
+NPRESULT TT_RemoveTrackable(int Index){       //== Remove single trackable ====---
     if (FAIL_FAILED){
-        return (TTAPI   NPRESULT_FAILED);
+        return (NPRESULT_FAILED);
     }
     else{
-        return (TTAPI   NPRESULT_SUCCESS);
+        return (NPRESULT_SUCCESS);
     }
 }
 
@@ -392,14 +392,14 @@ bool     TT_TrackableEnabled(int index){                     //== Get Tracking  
     return (stateOfTrackable);
 }
 
-TTAPI   NPRESULT TT_TrackableTranslatePivot(int index, float x, float y, float z){
+NPRESULT TT_TrackableTranslatePivot(int index, float x, float y, float z){
     rigidBodyPositionX2 = rigidBodyPositionX;   
     rigidBodyPositionY2 = rigidBodyPositionY;
     rigidBodyPositionZ2 = rigidBodyPositionZ;
     rigidBodyPositionX2 += x;
     rigidBodyPositionY2 += y;
     rigidBodyPositionZ2 += z;
-    return (TTAPI   NPRESULT_SUCCESS);
+    return (NPRESULT_SUCCESS);
 }
 
 int      TT_TrackableMarkerCount(int index){             //== Get marker count   ====---
@@ -436,14 +436,14 @@ void     TT_TrackablePointCloudMarker(int RigidIndex,    //== Get corresponding 
 //== contain of list of marker coordinates in the order: x1,y1,z1,x2,
 //== y2,z2,etc...xN,yN,zN.
 
-TTAPI   NPRESULT TT_CreateTrackable(const char* Name, int ID, int MarkerCount, float *MarkerList){
-    return (TTAPI   NPRESULT_SUCCESS);
+NPRESULT TT_CreateTrackable(const char* Name, int ID, int MarkerCount, float *MarkerList){
+    return (NPRESULT_SUCCESS);
 }
 
-TTAPI   NPRESULT TT_TrackableSettings(int Index, cTrackableSettings &Settings){  //== Get Trackable Settings =---
+NPRESULT TT_TrackableSettings(int Index, cTrackableSettings &Settings){  //== Get Trackable Settings =---
 
 }
-TTAPI   NPRESULT TT_SetTrackableSettings(int Index, cTrackableSettings &Settings){  //== Set Trackable Settings =---
+NPRESULT TT_SetTrackableSettings(int Index, cTrackableSettings &Settings){  //== Set Trackable Settings =---
 
 }
 
@@ -452,44 +452,44 @@ TTAPI   NPRESULT TT_SetTrackableSettings(int Index, cTrackableSettings &Settings
 
 */
 
-const char *TT_GetResultString(TTAPI   NPRESULT result){ //== Return Plain Text Message =======================-----[Si]
+const char *TT_GetResultString(NPRESULT result){ //== Return Plain Text Message =======================-----[Si]
     string messageResult;
     const char *location;
     switch (result)
     {
-    case TTAPI   NPRESULT_SUCCESS:  messageResult= "Successful Result";
+    case NPRESULT_SUCCESS:  messageResult= "Successful Result";
         location = static_cast<const char*>(messageResult.c_str()); //Convert the string "messageResult" to a const char* "location"
         return (location);
         break;
-    case TTAPI   NPRESULT_FILENOTFOUND:messageResult = "File Not Found";
+    case NPRESULT_FILENOTFOUND:messageResult = "File Not Found";
         location = static_cast<const char*>(messageResult.c_str());
         return (location);
         break;
-    case TTAPI   NPRESULT_LOADFAILED:messageResult = "Load Failed";
+    case NPRESULT_LOADFAILED:messageResult = "Load Failed";
         location = static_cast<const char*>(messageResult.c_str());
         return (location);
         break;
-    case TTAPI   NPRESULT_FAILED: messageResult = "Failed";
+    case NPRESULT_FAILED: messageResult = "Failed";
         location = static_cast<const char*>(messageResult.c_str());
         return (location);
         break;
-    case TTAPI   NPRESULT_INVALIDFILE: messageResult = "Invalid File";
+    case NPRESULT_INVALIDFILE: messageResult = "Invalid File";
         location = static_cast<const char*>(messageResult.c_str());
         return (location);
         break;
-    case TTAPI   NPRESULT_INVALIDCALFILE:messageResult = "Invalid Calibration File";
+    case NPRESULT_INVALIDCALFILE:messageResult = "Invalid Calibration File";
         location = static_cast<const char*>(messageResult.c_str());
         return (location);
         break;
-    case TTAPI   NPRESULT_UNABLETOINITIALIZE: messageResult = "Unable To Initialize";
+    case NPRESULT_UNABLETOINITIALIZE: messageResult = "Unable To Initialize";
         location = static_cast<const char*>(messageResult.c_str());
         return (location);
         break;
-    case TTAPI   NPRESULT_INVALIDLICENSE:messageResult = "Invalid License";
+    case NPRESULT_INVALIDLICENSE:messageResult = "Invalid License";
         location = static_cast<const char*>(messageResult.c_str());
         return (location);
         break;
-    case TTAPI   NPRESULT_NOFRAMEAVAILABLE: messageResult = "No Frames Available";
+    case NPRESULT_NOFRAMEAVAILABLE: messageResult = "No Frames Available";
         location = static_cast<const char*>(messageResult.c_str());
         return (location);
         break;

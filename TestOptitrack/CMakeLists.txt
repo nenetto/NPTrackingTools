@@ -13,7 +13,8 @@ add_executable(${PROJECT_NAME} ${${PROJECT_NAME}_SRC_FILES})
 ###############################
 # Search for NPTrackingTools ##
 ###############################
-find_package ( NPTrackingTools )
+option(NPTrackingTools_DIR "")
+find_package ( NPTrackingTools)
 target_link_libraries(${PROJECT_NAME} NPTrackingTools)
 
 # Documentation

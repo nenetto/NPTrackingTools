@@ -40,15 +40,18 @@ else()
 
 
     # Create installation and export targets for real NPTrackingTools
+    set(FILE_TO_BE_CONFIGURED "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake")
+    if(EXIST ${FILE_TO_BE_CONFIGURED})
+      file(REMOVE ${FILE_TO_BE_CONFIGURED})
+    endif()
     configure_file (
       "${PROJECT_SOURCE_DIR}/CMake/${PROJECT_NAME}/${PROJECT_NAME}Config.cmake.in"
-      "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
+      ${FILE_TO_BE_CONFIGURED}
       @ONLY
       FORCE
       )
 
     # Installation
-    #set(CMAKE_INSTALL_PREFIX ${PROJECT_BINARY_DIR}/install) ## Where to install the lib
 
     # install dll, lib and headers
     install(FILES "${TrackingToolsAPI_LIB_DIR}/${TrackingToolsAPI_LIBRARIES}.lib" DESTINATION lib)
@@ -63,33 +66,57 @@ else()
 
     # install the configure files
     # Create installation and export targets for real NPTrackingTools
+    set(FILE_TO_BE_CONFIGURED "${CMAKE_INSTALL_PREFIX}/lib/${PROJECT_NAME}/${PROJECT_NAME}-targets-debug.cmake")
+    if(EXISTS ${FILE_TO_BE_CONFIGURED})
+      file(REMOVE ${FILE_TO_BE_CONFIGURED})
+    endif()
     configure_file (
       "${PROJECT_SOURCE_DIR}/CMake/${PROJECT_NAME}/${PROJECT_NAME}-targets-debug.cmake.in"
-      "${CMAKE_INSTALL_PREFIX}/lib/${PROJECT_NAME}/${PROJECT_NAME}-targets-debug.cmake"
+      ${FILE_TO_BE_CONFIGURED}
       @ONLY
       FORCE
       )
+
+    set(FILE_TO_BE_CONFIGURED "${CMAKE_INSTALL_PREFIX}/lib/${PROJECT_NAME}/${PROJECT_NAME}-targets-minsizerel.cmake")
+    if(EXISTS ${FILE_TO_BE_CONFIGURED})
+      file(REMOVE ${FILE_TO_BE_CONFIGURED})
+    endif()
     configure_file (
       "${PROJECT_SOURCE_DIR}/CMake/${PROJECT_NAME}/${PROJECT_NAME}-targets-minsizerel.cmake.in"
-      "${CMAKE_INSTALL_PREFIX}/lib/${PROJECT_NAME}/${PROJECT_NAME}-targets-minsizerel.cmake"
+      ${FILE_TO_BE_CONFIGURED}
       @ONLY
       FORCE
       )
+
+    set(FILE_TO_BE_CONFIGURED "${CMAKE_INSTALL_PREFIX}/lib/${PROJECT_NAME}/${PROJECT_NAME}-targets-release.cmake")
+    if(EXISTS ${FILE_TO_BE_CONFIGURED})
+      file(REMOVE ${FILE_TO_BE_CONFIGURED})
+    endif()
     configure_file (
       "${PROJECT_SOURCE_DIR}/CMake/${PROJECT_NAME}/${PROJECT_NAME}-targets-release.cmake.in"
-      "${CMAKE_INSTALL_PREFIX}/lib/${PROJECT_NAME}/${PROJECT_NAME}-targets-release.cmake"
+      ${FILE_TO_BE_CONFIGURED}
       @ONLY
       FORCE
       )
+
+    set(FILE_TO_BE_CONFIGURED "${CMAKE_INSTALL_PREFIX}/lib/${PROJECT_NAME}/${PROJECT_NAME}-targets-relwithdebinfo.cmake")
+    if(EXISTS ${FILE_TO_BE_CONFIGURED})
+      file(REMOVE ${FILE_TO_BE_CONFIGURED})
+    endif()
     configure_file (
       "${PROJECT_SOURCE_DIR}/CMake/${PROJECT_NAME}/${PROJECT_NAME}-targets-relwithdebinfo.cmake.in"
-      "${CMAKE_INSTALL_PREFIX}/lib/${PROJECT_NAME}/${PROJECT_NAME}-targets-relwithdebinfo.cmake"
+      ${FILE_TO_BE_CONFIGURED}
       @ONLY
       FORCE
       )
+
+    set(FILE_TO_BE_CONFIGURED "${CMAKE_INSTALL_PREFIX}/lib/${PROJECT_NAME}/${PROJECT_NAME}-targets.cmake")
+    if(EXISTS ${FILE_TO_BE_CONFIGURED})
+      file(REMOVE ${FILE_TO_BE_CONFIGURED})
+    endif()
     configure_file (
       "${PROJECT_SOURCE_DIR}/CMake/${PROJECT_NAME}/${PROJECT_NAME}-targets.cmake.in"
-      "${CMAKE_INSTALL_PREFIX}/lib/${PROJECT_NAME}/${PROJECT_NAME}-targets.cmake"
+      ${FILE_TO_BE_CONFIGURED}
       @ONLY
       FORCE
       )
@@ -118,6 +145,9 @@ if(BUILD_DOCUMENTATION)
         set(doxyfile_in ${CMAKE_CURRENT_SOURCE_DIR}/doc/Doxyfile.in)
         set(doxyfile ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
 
+        if(EXIST ${doxyfile})
+          file(REMOVE ${doxyfile})
+        endif()
         configure_file(${doxyfile_in} ${doxyfile} @ONLY)
 
         add_custom_command(

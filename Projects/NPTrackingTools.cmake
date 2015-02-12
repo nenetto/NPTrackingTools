@@ -38,4 +38,4 @@ ExternalProject_Add(${EP_NAME}
   # test
   )
 
-set(TestOptitrack_${EP_NAME}_DIR "${PROJECT_BINARY_DIR}/${EP_NAME}-build" CACHE INTERNAL "")
+set(${PROJECT_NAME}_${EP_NAME}_DIR "${PROJECT_BINARY_DIR}/${EP_NAME}-build" CACHE INTERNAL "")

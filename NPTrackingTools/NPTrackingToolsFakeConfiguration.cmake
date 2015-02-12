@@ -4,6 +4,30 @@ message("=======================================")
 message(" Using NPTrackingTools fake API        ")
 message("=======================================")
 
+# Delete previous configured files
+if(EXISTS "${CMAKE_INSTALL_PREFIX}/lib/${PROJECT_NAME}/${PROJECT_NAME}-targets-debug.cmake")
+  file(REMOVE "${CMAKE_INSTALL_PREFIX}/lib/${PROJECT_NAME}/${PROJECT_NAME}-targets-debug.cmake")
+endif()
+
+if(EXISTS "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake")
+  file(REMOVE "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake")
+endif()
+
+if(EXISTS "${CMAKE_INSTALL_PREFIX}/lib/${PROJECT_NAME}/${PROJECT_NAME}-targets-minsizerel.cmake")
+  file(REMOVE "${CMAKE_INSTALL_PREFIX}/lib/${PROJECT_NAME}/${PROJECT_NAME}-targets-minsizerel.cmake")
+endif()
+
+if(EXISTS "${CMAKE_INSTALL_PREFIX}/lib/${PROJECT_NAME}/${PROJECT_NAME}-targets-release.cmake")
+  file(REMOVE "${CMAKE_INSTALL_PREFIX}/lib/${PROJECT_NAME}/${PROJECT_NAME}-targets-release.cmake")
+endif()
+
+if(EXISTS "${CMAKE_INSTALL_PREFIX}/lib/${PROJECT_NAME}/${PROJECT_NAME}-targets-relwithdebinfo.cmake")
+  file(REMOVE "${CMAKE_INSTALL_PREFIX}/lib/${PROJECT_NAME}/${PROJECT_NAME}-targets-relwithdebinfo.cmake")
+endif()
+
+if(EXISTS "${CMAKE_INSTALL_PREFIX}/lib/${PROJECT_NAME}/${PROJECT_NAME}-targets.cmake")
+  file(REMOVE "${CMAKE_INSTALL_PREFIX}/lib/${PROJECT_NAME}/${PROJECT_NAME}-targets.cmake")
+endif()
 
 # Add cpp files that form the library
 file(GLOB ${PROJECT_NAME}_SRC_FILES source/*.cpp)
