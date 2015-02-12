@@ -41,7 +41,7 @@ else()
 
     # Create installation and export targets for real NPTrackingTools
     set(FILE_TO_BE_CONFIGURED "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake")
-    if(EXIST ${FILE_TO_BE_CONFIGURED})
+    if(EXISTS ${FILE_TO_BE_CONFIGURED})
       file(REMOVE ${FILE_TO_BE_CONFIGURED})
     endif()
     configure_file (
