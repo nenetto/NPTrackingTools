@@ -3,7 +3,6 @@ cmake_minimum_required(VERSION 3.0.2)
 
 set(PROJECT_NAME "NPTrackingTools" CACHE STRING "")
 project(${PROJECT_NAME})
-option(DESTDIR "${CMAKE_CURRENT_BINARY_DIR}/install")
 
 
 # CMakeAll
@@ -11,8 +10,14 @@ list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMake")
 find_package(CMakeAll REQUIRED)
 
 # options
-option(${PROJECT_NAME}_BUILD_DOCUMENTATION "Support for Doxygen documentation" OFF)
+option(${PROJECT_NAME}_USE_FAKE "Fake Library NPTrackingTools" ON)
+option(${PROJECT_NAME}_BUILD_DOCUMENTATION "Support for CPack packaging" ON)
+option(${PROJECT_NAME}_PYTHON "Create Python Module" ON)
 option(${PROJECT_NAME}_BUILD_PACKAGING "Support for CPack packaging" ON)
+set(${PROJECT_NAME}_INSTALL_DIR "${CMAKE_CURRENT_BINARY_DIR}/install" CACHE PATH "InstaLL DIR" FORCE)
+option(${PROJECT_NAME}_TestOptitrack_Exe "Create Executable for Testing Purposes" ON)
+
+
 
 # version
 set(${PROJECT_NAME}_VERSION_MAJOR 1)

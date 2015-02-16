@@ -14,17 +14,17 @@ add_executable(${PROJECT_NAME} ${${PROJECT_NAME}_SRC_FILES})
 # Search for NPTrackingTools ##
 ###############################
 option(NPTrackingTools_DIR "")
-find_package ( NPTrackingTools)
+find_package (NPTrackingTools)
 target_link_libraries(${PROJECT_NAME} NPTrackingTools)
 
 # Documentation
-option(BUILD_DOCUMENTATION "" OFF)
+option(TestOptitrack_BUILD_DOCUMENTATION "" OFF)
 
-if(BUILD_DOCUMENTATION)
+if(TestOptitrack_BUILD_DOCUMENTATION)
     find_package(Doxygen)
-    option(BUILD_DOCUMENTATION "Create and install the HTML based API documentation (requires Doxygen)" ${DOXYGEN_FOUND})
+    option(TestOptitrack_BUILD_DOCUMENTATION "Create and install the HTML based API documentation (requires Doxygen)" ${DOXYGEN_FOUND})
 
-    if(BUILD_DOCUMENTATION)
+    if(TestOptitrack_BUILD_DOCUMENTATION)
         if(NOT DOXYGEN_FOUND)
             message(FATAL_ERROR "Doxygen is needed to build the documentation.")
         endif()

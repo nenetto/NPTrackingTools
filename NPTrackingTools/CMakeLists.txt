@@ -5,14 +5,14 @@ set(CMAKE_MACOSX_RPATH 0)
 project(NPTrackingTools C CXX)
 
 # Create option for fake API use
-option(USE_NPTrackingTools_FAKE OFF)
+option(NPTrackingTools_USE_FAKE OFF)
 
 configure_file (
   "${PROJECT_SOURCE_DIR}/CMake/Config.h.in"
   "${PROJECT_BINARY_DIR}/CmakeFilesHeader/Config.h"
   FORCE)
 
-if(USE_NPTrackingTools_FAKE)
+if(NPTrackingTools_USE_FAKE)
   include(NPTrackingToolsFakeConfiguration.cmake)
 
 else()
@@ -131,13 +131,13 @@ else()
 endif()
 
 # Documentation
-option(BUILD_DOCUMENTATION "" OFF)
+option(NPTrackingTools_BUILD_DOCUMENTATION "" OFF)
 
-if(BUILD_DOCUMENTATION)
+if(NPTrackingTools_BUILD_DOCUMENTATION)
     find_package(Doxygen)
-    option(BUILD_DOCUMENTATION "Create and install the HTML based API documentation (requires Doxygen)" ${DOXYGEN_FOUND})
+    option(NPTrackingTools_BUILD_DOCUMENTATION "Create and install the HTML based API documentation (requires Doxygen)" ${DOXYGEN_FOUND})
 
-    if(BUILD_DOCUMENTATION)
+    if(NPTrackingTools_BUILD_DOCUMENTATION)
         if(NOT DOXYGEN_FOUND)
             message(FATAL_ERROR "Doxygen is needed to build the documentation.")
         endif()
@@ -162,9 +162,28 @@ if(BUILD_DOCUMENTATION)
 endif()
 
 
-# Python wrapping
+# Python Fake Wapping
 
+# Python Wrapping
 
+option(NPTrackingTools_PYTHON "" OFF)
+
+if(NPTrackingTools_PYTHON)
+  set(DLLPATH "${CMAKE_INSTALL_PREFIX}/bin/NPTrackingTools.dll")
+
+  set(pythonfile_in ${CMAKE_CURRENT_SOURCE_DIR}/python/NPTrackingTools/NPTrackingTools.py.in)
+  set(pythonfile ${CMAKE_CURRENT_BINARY_DIR}/python/NPTrackingTools/NPTrackingTools.py)
+
+  if(EXISTS ${pythonfile})
+            file(REMOVE ${pythonfile})
+  endif()
+
+  configure_file(${pythonfile_in} ${pythonfile} @ONLY)
+
+  install(FILES ${pythonfile} DESTINATION python/NPTrackingTools)
+  install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/python/NPTrackingTools/__init__.py DESTINATION python/NPTrackingTools)
+  install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/python/TEST.py DESTINATION python)
+endif()
 
 
 

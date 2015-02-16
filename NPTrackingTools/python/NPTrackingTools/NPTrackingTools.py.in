@@ -1,0 +1,29 @@
+from ctypes import cdll
+import inspect
+
+
+class NPTrackingToolsClass:
+
+    def __init__(self,dll_path = r'@DLLPATH@', debug = False):
+        if debug:
+            self.debug = True
+        else:
+            self.debug = False
+        self.dll = cdll.LoadLibrary(dll_path)
+
+    def TT_Initialize(self):
+        if self.debug:
+            print 'Calling {}'.format(inspect.stack()[0][3])
+        self.dll.TT_Initialize()
+
+    def TT_Shutdown(self):
+        if self.debug:
+            print 'Calling {}'.format(inspect.stack()[0][3])
+        self.dll.TT_Shutdown()
+
+
+    def TT_FinalCleanup(self):
+        if self.debug:
+            print 'Calling {}'.format(inspect.stack()[0][3])
+        self.dll.TT_FinalCleanup()
+
