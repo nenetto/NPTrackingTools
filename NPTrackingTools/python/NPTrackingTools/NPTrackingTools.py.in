@@ -27,3 +27,53 @@ class NPTrackingToolsClass:
             print 'Calling {}'.format(inspect.stack()[0][3])
         self.dll.TT_FinalCleanup()
 
+    def TT_LoadCalibration(self,calFile):
+        if self.debug:
+            print 'Calling {}'.format(inspect.stack()[0][3])
+        self.dll.TT_LoadCalibration(calFile)
+
+    def TT_CameraCount(self):
+        if self.debug:
+            print 'Calling {}'.format(inspect.stack()[0][3])
+        return self.dll.TT_CameraCount()
+
+    def TT_CameraXLocation(self):
+        if self.debug:
+            print 'Calling {}'.format(inspect.stack()[0][3])
+        return self.dll.TT_CameraXLocation()
+
+    def TT_CameraYLocation(self):
+        if self.debug:
+            print 'Calling {}'.format(inspect.stack()[0][3])
+        return self.dll.TT_CameraYLocation()
+
+    def TT_CameraZLocation(self):
+        if self.debug:
+            print 'Calling {}'.format(inspect.stack()[0][3])
+        return self.dll.TT_CameraZLocation()
+
+    def TT_CameraOrientationMatrix(self,camNum, orientationVal):
+        if self.debug:
+            print 'Calling {}'.format(inspect.stack()[0][3])
+        return self.dll.TT_CameraOrientationMatrix(camNum,orientationVal)
+
+    def TT_FrameMarkerX(self,markerNum):
+        if self.debug:
+            print 'Calling {}'.format(inspect.stack()[0][3])
+        return self.dll.TT_FrameMarkerX(markerNum)
+
+    def TT_FrameMarkerY(self,markerNum):
+        if self.debug:
+            print 'Calling {}'.format(inspect.stack()[0][3])
+        return self.dll.TT_FrameMarkerY(markerNum)
+
+    def TT_FrameMarkerZ(self,markerNum):
+        if self.debug:
+            print 'Calling {}'.format(inspect.stack()[0][3])
+        return self.dll.TT_FrameMarkerZ(markerNum)
+
+    def TT_FrameMarkerCount(self):
+        if self.debug:
+            print 'Calling {}'.format(inspect.stack()[0][3])
+        return self.dll.TT_FrameMarkerCount()
+

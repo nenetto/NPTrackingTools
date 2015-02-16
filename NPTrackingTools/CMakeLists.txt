@@ -123,8 +123,8 @@ else()
 
   else()
     message("NPTrackingTools NOT FOUND, using fake NPTrackingTools...")
-    message("                setting USE_NPTrackingTools_FAKE to ON..")
-    set(USE_NPTrackingTools_FAKE ON FORCE)
+    message("                setting NPTrackingTools_USE_FAKE to ON..")
+    set(NPTrackingTools_USE_FAKE ON FORCE)
     include(NPTrackingToolsFakeConfiguration.cmake)
   endif()
 
@@ -134,6 +134,7 @@ endif()
 option(NPTrackingTools_BUILD_DOCUMENTATION "" OFF)
 
 if(NPTrackingTools_BUILD_DOCUMENTATION)
+  if(NPTrackingTools_USE_FAKE)
     find_package(Doxygen)
     option(NPTrackingTools_BUILD_DOCUMENTATION "Create and install the HTML based API documentation (requires Doxygen)" ${DOXYGEN_FOUND})
 
@@ -158,6 +159,7 @@ if(NPTrackingTools_BUILD_DOCUMENTATION)
             VERBATIM)
 
         install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/html DESTINATION doc/${PROJECT_NAME})
+        endif()
     endif()
 endif()
 
