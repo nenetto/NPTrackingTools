@@ -5,9 +5,13 @@
 #include <math.h>
 
 #include "NPTrackingTools.h"
+#include "Laubrary.h"
 
 int main (int argc, char *argv[])
 {
+
+  Laubrary::message(); // Use of function in Laubrary
+/*
   fprintf(stdout, "[TestOptitrack]: Calling TT_Initialize\n");
 
   NPRESULT result = TT_Initialize();
@@ -45,5 +49,6 @@ int main (int argc, char *argv[])
   }
 
   system("PAUSE");
+  */
   return 0;
 }

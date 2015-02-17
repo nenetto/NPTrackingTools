@@ -17,6 +17,13 @@ option(NPTrackingTools_DIR "")
 find_package (NPTrackingTools)
 target_link_libraries(${PROJECT_NAME} NPTrackingTools)
 
+###############################
+# Search for Laubrary ##
+###############################
+option(Laubrary_DIR "")
+find_package (Laubrary)
+target_link_libraries(${PROJECT_NAME} Laubrary)
+
 # Documentation
 option(TestOptitrack_BUILD_DOCUMENTATION "" OFF)
 
