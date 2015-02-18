@@ -1,7 +1,7 @@
 #ifndef LAUBRARY_H
 #define LAUBRARY_H
 
-
+#include "Laubrary_Export.h"
 #include "LaubraryConfig.h"
 #include "NPTrackingTools.h"
 
@@ -14,7 +14,7 @@
 namespace Laubrary{
 
     // Example function
-    void message(); 
+    Laubrary_EXPORT void message(); 
 }
 
 
