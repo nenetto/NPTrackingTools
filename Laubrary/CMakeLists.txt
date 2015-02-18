@@ -72,6 +72,18 @@ option(NPTrackingTools_DIR "")
 find_package (NPTrackingTools)
 target_link_libraries(${PROJECT_NAME} NPTrackingTools)
 
+<<<<<<< HEAD
+=======
+
+###############################
+# Search for ITK ##
+###############################
+find_package(ITK REQUIRED)
+include(${ITK_USE_FILE})
+#target_link_libraries(${PROJECT_NAME} ITKCommon ITKIO ITKCore)
+target_link_libraries(${PROJECT_NAME} ${ITK_LIBRARIES})
+
+>>>>>>> 0c5d8962b782c26a505fec1762992a81b2162c85
 # Headers (all are public)
 include_directories(include)
 include_directories(${PROJECT_BINARY_DIR}/CmakeFilesHeader)
@@ -108,6 +120,7 @@ export(PACKAGE ${PROJECT_NAME})
 
 
 # Documentation
+<<<<<<< HEAD
 option(Laubrary_BUILD_DOCUMENTATION "" OFF)
 
 if(Laubrary_BUILD_DOCUMENTATION)
@@ -115,6 +128,15 @@ if(Laubrary_BUILD_DOCUMENTATION)
     option(Laubrary_BUILD_DOCUMENTATION "Create and install the HTML based API documentation (requires Doxygen)" ${DOXYGEN_FOUND})
 
     if(Laubrary_BUILD_DOCUMENTATION)
+=======
+option(${PROJECT_NAME}_BUILD_DOCUMENTATION "" OFF)
+
+if(${${PROJECT_NAME}_BUILD_DOCUMENTATION})
+    find_package(Doxygen)
+    option(${PROJECT_NAME}_BUILD_DOCUMENTATION "Create and install the HTML based API documentation (requires Doxygen)" ${DOXYGEN_FOUND})
+
+    if(${${PROJECT_NAME}_BUILD_DOCUMENTATION})
+>>>>>>> 0c5d8962b782c26a505fec1762992a81b2162c85
         if(NOT DOXYGEN_FOUND)
             message(FATAL_ERROR "Doxygen is needed to build the documentation.")
         endif()
