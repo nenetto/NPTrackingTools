@@ -120,7 +120,6 @@ export(PACKAGE ${PROJECT_NAME})
 
 
 # Documentation
-<<<<<<< HEAD
 option(Laubrary_BUILD_DOCUMENTATION "" OFF)
 
 if(Laubrary_BUILD_DOCUMENTATION)
@@ -128,15 +127,6 @@ if(Laubrary_BUILD_DOCUMENTATION)
     option(Laubrary_BUILD_DOCUMENTATION "Create and install the HTML based API documentation (requires Doxygen)" ${DOXYGEN_FOUND})
 
     if(Laubrary_BUILD_DOCUMENTATION)
-=======
-option(${PROJECT_NAME}_BUILD_DOCUMENTATION "" OFF)
-
-if(${${PROJECT_NAME}_BUILD_DOCUMENTATION})
-    find_package(Doxygen)
-    option(${PROJECT_NAME}_BUILD_DOCUMENTATION "Create and install the HTML based API documentation (requires Doxygen)" ${DOXYGEN_FOUND})
-
-    if(${${PROJECT_NAME}_BUILD_DOCUMENTATION})
->>>>>>> 0c5d8962b782c26a505fec1762992a81b2162c85
         if(NOT DOXYGEN_FOUND)
             message(FATAL_ERROR "Doxygen is needed to build the documentation.")
         endif()
