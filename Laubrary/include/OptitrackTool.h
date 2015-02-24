@@ -4,6 +4,7 @@
 // Config from CMake
 #include "LaubraryConfig.h"
 
+
 // NPTrackingTools library
 #include "NPTrackingTools.h"
 
@@ -22,9 +23,11 @@
 
 namespace Optitrack{
 
-    class OptitrackTool{
+    class Laubrary_EXPORT OptitrackTool{
     public:
         int test;
+
+        friend class OptitrackTracker;
 
     };
 
