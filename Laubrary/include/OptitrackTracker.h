@@ -4,11 +4,11 @@
 // Config from CMake
 #include "LaubraryConfig.h"
 
-
 // NPTrackingTools library
 #include "NPTrackingTools.h"
+#define OPTITRACK_ATTEMPTS 10
 
-// OptitrackTool
+// OptitrackTol
 #include "OptitrackTool.h"
 
 // Extra std libs
@@ -24,27 +24,30 @@
 //#include <itkFastMutexLock.h>
 //#include <itksys/SystemTools.hxx>
 //#include <itkMutexLockHolder.h>
+//#include <itkObject.h>
 
 /**
 * \brief MutexHolder to keep rest of Mutex
 */
 //typedef itk::MutexLockHolder<itk::FastMutexLock> MutexLockHolder;
 
-#define OPTITRACK_ATTEMPTS 10
+
 #define ITK_THREAD_RETURN_TYPE int // Delete next when thread is uncommented
 
 namespace Optitrack{
 
-    class Laubrary_EXPORT OptitrackTracker{
+    class Laubrary_EXPORT OptitrackTracker /*: public itk::Object*/{
 
     public:
 
+        //LaubraryClassMacro(OptitrackTool, itk::Object);
         //itkNewMacro(Self);
 
         friend class OptitrackTool;
 
-        typedef OptitrackTool TrackerToolType;
-
+        /**
+        * \brief Definition of the states for the machine behaviour
+        */
         typedef enum
         {
             // MAJOR STATES
@@ -64,9 +67,13 @@ namespace Optitrack{
             STATE_TRACKER_AttemptingToReset = 16,
             STATE_TRACKER_AttemptingToAttachTrackerTool = 17,
             STATE_TRACKER_AttemptingToStartTracking = 18,
-            STATE_TRACKER_AttemptingToSetCameraParams = 19
-        } OPTITRACK_STATE;
+            STATE_TRACKER_AttemptingToSetCameraParams = 19,
+            STATE_TRACKER_AttemptingToDetachTrackerTool = 20
+        } OPTITRACK_TRACKER_STATE;
 
+        /**
+        * \brief Events that the class can launch NOT USED
+        */
         typedef enum
         {
             // Events
@@ -85,9 +92,11 @@ namespace Optitrack{
             EVENT_TRACKER_TrackerStopTrackingErrorEvent = 11,
             EVENT_TRACKER_TrackerUpdateStatusEvent = 12,
             EVENT_TRACKER_TrackerUpdateStatusErrorEvent = 13
-        } OPTITRACK_EVENT;
+        } OPTITRACK_TRACKER_EVENT;
 
-        // Interface Methods from IGSTK model for Tracker
+        /**
+        * \brief Different options for the result of the functions
+        */
         typedef enum
         {
             FAILURE = 0,
@@ -102,9 +111,16 @@ namespace Optitrack{
         ResultType Open( void );
 
 
+        /**
+        * \brief Close the Connection with the Tracker. Calls StopTracking function, delete the tool containes and shut down the system.
+        * \return Returns SUCCESS if the disconnection was well performed. , FAILURE otherwise.
+        */
         ResultType Close( void );
 
-
+        /**
+        * \brief Set the system into Calibration State. Calls StopTracking function, does not delete the tool container.
+        * \return Returns SUCCESS if the reset was well performed. , FAILURE otherwise.
+        */
         ResultType Reset( void );
 
         /**
@@ -126,22 +142,26 @@ namespace Optitrack{
         static ITK_THREAD_RETURN_TYPE ThreadStartTracking(void* pInfoStruct);
 
         /**
-        * \brief Update each tool location in the list m_AllTools
+        * \brief Update each tool location in the container m_LoadedTools
         */
         void TrackTools();
 
-
-        /** Print the object information in a stream. */
+        /**
+        * \brief Print the object information in a stream
+        */
         void PrintSelf( std::ostream& os) const;
 
-        /** This method will remove entries of the traceker tool from internal
-        * data containers */
-        ResultType RemoveTrackerToolFromInternalDataContainers( OptitrackTool * trackerTool );
+        /**
+        * \brief Remove tracker tool entry from internal containers
+        * \return Returns SUCCESS if the tool was removed correctly, FAILURE otherwise.
+        */
+        ResultType RemoveTrackerTool( OptitrackTool * trackerTool );
 
-        /** Add tracker tool entry to internal containers */
+        /**
+        * \brief Add tracker tool entry to internal containers
+        * \return Returns SUCCESS if the tool was uploaded correctly, FAILURE otherwise.
+        */
         ResultType AddTrackerTool( OptitrackTool * trackerTool );
-
-        ///////////////////////////////////////////////////////////////////////////////////////////
 
         /**
         * \brief Load the Calibration file to the Optitrack System and set the cameras in calibrated locations
@@ -161,7 +181,15 @@ namespace Optitrack{
         * \return Returns the tool which the number "toolNumber". Returns NULL, if there is
         * no tool with this number.
         */
-        OptitrackTool* GetOptitrackTool(unsigned int toolNumber);
+        OptitrackTool* GetOptitrackTool(unsigned int toolID);
+
+        /**
+        * \brief Return the tool pointer of the tool named toolNumber
+        * \param toolNumber The number of the tool which should be given back.
+        * \return Returns the tool which the number "toolNumber". Returns NULL, if there is
+        * no tool with this number.
+        */
+        OptitrackTool* OptitrackTracker::GetOptitrackToolByName( std::string toolName );
 
         /**
         * \brief Set the Cameras Exposure, Threshold and Intensity of IR LEDs. By Default it set the Video type to 4: Precision Mode for tracking
@@ -177,10 +205,10 @@ namespace Optitrack{
         ResultType SetCameraParams(int exposure, int threshold, int intensity, int videoType = 4);
 
 
-        void SetEvent(OPTITRACK_EVENT event_);
-        void SetState(OPTITRACK_STATE state_);
-        OPTITRACK_EVENT GetEvent( void );
-        OPTITRACK_STATE GetState( void );
+        void SetEvent(OPTITRACK_TRACKER_EVENT event_);
+        void SetState(OPTITRACK_TRACKER_STATE state_);
+        OPTITRACK_TRACKER_EVENT GetEvent( void );
+        OPTITRACK_TRACKER_STATE GetState( void );
 
         /** @brief Sets the directory where the calibration file of the MicronTracker can be found. */
         //itkSetMacro(Exp,unsigned int);
@@ -221,12 +249,12 @@ namespace Optitrack{
         /**
         * \brief State of the Tracker
         */
-        OPTITRACK_STATE m_state = STATE_TRACKER_NoState;
+        OPTITRACK_TRACKER_STATE m_state = STATE_TRACKER_NoState;
 
         /**
         * \brief Last Signal/Event Launched by Tracker
         */
-        OPTITRACK_EVENT m_event = EVENT_TRACKER_NoEvent;
+        OPTITRACK_TRACKER_EVENT m_event = EVENT_TRACKER_NoEvent;
 
         /**
         * \brief Calibration File used for Tracking
@@ -236,7 +264,8 @@ namespace Optitrack{
         /**
         * \brief Vector of pointers pointing to all defined tools
         */
-        std::vector<OptitrackTool*> m_LoadedTools;
+        std::vector<Optitrack::OptitrackTool*> m_LoadedTools;
+        //std::vector<Optitrack::OptitrackTool::Pointer> m_LoadedTools;
 
         /**
         * \brief The Cameras Exposition
@@ -273,14 +302,26 @@ namespace Optitrack{
         */
         int m_ThreadID;
 
+        /**
+        * \brief MultiThreader that starts continuous tracking update
+        */
         bool m_StopTracking;
 
-        ;
 
         /**
         * \brief MultiThreader that starts continuous tracking update
         */
         //itk::MultiThreader::Pointer m_StopTrackingMutex;
+
+        /**
+        * \brief mutex to manage control flow of StopTracking()
+        */
+        //itk::FastMutexLock::Pointer m_TrackingFinishedMutex;
+
+        /**
+        * \brief mutex to control access to m_state
+        */
+        //itk::FastMutexLock::Pointer m_StateMutex;
 
     };
 
