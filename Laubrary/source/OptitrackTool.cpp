@@ -3,10 +3,14 @@
 namespace Optitrack
 {
 
-
-    std::string OptitrackTool::GetToolName( void )
+    OptitrackTool::OptitrackTool()
     {
-        return this->m_name;
+
+    }
+    
+    OptitrackTool::~OptitrackTool()
+    {
+        
     }
 
     

@@ -144,27 +144,6 @@ namespace Optitrack{
         }
     }
 
-    void OptitrackTracker::SetCalibrationFile(std::string newCalibrationFile)
-    {
-        fprintf(stdout, "<INFO> - [OptitrackTracker::setCalibrationFile]\n");
-          // Check the file path
-        if(newCalibrationFile.empty())
-        {
-            fprintf(stdout, "#ERROR# - [OptitrackTracker::setCalibrationFile]: Calibration File is empty\n");
-            return;
-        }
-
-        this->m_CalibrationFile = newCalibrationFile;
-        fprintf(stdout, "<INFO> - [OptitrackTracker::LoadCalibration]: Calibration was successfully set\n");
-        return;
-    }
-
-    std::string OptitrackTracker::GetCalibrationFile( void )
-    {
-        fprintf(stdout, "<INFO> - [OptitrackTracker::getCalibrationFile]\n");
-        return this->GetCalibrationFile();
-    }
-
     OptitrackTracker::ResultType OptitrackTracker::Close( void )
     {
         fprintf(stdout, "<INFO> - [OptitrackTracker::InternalClose]\n");

@@ -72,6 +72,15 @@ option(NPTrackingTools_DIR "")
 find_package (NPTrackingTools)
 target_link_libraries(${PROJECT_NAME} NPTrackingTools)
 
+
+###############################
+# Search for ITK ##
+###############################
+find_package(ITK REQUIRED)
+include(${ITK_USE_FILE})
+#target_link_libraries(${PROJECT_NAME} ITKCommon ITKIO ITKCore)
+target_link_libraries(${PROJECT_NAME} ${ITK_LIBRARIES})
+
 # Headers (all are public)
 include_directories(include)
 include_directories(${PROJECT_BINARY_DIR}/CmakeFilesHeader)

@@ -20,30 +20,28 @@
 #include <vector>
 
 // ITK Libs
-//#include <itkMultiThreader.h>
-//#include <itkFastMutexLock.h>
-//#include <itksys/SystemTools.hxx>
-//#include <itkMutexLockHolder.h>
-//#include <itkObject.h>
+#include <itkMultiThreader.h>
+#include <itkFastMutexLock.h>
+#include <itksys/SystemTools.hxx>
+#include <itkMutexLockHolder.h>
+#include <itkObject.h>
 
 /**
 * \brief MutexHolder to keep rest of Mutex
 */
-//typedef itk::MutexLockHolder<itk::FastMutexLock> MutexLockHolder;
+typedef itk::MutexLockHolder<itk::FastMutexLock> MutexLockHolder;
 
-
-#define ITK_THREAD_RETURN_TYPE int // Delete next when thread is uncommented
+class Laubrary_EXPORT OptitrackTool;
 
 namespace Optitrack{
 
-    class Laubrary_EXPORT OptitrackTracker /*: public itk::Object*/{
+    class Laubrary_EXPORT OptitrackTracker : public itk::Object{
 
     public:
-
-        //LaubraryClassMacro(OptitrackTool, itk::Object);
-        //itkNewMacro(Self);
-
         friend class OptitrackTool;
+        LaubraryClassMacro(Optitrack::OptitrackTracker, itk::Object);
+        itkNewMacro(Self);
+
 
         /**
         * \brief Definition of the states for the machine behaviour
@@ -211,31 +209,28 @@ namespace Optitrack{
         OPTITRACK_TRACKER_STATE GetState( void );
 
         /** @brief Sets the directory where the calibration file of the MicronTracker can be found. */
-        //itkSetMacro(Exp,unsigned int);
+        itkSetMacro(Exp,unsigned int);
 
         /** @brief Gets the current calibration directory. */
-        //itkGetMacro(Exp,unsigned int);
+        itkGetMacro(Exp,unsigned int);
 
         /** @brief Sets the directory where the calibration file of the MicronTracker can be found. */
-        //itkSetMacro(Led,unsigned int);
+        itkSetMacro(Led,unsigned int);
 
         /** @brief Gets the current calibration directory. */
-        //itkGetMacro(Led,unsigned int);
+        itkGetMacro(Led,unsigned int);
 
         /** @brief Sets the directory where the calibration file of the MicronTracker can be found. */
-        //itkSetMacro(Thr,unsigned int);
+        itkSetMacro(Thr,unsigned int);
 
         /** @brief Gets the current calibration directory. */
-        //itkGetMacro(Thr,unsigned int);
+        itkGetMacro(Thr,unsigned int);
 
         /** @brief Gets the current calibration file. */
-        //itkGetMacro(calibrationPath,std::string);
+        itkGetMacro(CalibrationFile,std::string);
 
         /** @brief Sets current calibration file */
-        //itkSetMacro(calibrationPath,std::string);
-
-        void SetCalibrationFile(std::string newCalibrationFile); // TODO Delete using ITK
-        std::string GetCalibrationFile( void ); // TODO Delete using ITK
+        itkSetMacro(CalibrationFile,std::string);
 
         /** @brief Gets Current number of Connected Cameras */
         unsigned int GetCameraNumber( void ); // TODO Delete using ITK
@@ -243,6 +238,8 @@ namespace Optitrack{
     protected:
         OptitrackTracker();
         ~OptitrackTracker();
+        OptitrackTracker(const OptitrackTracker&);
+        const OptitrackTracker& operator=(const OptitrackTracker&);
 
     private:
 
@@ -264,8 +261,8 @@ namespace Optitrack{
         /**
         * \brief Vector of pointers pointing to all defined tools
         */
-        std::vector<Optitrack::OptitrackTool*> m_LoadedTools;
-        //std::vector<Optitrack::OptitrackTool::Pointer> m_LoadedTools;
+        //std::vector<Optitrack::OptitrackTool*> m_LoadedTools;
+        std::vector<Optitrack::OptitrackTool::Pointer> m_LoadedTools;
 
         /**
         * \brief The Cameras Exposition
@@ -290,12 +287,12 @@ namespace Optitrack{
         /**
         * \brief Mutex for coordinated access of tool container
         */
-        //itk::FastMutexLock::Pointer m_ToolsMutex;
+        itk::FastMutexLock::Pointer m_ToolsMutex;
 
         /**
         * \brief MultiThreader that starts continuous tracking update
         */
-        //itk::MultiThreader::Pointer m_MultiThreader;
+        itk::MultiThreader::Pointer m_MultiThreader;
 
         /**
         * \brief ThreadID number identification
@@ -311,17 +308,17 @@ namespace Optitrack{
         /**
         * \brief MultiThreader that starts continuous tracking update
         */
-        //itk::MultiThreader::Pointer m_StopTrackingMutex;
+        itk::MultiThreader::Pointer m_StopTrackingMutex;
 
         /**
         * \brief mutex to manage control flow of StopTracking()
         */
-        //itk::FastMutexLock::Pointer m_TrackingFinishedMutex;
+        itk::FastMutexLock::Pointer m_TrackingFinishedMutex;
 
         /**
         * \brief mutex to control access to m_state
         */
-        //itk::FastMutexLock::Pointer m_StateMutex;
+        itk::FastMutexLock::Pointer m_StateMutex;
 
     };
 

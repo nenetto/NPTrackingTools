@@ -9,7 +9,7 @@
 #include "NPTrackingTools.h"
 
 // OptitrackTool
-#include "OptitrackTracker.h"
+//#include "OptitrackTracker.h"
 
 // Extra std libs
 #include <iostream>
@@ -19,23 +19,21 @@
 #include <sstream>
 
 // ITK Libs
-//#include <itkMultiThreader.h>
-//#include <itkFastMutexLock.h>
-//#include <itksys/SystemTools.hxx>
-//#include <itkMutexLockHolder.h>
-//#include <itkObject.h>
+#include <itkMultiThreader.h>
+#include <itkFastMutexLock.h>
+#include <itksys/SystemTools.hxx>
+#include <itkMutexLockHolder.h>
+#include <itkObject.h>
 
 
 namespace Optitrack{
 
-    class Laubrary_EXPORT OptitrackTool/*: public itk::Object*/{
+    class Laubrary_EXPORT OptitrackTool: public itk::Object{
 
     public:
-
-        //LaubraryClassMacro(OptitrackTool, itk::Object);
-        //itkNewMacro(Self);
-
         friend class OptitrackTracker;
+        LaubraryClassMacro(Optitrack::OptitrackTool, itk::Object);
+        itkNewMacro(Self);
 
 
         /**
@@ -87,20 +85,31 @@ namespace Optitrack{
             EVENT_TRACKER_TrackerUpdateStatusErrorEvent = 13
         } OPTITRACK_TOOL_EVENT;
 
-        std::string GetToolName( void );
+        /** @brief Sets the tool Name */
+        itkSetMacro(ToolName,std::string);
+
+        /** @brief Gets the tool Name. */
+        itkGetMacro(ToolName,std::string);
 
     protected:
 
         OptitrackTool();
         ~OptitrackTool();
 
+        OptitrackTool(const OptitrackTool&);
+        const OptitrackTool& operator=(const OptitrackTool&);
+
     private:
 
-        std::string m_name;
+        /**
+        * \brief Name of the tool
+        */
+        std::string m_ToolName;
+
         /**
         * \brief Mutex to control concurrent access to the tool
         */
-        //itk::FastMutexLock::Pointer m_MyMutex;
+        itk::FastMutexLock::Pointer m_MyMutex;
 
     };
 
