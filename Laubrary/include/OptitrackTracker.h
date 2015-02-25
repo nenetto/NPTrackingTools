@@ -308,7 +308,7 @@ namespace Optitrack{
         /**
         * \brief MultiThreader that starts continuous tracking update
         */
-        itk::MultiThreader::Pointer m_StopTrackingMutex;
+        itk::FastMutexLock::Pointer m_StopTrackingMutex;
 
         /**
         * \brief mutex to manage control flow of StopTracking()
@@ -326,3 +326,10 @@ namespace Optitrack{
 
 
 #endif
+
+// TODO
+//
+// 1. Access to State using Mutex
+// 2. Line 224 cpp
+// 3. Line 246 cpp
+// 4. Line 342 cpp

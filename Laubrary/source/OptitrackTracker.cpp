@@ -5,18 +5,18 @@ namespace Optitrack{
 
     void OptitrackTracker::SetState(OPTITRACK_TRACKER_STATE state_)
     {
-        //MutexLockHolder lock(*m_StateMutex);
+        MutexLockHolder lock(*m_StateMutex);
         if (m_state == state_)
         {
             return;
         }
         this->m_state = state_;
-        //this->Modified(); ITK
+        this->Modified();
     }
 
     OptitrackTracker::OPTITRACK_TRACKER_STATE OptitrackTracker::GetState( void )
     {
-        //MutexLockHolder lock(*m_StateMutex);
+        MutexLockHolder lock(*m_StateMutex);
         return this->m_state;
     }
 
@@ -24,13 +24,13 @@ namespace Optitrack{
     {
         fprintf(stdout, "<INFO> - [OptitrackTracker::OptitrackTracker]\n");
         // Set the MultiThread and Mutex
-        //this->m_MultiThreader = itk::MultiThreader::New();
-        //this->m_ToolsMutex = itk::FastMutexLock::New();
-        //this->m_StopTrackingMutex = itk::FastMutexLock::New();
-        //this->m_StopTracking = false;
-        //this->m_TrackingFinishedMutex = itk::FastMutexLock::New();
-        //this->m_StateMutex = itk::FastMutexLock::New();
-        //this->m_TrackingFinishedMutex->Lock();  // execution rights are owned by the application thread at the beginning
+        this->m_MultiThreader = itk::MultiThreader::New();
+        this->m_ToolsMutex = itk::FastMutexLock::New();
+        this->m_StopTrackingMutex = itk::FastMutexLock::New();
+        this->m_StopTracking = false;
+        this->m_TrackingFinishedMutex = itk::FastMutexLock::New();
+        this->m_StateMutex = itk::FastMutexLock::New();
+        this->m_TrackingFinishedMutex->Lock();  // execution rights are owned by the application thread at the beginning
 
         //Clear List of tools
         this->m_LoadedTools.clear();
@@ -45,7 +45,7 @@ namespace Optitrack{
         if (this->GetState() == STATE_TRACKER_Tracking)
         {
             fprintf(stdout, "<INFO> - [OptitrackTracker::~OptitrackTracker]: in Tracking State -> Stopping Tracking \n");
-            //TO DO: result = this->InternalStopTracking();
+            result = this->StopTracking();
 
             if(result == SUCCESS){
                 fprintf(stdout, "<INFO> - [OptitrackTracker::~OptitrackTracker]: Device Stopped \n");
@@ -170,7 +170,7 @@ namespace Optitrack{
             {
                 this->m_LoadedTools.clear();
                 fprintf(stdout, "<INFO> - [OptitrackTracker::InternalClose]: System has been Shutdown Correctly\n");
-                //Sleep(2000); -> Find Substitute using ITK
+                Sleep(2000);
                 this->SetState(STATE_TRACKER_Idle);
                 return SUCCESS;
             }
@@ -261,7 +261,7 @@ namespace Optitrack{
 
     unsigned int OptitrackTracker::GetNumberOfAttachedTools( void )
     {
-        //MutexLockHolder lock(*m_ToolsMutex); TODO
+        MutexLockHolder lock(*m_ToolsMutex);
         return this->m_LoadedTools.size();
     }
 
@@ -288,13 +288,13 @@ namespace Optitrack{
                 {
                     fprintf(stdout, "<INFO> - [OptitrackTracker::InternalStartTracking]: Ready for Tracking\n");
                     // Change the m_StopTracking Variable to false
-                    //this->m_StopTrackingMutex->Lock();
-                    //this->m_StopTracking = false;
-                    //this->m_StopTrackingMutex->Unlock();
-                    //this->m_TrackingFinishedMutex->Unlock(); // transfer the execution rights to tracking thread
+                    this->m_StopTrackingMutex->Lock();
+                    this->m_StopTracking = false;
+                    this->m_StopTrackingMutex->Unlock();
+                    this->m_TrackingFinishedMutex->Unlock(); // transfer the execution rights to tracking thread
 
                     // Launch multiThreader using the Function ThreadStartTracking that executes the TrackTools() method
-                    //m_ThreadID = m_MultiThreader->SpawnThread(this->ThreadStartTracking, this);
+                    m_ThreadID = m_MultiThreader->SpawnThread(this->ThreadStartTracking, this);
                     this->SetState(STATE_TRACKER_Tracking);
                     return SUCCESS;
                 }
@@ -322,16 +322,16 @@ namespace Optitrack{
         try
         {
             bool localStopTracking;       // Because m_StopTracking is used by two threads, access has to be guarded by a mutex. To minimize thread locking, a local copy is used here
-            //this->m_StopTrackingMutex->Lock();  // update the local copy of m_StopTracking ITK
+            this->m_StopTrackingMutex->Lock();  // update the local copy of m_StopTracking ITK
             localStopTracking = this->m_StopTracking;
 
             /* lock the TrackingFinishedMutex to signal that the execution rights are now transfered to the tracking thread */
             if (!localStopTracking)
             {
-                //m_TrackingFinishedMutex->Lock(); ITK
+                m_TrackingFinishedMutex->Lock();
             }
 
-            //this->m_StopTrackingMutex->Unlock(); ITK
+            this->m_StopTrackingMutex->Unlock();
             while ((this->GetState() == STATE_TRACKER_Tracking) && (localStopTracking == false))
             {
                 for ( unsigned int i = 0; i < this->GetNumberOfAttachedTools(); ++i)  // use mutexed methods to access tool container
@@ -348,17 +348,17 @@ namespace Optitrack{
                 }
 
                 /* Update the local copy of m_StopTracking */
-                //this->m_StopTrackingMutex->Lock(); ITK
+                this->m_StopTrackingMutex->Lock();
                 localStopTracking = this->m_StopTracking;
-                //this->m_StopTrackingMutex->Unlock(); ITK
-                //Sleep(1); ITK
+                this->m_StopTrackingMutex->Unlock();
+                Sleep(1);
             }
 
-            //m_TrackingFinishedMutex->Unlock(); // transfer control back to main thread ITK
+            m_TrackingFinishedMutex->Unlock(); // transfer control back to main thread ITK
         }
         catch(...)
         {
-            //m_TrackingFinishedMutex->Unlock(); ITK
+            m_TrackingFinishedMutex->Unlock();
             fprintf(stdout, "#ERROR# - [OptitrackTracker::TrackTools]: Error while trying to track tools. Thread stopped.\n");
             this->StopTracking();
             this->SetState(STATE_TRACKER_CalibratedState);
@@ -371,7 +371,6 @@ namespace Optitrack{
         fprintf(stdout, "<INFO> - [OptitrackTracker::ThreadStartTracking]\n");
 
         /* extract this pointer from Thread Info structure */
-        /*
         struct itk::MultiThreader::ThreadInfoStruct * pInfo = (struct itk::MultiThreader::ThreadInfoStruct*)pInfoStruct;
 
         if (pInfo == NULL)
@@ -393,12 +392,11 @@ namespace Optitrack{
         }
         else
         {
-            mitkThrowException(mitk::IGTException) << "In ThreadStartTracking(): trackingDevice is NULL";
+            fprintf(stdout, "#ERROR# - [OptitrackTracker::ThreadStartTracking]: trackingDevice is NULL\n");
         }
 
         trackingDevice->m_ThreadID = -1; // reset thread ID because we end the thread here
         return ITK_THREAD_RETURN_VALUE;
-        */
 
         // Delete next when thread is uncommented
         return 0;
@@ -418,10 +416,10 @@ namespace Optitrack{
 
             fprintf(stdout, "<INFO> - [OptitrackTracker::InternalStopTracking]: Ready for Stop\n");
             //Change the StopTracking value
-            //m_StopTrackingMutex->Lock();
-            //m_StopTracking = true;
-            //m_StopTrackingMutex->Unlock();
-            //m_TrackingFinishedMutex->Lock();
+            m_StopTrackingMutex->Lock();
+            m_StopTracking = true;
+            m_StopTrackingMutex->Unlock();
+            m_TrackingFinishedMutex->Lock();
             this->SetState(STATE_TRACKER_CalibratedState);
             return SUCCESS;
 
@@ -501,7 +499,7 @@ namespace Optitrack{
           }
           else
           {
-            //Sleep(30); ITK
+            Sleep(30);
           }
         }
 
@@ -513,7 +511,7 @@ namespace Optitrack{
         fprintf(stdout, "<INFO> - [OptitrackTracker::GetOptitrackTool]\n");
         OptitrackTool* t = nullptr;
 
-        //MutexLockHolder toolsMutexLockHolder(*m_ToolsMutex); // lock and unlock the mutex ITK
+        MutexLockHolder toolsMutexLockHolder(*m_ToolsMutex); // lock and unlock the mutex ITK
         if(toolID < this->GetNumberOfAttachedTools())
         {
             t = m_LoadedTools.at(toolID);
