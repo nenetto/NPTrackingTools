@@ -14,493 +14,424 @@ using namespace std;
  */
 
 
-// Definición de parametros para comprobar la respuesta del programa ante errores 
-// En estado "false" no deben dar error.
-#define FAIL_INVALIDLICENSE false
-#define FAIL_UNABLETOINITIALIZE false
-#define FAIL_UNABLETOSHUTDOWN false
-#define FAIL_UNABLETOCLEANUP false
-#define FAIL_NOFRAMEAVAILABLE false
-#define FAIL_FAILED false
-#define FAIL_INVALIDFILE false
-#define FAIL_RIGIDBODYNOTFOUNDINCURRENTFRAME false
-
-extern int variableTestNumberOfMarkers;
-extern float variableTestMarkerPositionX, variableTestMarkerPositionY, variableTestMarkerPositionZ;
-extern float rigidBodyPositionX, rigidBodyPositionY, rigidBodyPositionZ;
-extern float rigidBodyPositionX2, rigidBodyPositionY2, rigidBodyPositionZ2;
-extern float rigidBodyQuaternionX, rigidBodyQuaternionY, rigidBodyQuaternionZ, rigidBodyQuaternionW;
-extern float rigidBodyYaw, rigidBodyPitch, rigidBodyRoll;
-extern int numberOfTrackables, trackableID, numberOfTrackableMarkers;
-extern bool stateOfTrackable;
-extern float trackableMarkerPositionX, trackableMarkerPositionY, trackableMarkerPositionZ;
-extern float trackableMarkerPositionXPointCloud, trackableMarkerPositionYPointCloud, trackableMarkerPositionZPointCloud;
-
-
-
-// Variables para probar funciones:
-int variableTestNumberOfMarkers;
-int frameMarkerLabel = 1000;
-double frameTimeSpamp = 0.0;
-bool cameraContributionTo3DMarker = true;
-float variableTestMarkerPositionX, variableTestMarkerPositionY, variableTestMarkerPositionZ;
-float rigidBodyPositionX, rigidBodyPositionY, rigidBodyPositionZ, rigidBodyQuaternionX, rigidBodyQuaternionY, rigidBodyQuaternionZ, rigidBodyQuaternionW;
-float rigidBodyPositionX2, rigidBodyPositionY2, rigidBodyPositionZ2;
-float rigidBodyYaw, rigidBodyPitch, rigidBodyRoll;
-int numberOfTrackables;
-int trackableID = 1000;
-bool stateOfTrackable = false;
-int numberOfTrackableMarkers; /*!< Detailed description of the variable "numberOfTrackableMarkers" */
-float trackableMarkerPositionX, trackableMarkerPositionY, trackableMarkerPositionZ;
-float trackableMarkerPositionXPointCloud, trackableMarkerPositionYPointCloud, trackableMarkerPositionZPointCloud;
-
-
 //== NPRIGIDBODY PUBLIC INTERFACE ===================================================-----
-                 //== NPRESULT Defines Call Success/Failure ====-----
+//== NPRESULT Defines Call Success/Failure ====-----
 
 //== RIGID BODY STARTUP / SHUTDOWN ==================================================-----
 
+NPRESULT TT_Initialize(bool NPTracking_FAIL_INVALIDLICENSE, bool NPTracking_FAIL_UNABLETOINITIALIZE) {
 
-/** \fn TT_Initialize()
- *  \brief This function attempts to initialize the Tracking Tools tracking API.
- *
- *  It should be called before attempting to use other compontents of the API.  It returns information about whether or not it succeeded.
- *   
- *  @return 0  if succeeded, 10 if a valid license is not found, and 11 if it was unable to initialize.
- *  
- */
-NPRESULT TT_Initialize() {
-    
-    if (FAIL_INVALIDLICENSE) {
-        return NPRESULT_INVALIDLICENSE; //A valid Tracking tools license was not found.
-    }
-    else if (FAIL_UNABLETOINITIALIZE){
-        return NPRESULT_UNABLETOINITIALIZE;
-    }
-    else{
-        return NPRESULT_SUCCESS;
-    }
-}   
-
-/*! \fn TT_Shutdown()
-    \brief This function attempts to shutdown the Tracking Tools tracking API.
-
-    It should be called before the application using the Traking Tools tracking API closes.  It returns information about whether or not it succeeded.
-
-    \return 0  if succeeded, and 3 if it was unable to initialize.
-
-*/
-NPRESULT TT_Shutdown()  {
-    if (FAIL_UNABLETOSHUTDOWN){
-        return NPRESULT_FAILED;
-    }
-    else{
-        return NPRESULT_SUCCESS;
-    }
+	if (NPTracking_FAIL_INVALIDLICENSE) {
+		return NPRESULT_INVALIDLICENSE; //A valid Tracking tools license was not found.
+	}
+	else if (NPTracking_FAIL_UNABLETOINITIALIZE){
+		return NPRESULT_UNABLETOINITIALIZE;
+	}
+	else{
+		return NPRESULT_SUCCESS;
+	}
 }
 
-/*! \fn TT_FinalCleanup()
-    \brief This function shuts down the camera device driver and ensures all the driver threads are terminated properly.
+NPRESULT TT_Shutdown(bool NPTracking_FAIL_UNABLETOSHUTDOWN)  {
+	if (NPTracking_FAIL_UNABLETOSHUTDOWN){
+		return NPRESULT_FAILED;
+	}
+	else{
+		return NPRESULT_SUCCESS;
+	}
+}
 
-    The TT_FinalCleanup() function should be called when applications are done using the Tracking Tools API services. This is 
-    typically when an application is closing, but can be performed sooner to recover resources when the Tracking Tools API is 
-    not being used.
-
-    \return 0  if succeeded, and 3 if it was unable to initialize.
-
-*/
-NPRESULT TT_FinalCleanup(){
-    if (FAIL_UNABLETOCLEANUP){
-        return NPRESULT_FAILED;
-    }
-    else {
-        return NPRESULT_SUCCESS;
-    }
-}   
+NPRESULT TT_FinalCleanup(bool NPTracking_FAIL_UNABLETOCLEANUP){
+	if (NPTracking_FAIL_UNABLETOCLEANUP){
+		return NPRESULT_FAILED;
+	}
+	else {
+		return NPRESULT_SUCCESS;
+	}
+}
 //== this before exiting your application. ===----- 
 
 
-NPRESULT TT_LoadCalibration(const char *filename){
-    ifstream calFile;
-    calFile.open(filename, ios::in);
-    std::string stringFilename(filename); //Convert filename from const char to string.
-    
-    if (stringFilename.substr(stringFilename.find_last_of(".")) != ".cal") { 
-    //Check that the extension of the file is ".cal". First a substring is created from the last point of the original 
-    //string until the end, and then this substring is compared to the desired extension: ".cal".
-        return NPRESULT_INVALIDCALFILE; //Invalid calibration file.
-    }else if (FAIL_FAILED){ //Maybe !calFile.good() or !calFile.is_open().
-    //If calFile.good(), which is a boolean, is false --> the file does not exist.
-        return NPRESULT_LOADFAILED; //The file or path specified is no valid.
-    }
-    else {
-        return NPRESULT_SUCCESS; //Method succeeded.
-    }
-    calFile.close();
+NPRESULT TT_LoadCalibration(const char *filename, bool NPTracking_FAIL_INVALIDFILE, bool NPTracking_FAIL_FAILED){
+	if (NPTracking_FAIL_INVALIDFILE) {
+		return NPRESULT_INVALIDCALFILE; //Invalid calibration file.
+	}
+	else if (NPTracking_FAIL_FAILED){
+		return NPRESULT_LOADFAILED; //The file or path specified is no valid.
+	}
+	else {
+		return NPRESULT_SUCCESS; //Method succeeded.
+	}
 
 }
 
-NPRESULT TT_LoadTrackables(const char *filename){ //== Load Trackables ======----[Si]
-    ifstream trackablesFile;
-    trackablesFile.open(filename, ios::in); //ios::in --> abre para lectura, situándose al principio.
-    std::string stringFilename(filename); //Convert filename from const char to string.
+NPRESULT TT_LoadTrackables(const char *filename, bool NPTracking_FAIL_INVALIDFILE, bool NPTracking_FAIL_FAILED){ //== Load Trackables ======-----
+	if (NPTracking_FAIL_INVALIDFILE) {
+		return NPRESULT_INVALIDFILE; //Invalid file.
+	}
+	else if (NPTracking_FAIL_FAILED){
 
-    if (FAIL_INVALIDFILE) { 
-        //ASSUMING THAT THE FILE MUST BE .TXT: if (stringFilename.substr(stringFilename.find_last_of(".")) != ".txt")
-        //
-        //Check that the extension of the file is ".txt". First a substring is created from the last point of the original 
-        //string until the end, and then this substring is compared to the desired extension: ".txt".
-        return NPRESULT_INVALIDFILE; //Invalid file.
-    }
-    else if (FAIL_FAILED){ 
-        
-        return NPRESULT_LOADFAILED; //The file or path specified is no valid.
-    }
-    else {
-        return NPRESULT_SUCCESS; //Method succeeded.
-    }
-    trackablesFile.close();
-}
-NPRESULT TT_SaveTrackables(const char *filename){ //== Save Trackables ======---- (NO HAY INFO DE FUNCIÓN EN DOCUMENTO)
-    ofstream trackablesFile;
-    trackablesFile.open(filename, ios::app);
-    //INCOMPLETE
-    trackablesFile.close();
-    return (NPRESULT_SUCCESS);
+		return NPRESULT_LOADFAILED; //The file or path specified is no valid.
+	}
+	else {
+		return NPRESULT_SUCCESS; //Method succeeded.
+	}
 
 }
-NPRESULT TT_AddTrackables(const char *filename){ //== Add  Trackables ======----[Si]
-    ifstream trackablesFile;
-    trackablesFile.open(filename, ios::app); //ios::app --> abre el archivo para añadir data al final.
-    std::string stringFilename(filename); //Convert filename from const char to string.
+NPRESULT TT_SaveTrackables(const char *filename, bool NPTracking_FAIL_FAILED){ //== Save Trackables ======---- 
+	if (NPTracking_FAIL_FAILED){
+		return NPRESULT_FAILED;
+	}
+	else {
+		return (NPRESULT_SUCCESS);
+	}
 
-    if (FAIL_INVALIDFILE) {
-        //ASSUMING THAT THE FILE MUST BE .TXT: if (stringFilename.substr(stringFilename.find_last_of(".")) != ".txt")
-        //
-        //Check that the extension of the file is ".txt". First a substring is created from the last point of the original 
-        //string until the end, and then this substring is compared to the desired extension: ".txt".
-        return NPRESULT_INVALIDFILE; //Invalid file.
-    }
-    else if (FAIL_FAILED){
+}
+NPRESULT TT_AddTrackables(const char *filename, bool NPTracking_FAIL_INVALIDFILE, bool NPTracking_FAIL_FAILED){ //== Add  Trackables ======-----
+	if (NPTracking_FAIL_INVALIDFILE) {
+		return NPRESULT_INVALIDFILE; //Invalid file.
+	}
+	else if (NPTracking_FAIL_FAILED){
 
-        return NPRESULT_LOADFAILED; //The file or path specified is no valid.
-    }
-    else {
-        return NPRESULT_SUCCESS; //Method succeeded.
-    }
-    trackablesFile.close();
+		return NPRESULT_LOADFAILED; //The file or path specified is no valid.
+	}
+	else {
+		return NPRESULT_SUCCESS; //Method succeeded.
+	}
+
 }
 
-NPRESULT TT_Update(){                     //== Process incoming camera data -[Si]
-    if (FAIL_INVALIDLICENSE){
-        return NPRESULT_INVALIDLICENSE; //A valid Rigid Body license was not found.
-    }
-    else if (FAIL_NOFRAMEAVAILABLE){
-        return NPRESULT_NOFRAMEAVAILABLE; // No tracking data was found.
-    }
-    else {
-        return NPRESULT_SUCCESS; // Method succeeded.
-    }
+NPRESULT TT_Update(bool NPTracking_FAIL_INVALIDLICENSE, bool NPTracking_FAIL_NOFRAMEAVAILABLE){                     //== Process incoming camera data --
+	if (NPTracking_FAIL_INVALIDLICENSE){
+		return NPRESULT_INVALIDLICENSE; //A valid Rigid Body license was not found.
+	}
+	else if (NPTracking_FAIL_NOFRAMEAVAILABLE){
+		return NPRESULT_NOFRAMEAVAILABLE; // No tracking data was found.
+	}
+	else {
+		return NPRESULT_SUCCESS; // Method succeeded.
+	}
 }
 
-NPRESULT TT_UpdateSingleFrame(){               //== Process incoming camera data -[Si]
-    if (FAIL_INVALIDLICENSE){
-        return NPRESULT_INVALIDLICENSE; //A valid Rigid Body license was not found.
-    }
-    else if (FAIL_NOFRAMEAVAILABLE){
-        return NPRESULT_NOFRAMEAVAILABLE; // No tracking data was found.
-    }
-    else {
-        return NPRESULT_SUCCESS; // Method succeeded.
-    }
+NPRESULT TT_UpdateSingleFrame(bool NPTracking_FAIL_INVALIDLICENSE, bool NPTracking_FAIL_NOFRAMEAVAILABLE){               //== Process incoming camera data --
+	if (NPTracking_FAIL_INVALIDLICENSE){
+		return NPRESULT_INVALIDLICENSE; //A valid Rigid Body license was not found.
+	}
+	else if (NPTracking_FAIL_NOFRAMEAVAILABLE){
+		return NPRESULT_NOFRAMEAVAILABLE; // No tracking data was found.
+	}
+	else {
+		return NPRESULT_SUCCESS; // Method succeeded.
+	}
 }
 
-NPRESULT TT_LoadProject(const char *filename){ //== Load Project File ==========--[Si]
-    ifstream projectFile;
-    projectFile.open(filename, ios::in); //ios::in --> abre para lectura, situándose al principio.
-    std::string stringFilename(filename); //Convert filename from const char to string.
+NPRESULT TT_LoadProject(const char *filename, bool NPTracking_FAIL_INVALIDFILE, bool NPTracking_FAIL_FAILED){ //== Load Project File ==========---
+	if (NPTracking_FAIL_INVALIDFILE) {
+		return NPRESULT_INVALIDFILE; //Invalid file.
+	}
+	else if (NPTracking_FAIL_FAILED){
 
-    if (FAIL_INVALIDFILE) {
-        //ASSUMING THAT THE FILE MUST BE .TXT: if (stringFilename.substr(stringFilename.find_last_of(".")) != ".txt")
-        //
-        //Check that the extension of the file is ".txt". First a substring is created from the last point of the original 
-        //string until the end, and then this substring is compared to the desired extension: ".txt".
-        return NPRESULT_INVALIDFILE; //Invalid file.
-    }
-    else if (FAIL_FAILED){
-
-        return NPRESULT_LOADFAILED; //The file or path specified is no valid.
-    }
-    else {
-        return NPRESULT_SUCCESS; //Method succeeded.
-    }
-    projectFile.close();
+		return NPRESULT_LOADFAILED; //The file or path specified is no valid.
+	}
+	else {
+		return NPRESULT_SUCCESS; //Method succeeded.
+	}
 }
 
-NPRESULT TT_SaveProject(const char *filename){ //== Save Project File ==========--[Si]
-    ofstream projectFile;
-    projectFile.open(filename, ios::app);
-    //INCOMPLETE
-    projectFile.close();
-    return (NPRESULT_SUCCESS);
+NPRESULT TT_SaveProject(const char *filename, bool NPTracking_FAIL_FAILED){ //== Save Project File ==========---
+	if (NPTracking_FAIL_FAILED){
+		return NPRESULT_FAILED;
+	}
+	else {
+		return (NPRESULT_SUCCESS);
+	}
 }
 
-//== FRAME ==========================================================================-----[Si]
+//== FRAME ==========================================================================------
 
-int      TT_FrameMarkerCount(){              //== Returns Frame Markers Count ---
-    variableTestNumberOfMarkers += 100;  
-    return (variableTestNumberOfMarkers);
+int      TT_FrameMarkerCount(int variableTestNumberOfMarkers){              //== Returns Frame Markers Count ---
+	return (variableTestNumberOfMarkers);
 }
 
-float    TT_FrameMarkerX(int index){          //== Returns X Coord of Marker -----
-    if (FAIL_NOFRAMEAVAILABLE){
-        return (0); //No frame data was found
-    }
-    else{
-        variableTestMarkerPositionX += 10;
-        return (variableTestMarkerPositionX);
-    }
-    
+float    TT_FrameMarkerX(int index, bool NPTracking_FAIL_NOFRAMEAVAILABLE, float variableTestMarkerPositionX){          //== Returns X Coord of Marker -----
+	if (NPTracking_FAIL_NOFRAMEAVAILABLE){
+		return (0); //No frame data was found
+	}
+	else{
+		return (variableTestMarkerPositionX);
+	}
+
 }
 
-float    TT_FrameMarkerY(int index){          //== Returns Y Coord of Marker -----
-    if (FAIL_NOFRAMEAVAILABLE){
-        return (0); //No frame data was found
-    }
-    else{
-        variableTestMarkerPositionY += 100;
-        return (variableTestMarkerPositionY);
-    }
+float    TT_FrameMarkerY(int index, bool NPTracking_FAIL_NOFRAMEAVAILABLE, float variableTestMarkerPositionY){          //== Returns Y Coord of Marker -----
+	if (NPTracking_FAIL_NOFRAMEAVAILABLE){
+		return (0); //No frame data was found
+	}
+	else{
+		return (variableTestMarkerPositionY);
+	}
 }
 
-float    TT_FrameMarkerZ(int index){          //== Returns Z Coord of Marker -----
-    if (FAIL_NOFRAMEAVAILABLE){
-        return (0); //No frame data was found
-    }
-    else{
-        variableTestMarkerPositionZ += 1000;
-        return (variableTestMarkerPositionZ);
-    }
+float    TT_FrameMarkerZ(int index, bool NPTracking_FAIL_NOFRAMEAVAILABLE, float variableTestMarkerPositionZ){          //== Returns Z Coord of Marker -----
+	if (NPTracking_FAIL_NOFRAMEAVAILABLE){
+		return (0); //No frame data was found
+	}
+	else{
+		return (variableTestMarkerPositionZ);
+	}
 }
 
-int      TT_FrameMarkerLabel(int index){      //== Returns Label of Marker -------
-    frameMarkerLabel += 1;
-    return (frameMarkerLabel);
+int      TT_FrameMarkerLabel(int index, int frameMarkerLabel){      //== Returns Label of Marker -------
+	return (frameMarkerLabel);
 }
 
-double   TT_FrameTimeStamp(){                 //== Time Stamp of Frame (seconds) 
-    frameTimeSpamp += 0.01;
-    return (frameTimeSpamp);
+double   TT_FrameTimeStamp(double frameTimeSpamp){                 //== Time Stamp of Frame (seconds) 
+	return (frameTimeSpamp);
 }
 
 //== TT_FrameCameraCentroid returns true if the camera is contributing
 //== to this 3D marker.  It also returns the location of the 2D centroid
 //== that is reconstructing to this 3D marker.
+bool     TT_FrameCameraCentroid(int index, int CameraIndex, float &X, float &Y, float Xdef, float Ydef, bool cameraContributionTo3DMarker){
 
+	X = Xdef;
+	Y = Ydef;
 
-bool     TT_FrameCameraCentroid(int index, int CameraIndex, float &X, float &Y){
-    
-
-    return (cameraContributionTo3DMarker);
+	return (cameraContributionTo3DMarker);
 
 }
 
 
-//== TRACKABLES CONTROL =============================================================-----[Si]
 
-bool     TT_IsTrackableTracked(int index){ //== Is trackable currently tracked ---
-    if (FAIL_RIGIDBODYNOTFOUNDINCURRENTFRAME){
-        return (false);
-    }
-    else {
-        return (true);
-    }
+//== TRACKABLES CONTROL =============================================================------
+
+bool     TT_IsTrackableTracked(int index, bool NPTracking_FAIL_RIGIDBODYNOTFOUNDINCURRENTFRAME){ //== Is trackable currently tracked ---
+	if (NPTracking_FAIL_RIGIDBODYNOTFOUNDINCURRENTFRAME){
+		return (false);
+	}
+	else {
+		return (true);
+	}
 }
 
-void     TT_TrackableLocation(int RigidIndex,       //== Trackable Index ======---
-    float *x, float *y, float *z,                  //== Position ==---
-    float *qx, float *qy, float *qz, float *qw,    //== Orientation -- 
-    float *yaw, float *pitch, float *roll){        //== Orientation --
+void     TT_TrackableLocation(int RigidIndex,      //== Trackable Index ======---
+	float *x, float *y, float *z,                  //== Position ==---
+	float *qx, float *qy, float *qz, float *qw,    //== Orientation -- 
+	float *yaw, float *pitch, float *roll,         //== Orientation --
+	bool NPTracking_FAIL_RIGIDBODYNOTFOUNDINCURRENTFRAME,
+	float xdef, float ydef, float zdef,                      //== Position ==---
+	float qxdef, float qydef, float qzdef, float qwdef,  //== Orientation -- 
+	float yawdef, float pitchdef, float rolldef)             //== Orientation --
+{
 
-    if (FAIL_RIGIDBODYNOTFOUNDINCURRENTFRAME){
-        cout << "The rigid body was not tracked in the current frame" << endl;
-    }
-    else {
-        rigidBodyPositionX += 1;
-        *x = rigidBodyPositionX;
-        rigidBodyPositionY += 2;
-        *y = rigidBodyPositionY;
-        rigidBodyPositionZ += 3;
-        *z = rigidBodyPositionZ;
-        rigidBodyQuaternionX += 11;
-        *qx = rigidBodyQuaternionX;
-        rigidBodyQuaternionY += 22;
-        *qy = rigidBodyQuaternionY;
-        rigidBodyQuaternionZ += 33;
-        *qz = rigidBodyQuaternionZ;
-        rigidBodyQuaternionW += 44;
-        *qw = rigidBodyQuaternionW;
-        rigidBodyYaw += 111;
-        *yaw = rigidBodyYaw;
-        rigidBodyPitch += 222;
-        *pitch = rigidBodyPitch;
-        rigidBodyRoll += 333;
-        *roll = rigidBodyRoll;
-        
-    }
+	if (NPTracking_FAIL_RIGIDBODYNOTFOUNDINCURRENTFRAME){
+		cout << "The rigid body was not tracked in the current frame" << endl;
+	}
+	else {
+		*x = xdef;
+		*y = ydef;
+		*z = zdef;
+		*qx = qxdef;
+		*qy = qydef;
+		*qz = qzdef;
+		*qw = qwdef;
+		*yaw = yawdef;
+		*pitch = pitchdef;
+		*roll = rolldef;
+	}
 
 }
 
 void     TT_ClearTrackableList(){             //== Clear all trackables   =====---
-    cout << "  List of rigid body definitions cleared!\n";
+	cout << "  List of rigid body definitions cleared!\n";
 }
 
-NPRESULT TT_RemoveTrackable(int Index){       //== Remove single trackable ====---
-    if (FAIL_FAILED){
-        return (NPRESULT_FAILED);
-    }
-    else{
-        return (NPRESULT_SUCCESS);
-    }
+NPRESULT TT_RemoveTrackable(int Index, bool NPTracking_FAIL_FAILED){       //== Remove single trackable ====---
+	if (NPTracking_FAIL_FAILED){
+		return (NPRESULT_FAILED);
+	}
+	else{
+		return (NPRESULT_SUCCESS);
+	}
 }
 
-int      TT_TrackableCount(){                 //== Returns number of trackables  -
-    numberOfTrackables += 5;
-    return (numberOfTrackables);
+int      TT_TrackableCount(int numberOfTrackables){                 //== Returns number of trackables  -
+	return (numberOfTrackables);
 }
 
-int      TT_TrackableID(int index){           //== Get Trackables ID ==========---
-    return (trackableID);
+int      TT_TrackableID(int index, int trackableID){           //== Get Trackables ID ==========---
+	return (trackableID);
 }
 
 void     TT_SetTrackableID(int index, int ID){ //== Set Trackables ID ==========---
-    trackableID = ID;
-    
+	cout << "  Trackable ID set!\n";
 }
 
 const char* TT_TrackableName(int index){      //== Returns Trackable Name =====---
-    string trackableName = "Name of certain trackable";
-    const char* nameAddress = static_cast<const char*>(trackableName.c_str());
-    return (nameAddress);
+	string trackableName = "Name of the trackable";
+	const char* nameAddress = static_cast<const char*>(trackableName.c_str());
+	return (nameAddress);
 }
 
 void     TT_SetTrackableEnabled(int index, bool enabled){    //== Set Tracking   ====---
-    stateOfTrackable = enabled;
+	cout << "  Trackable Set Enabled!\n";
 }
 
-bool     TT_TrackableEnabled(int index){                     //== Get Tracking   ====---
-    return (stateOfTrackable);
+bool     TT_TrackableEnabled(int index, bool stateOfTrackable){                     //== Get Tracking   ====---
+	return (stateOfTrackable);
 }
 
 NPRESULT TT_TrackableTranslatePivot(int index, float x, float y, float z){
-    rigidBodyPositionX2 = rigidBodyPositionX;   
-    rigidBodyPositionY2 = rigidBodyPositionY;
-    rigidBodyPositionZ2 = rigidBodyPositionZ;
-    rigidBodyPositionX2 += x;
-    rigidBodyPositionY2 += y;
-    rigidBodyPositionZ2 += z;
-    return (NPRESULT_SUCCESS);
+	cout << "  Pivot translated! " << x << y << z << "\n";
+	return (NPRESULT_SUCCESS);
 }
 
-int      TT_TrackableMarkerCount(int index){             //== Get marker count   ====---
-    numberOfTrackableMarkers += 10;
-    return (numberOfTrackableMarkers);
+int      TT_TrackableMarkerCount(int index, int numberOfTrackableMarkers){             //== Get marker count   ====---
+	return (numberOfTrackableMarkers);
 }
 void     TT_TrackableMarker(int RigidIndex,              //== Get Trackable mrkr ====---
-    int MarkerIndex, float *x, float *y, float *z){
-    
-    trackableMarkerPositionX += 1;
-    *x = trackableMarkerPositionX;
-    trackableMarkerPositionY += 2;
-    *y = trackableMarkerPositionY;
-    trackableMarkerPositionZ += 3;
-    *z = trackableMarkerPositionZ;
+	int MarkerIndex, float *x, float *y, float *z,
+	float x_trackMarker_def, float y_trackMarker_def, float z_trackMarker_def){
+
+	*x = x_trackMarker_def;
+	*y = y_trackMarker_def;
+	*z = z_trackMarker_def;
 }
 
 void     TT_TrackablePointCloudMarker(int RigidIndex,    //== Get corresponding point cloud marker ======---
-    int MarkerIndex, bool &Tracked,          //== If tracked is false, there is no
-    float &x, float &y, float &z){           //== corresponding point cloud marker.
+	int MarkerIndex, bool &Tracked,          //== If tracked is false, there is no
+	float &x, float &y, float &z, bool TrackedDef,
+	float x_pointCloudMarker_def, float y_pointCloudMarker_def, float z_pointCloudMarker_def){           //== corresponding point cloud marker.
 
-    trackableMarkerPositionXPointCloud += 1;
-    x = trackableMarkerPositionXPointCloud;
-    trackableMarkerPositionYPointCloud += 2;
-    y = trackableMarkerPositionY;
-    trackableMarkerPositionZPointCloud += 3;
-    z = trackableMarkerPositionZPointCloud;
+	Tracked = TrackedDef;
+	if (Tracked){
+		x = x_pointCloudMarker_def;
+		y = y_pointCloudMarker_def;
+		z = z_pointCloudMarker_def;
+	}
 
 }
-/* No admite el archivo "trackablesettings.h"
 
- //== TT_CreateTrackable.  This creates a trackable based on the marker
+//== TT_CreateTrackable.  This creates a trackable based on the marker
 //== count and marker list provided.  The MarkerList is a expected to
 //== contain of list of marker coordinates in the order: x1,y1,z1,x2,
 //== y2,z2,etc...xN,yN,zN.
 
 NPRESULT TT_CreateTrackable(const char* Name, int ID, int MarkerCount, float *MarkerList){
-    return (NPRESULT_SUCCESS);
+	cout << "  Trackable created successfully! \n";
+	return (NPRESULT_SUCCESS);
 }
 
-NPRESULT TT_TrackableSettings(int Index, cTrackableSettings &Settings){  //== Get Trackable Settings =---
+//== POINT CLOUD INTERFACE ==========================================================-----
 
+int      TT_CameraCount(int numberOfCameras){                    //== Returns Camera Count =====-----
+	return numberOfCameras;
 }
-NPRESULT TT_SetTrackableSettings(int Index, cTrackableSettings &Settings){  //== Set Trackable Settings =---
 
+float    TT_CameraXLocation(int index, float variableCameraPositionX){       //== Returns Camera's X Coord =-----
+	return variableCameraPositionX;
 }
 
+float    TT_CameraYLocation(int index, float variableCameraPositionY){       //== Returns Camera's Y Coord =-----
+	return variableCameraPositionY;
+}
+
+float    TT_CameraZLocation(int index, float variableCameraPositionZ){       //== Returns Camera's Z Coord =-----
+	return variableCameraPositionZ;
+}
+
+float    TT_CameraOrientationMatrix(int camera, int index, float orientationMatrixCameraIndex){ //== Orientation -----
+	return orientationMatrixCameraIndex;
+}
+
+//= = Set camera settings.This function allows you to set the camera's video mode, exposure, threshold, and illumination settings.
+
+//== VideoType:  
+//==     0 = Segment Mode   
+//==     1 = Grayscale Mode 
+//==     2 = Object Mode    
+//==     4 = Precision Mode
+//==     6 = MJPEG Mode     (V100R2 only)
+
+//== Exposure: Valid values are:  1-480
+//== Threshold: Valid values are: 0-255
+//== Intensity: Valid values are: 0-15  (This should be set to 15 for all most all
+//==                                     situations)
+bool     TT_SetCameraSettings(int CameraIndex, int VideoType, int Exposure, int Threshold, int Intensity, bool succesfulUpdateOfCameraSettings){
+	return (succesfulUpdateOfCameraSettings);
+}
+
+//= = CameraMarker fetches the 2D centroid location of the marker as seen by the camera.
+bool     TT_CameraMarker(int CameraIndex, int MarkerIndex, float &x, float &y, bool succesfulCameraMarker,
+	float x_cameraMarker_def, float y_cameraMarker_def){
+	x = x_cameraMarker_def;
+	y = y_cameraMarker_def;
+	return succesfulCameraMarker;
+}
+
+//== Backproject from 3D space to 2D space.  If you give this function a 3D
+//== location and select a camera, it will return where the point would land
+//== on the imager of that camera in to 2D space.  This basically locates
+//== where in the cameras FOV a 3D point would be located.
+void     TT_CameraBackproject(int CameraIndex, float X, float Y, float Z, float &CameraX, float &CameraY, float CameraX_def, float CameraY_def){
+	CameraX = CameraX_def;
+	CameraY = CameraY_def;
+}
 
 //== RESULT PROCESSING ========================================================================================-----
 
-*/
+const char *TT_GetResultString(NPRESULT result){ //== Return Plain Text Message =======================------
+	string messageResult;
+	const char *location;
+	switch (result)
+	{
+	case NPRESULT_SUCCESS:  messageResult = "Successful Result";
+		location = messageResult.c_str();
+		return (location);
+		break;
 
-const char *TT_GetResultString(NPRESULT result){ //== Return Plain Text Message =======================-----[Si]
-    string messageResult;
-    const char *location;
-    switch (result)
-    {
-    case NPRESULT_SUCCESS:  messageResult= "Successful Result";
-        location = static_cast<const char*>(messageResult.c_str()); //Convert the string "messageResult" to a const char* "location"
-        return (location);
-        break;
-    case NPRESULT_FILENOTFOUND:messageResult = "File Not Found";
-        location = static_cast<const char*>(messageResult.c_str());
-        return (location);
-        break;
-    case NPRESULT_LOADFAILED:messageResult = "Load Failed";
-        location = static_cast<const char*>(messageResult.c_str());
-        return (location);
-        break;
-    case NPRESULT_FAILED: messageResult = "Failed";
-        location = static_cast<const char*>(messageResult.c_str());
-        return (location);
-        break;
-    case NPRESULT_INVALIDFILE: messageResult = "Invalid File";
-        location = static_cast<const char*>(messageResult.c_str());
-        return (location);
-        break;
-    case NPRESULT_INVALIDCALFILE:messageResult = "Invalid Calibration File";
-        location = static_cast<const char*>(messageResult.c_str());
-        return (location);
-        break;
-    case NPRESULT_UNABLETOINITIALIZE: messageResult = "Unable To Initialize";
-        location = static_cast<const char*>(messageResult.c_str());
-        return (location);
-        break;
-    case NPRESULT_INVALIDLICENSE:messageResult = "Invalid License";
-        location = static_cast<const char*>(messageResult.c_str());
-        return (location);
-        break;
-    case NPRESULT_NOFRAMEAVAILABLE: messageResult = "No Frames Available";
-        location = static_cast<const char*>(messageResult.c_str());
-        return (location);
-        break;
-    default:messageResult = "Unknown Error";
-        location = static_cast<const char*>(messageResult.c_str());
-        return (location);
-        break;
-        
-    }
-    
+	case NPRESULT_FILENOTFOUND:messageResult = "File Not Found";
+		location = messageResult.c_str();
+		return (location);
+		break;
+	case NPRESULT_LOADFAILED:messageResult = "Load Failed";
+		location = messageResult.c_str();
+		return (location);
+		break;
+	case NPRESULT_FAILED: messageResult = "Failed";
+		location = messageResult.c_str();
+		return (location);
+		break;
+	case NPRESULT_INVALIDFILE: messageResult = "Invalid File";
+		location = messageResult.c_str();
+		return (location);
+		break;
+	case NPRESULT_INVALIDCALFILE:messageResult = "Invalid Calibration File";
+		location = messageResult.c_str();
+		return (location);
+		break;
+	case NPRESULT_UNABLETOINITIALIZE: messageResult = "Unable To Initialize";
+		location = messageResult.c_str();
+		return (location);
+		break;
+	case NPRESULT_INVALIDLICENSE:messageResult = "Invalid License";
+		location = messageResult.c_str();
+		return (location);
+		break;
+	case NPRESULT_NOFRAMEAVAILABLE: messageResult = "No Frames Available";
+		location = messageResult.c_str();
+		return (location);
+		break;
+	default:messageResult = "Unknown Error";
+		location = messageResult.c_str();
+		return (location);
+		break;
+
+	}
+
 }
+
+
 
 /**@}*/
 
