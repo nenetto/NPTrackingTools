@@ -163,6 +163,114 @@ void CreateXMLToolCalibrationFile(std::string pathNewXMLFile, int toolNumberOfCa
 	XMLCheckResult(eResult);
 }
 
+void ReadXMLTool(std::string pathXMLFile, char &fileType, std::string &toolName, int &toolNumberOfMarkers, float* arrayPositionsMarkers, float* arrayPositionPivot,
+	const char*calibrationFileName, int &dayCurrentDate, int &monthCurrentDate, int &yearCurrentDate, float &calibrationErrorRMS, float &calibrationErrorMean,
+	float &calibrationErrorSD, float &calibrationErrorMedian, float &calibrationErrorQ1, float &calibrationErrorQ3)
+{
+	tinyxml2::XMLDocument xmlDoc;
+	char* char_Path = (char*)pathXMLFile.c_str(); //Conversion from string to char*.
+	tinyxml2::XMLError eResult = xmlDoc.LoadFile(char_Path);
+	XMLCheckResult(eResult);
+
+	tinyxml2::XMLNode * pRoot = xmlDoc.FirstChild();
+	if (pRoot == nullptr) tinyxml2::XMLError::XML_ERROR_FILE_READ_ERROR;
+
+	//FileType
+	tinyxml2::XMLElement * pElement = pRoot->FirstChildElement("FileType");
+	if (pElement == nullptr) tinyxml2::XMLError::XML_ERROR_PARSING_ELEMENT;
+	fileType = *pElement->GetText();
+	cout << fileType << endl;
+
+	//CalibrationDate
+	pElement = pRoot->FirstChildElement("CalibrationDate");
+	if (pElement == nullptr) tinyxml2::XMLError::XML_ERROR_PARSING_ELEMENT;
+	
+	eResult = pElement->QueryIntAttribute("D", &dayCurrentDate);
+	XMLCheckResult(eResult);
+
+	eResult = pElement->QueryIntAttribute("M", &monthCurrentDate);
+	XMLCheckResult(eResult);
+
+	eResult = pElement->QueryIntAttribute("Y", &yearCurrentDate);
+	XMLCheckResult(eResult);
+
+	//CalibrationError
+	pElement = pRoot->FirstChildElement("CalibrationError");
+	if (pElement == nullptr) tinyxml2::XMLError::XML_ERROR_PARSING_ELEMENT;
+
+	eResult = pElement->QueryFloatAttribute("RMS", &calibrationErrorRMS);
+	XMLCheckResult(eResult);
+
+	eResult = pElement->QueryFloatAttribute("Mean", &calibrationErrorMean);
+	XMLCheckResult(eResult);
+
+	eResult = pElement->QueryFloatAttribute("SD", &calibrationErrorSD);
+	XMLCheckResult(eResult);
+
+	eResult = pElement->QueryFloatAttribute("Median", &calibrationErrorMedian);
+	XMLCheckResult(eResult);
+
+	eResult = pElement->QueryFloatAttribute("Q1", &calibrationErrorQ1);
+	XMLCheckResult(eResult);
+
+	eResult = pElement->QueryFloatAttribute("Q3", &calibrationErrorQ3);
+	XMLCheckResult(eResult);
+
+	//ToolName
+	pElement = pRoot->FirstChildElement("ToolName");
+	if (pElement == nullptr) tinyxml2::XMLError::XML_ERROR_PARSING_ELEMENT;
+	toolName = pElement->GetText(); //REvisaaaaar
+	
+	//ToolMarkersNum
+	pElement = pRoot->FirstChildElement("ToolMarkersNum");
+	if (pElement == nullptr) tinyxml2::XMLError::XML_ERROR_PARSING_ELEMENT;
+	eResult = pElement->QueryIntText(&toolNumberOfMarkers);
+	XMLCheckResult(eResult);
+
+	//ToolMarkers
+	pElement = pRoot->FirstChildElement("ToolMarkers");
+	if (pElement == nullptr) tinyxml2::XMLError::XML_ERROR_PARSING_ELEMENT;
+	int counter = 0;
+	int markerLocation = 0;
+	tinyxml2::XMLElement * pListElement = pElement->FirstChildElement("0");
+	while ((counter<(toolNumberOfMarkers * 3)) && (pListElement != nullptr))
+	{
+		eResult = pListElement->QueryFloatAttribute("x", &arrayPositionsMarkers[counter]);
+		XMLCheckResult(eResult);
+		eResult = pListElement->QueryFloatAttribute("y", &arrayPositionsMarkers[counter + 1]);
+		XMLCheckResult(eResult);
+		eResult = pListElement->QueryFloatAttribute("z", &arrayPositionsMarkers[counter + 2]);
+		XMLCheckResult(eResult);
+		counter = counter + 3;
+
+		//Conversion from int to char*.
+		stringstream strs;
+		markerLocation = (counter / 3) + 1;
+		strs << (markerLocation);
+		string temp_str = strs.str();
+		char* char_type = (char*)temp_str.c_str();
+		pListElement = pListElement->NextSiblingElement(char_type);
+	}
+
+	//ToolPivot
+	pElement = pRoot->FirstChildElement("ToolPivot");
+	if (pElement == nullptr) tinyxml2::XMLError::XML_ERROR_PARSING_ELEMENT;
+
+	eResult = pElement->QueryFloatAttribute("x", &arrayPositionPivot[0]);
+	XMLCheckResult(eResult);
+
+	eResult = pElement->QueryFloatAttribute("y", &arrayPositionPivot[1]);
+	XMLCheckResult(eResult);
+
+	eResult = pElement->QueryFloatAttribute("z", &arrayPositionPivot[2]);
+	XMLCheckResult(eResult);
+
+	//CalibrationFile
+	pElement = pRoot->FirstChildElement("CalibrationFile");
+	if (pElement == nullptr) tinyxml2::XMLError::XML_ERROR_PARSING_ELEMENT;
+	char* char_calibrationFileName;
+	calibrationFileName = pElement->GetText(); //REvisaaaaar
+}
 
 
 int main (int argc, char *argv[])
@@ -184,6 +292,23 @@ int main (int argc, char *argv[])
   CreateXMLToolCalibrationFile("D:/DAVID UC3M/SavedDataCalibration.xml", toolNumberOfCalibrationPoints, arrayPositionsCalibrationPoints, arrayTransformation,
 	  24, 02, 2015, 1, 2, 3, 4, 5, 6);
   
+  string pathXMLFileToRead = "D:/DAVID UC3M/SavedData.xml";
+  char fileType_read;
+  string toolName_read;
+  int toolNumberOfMarkers_read;
+  float* arrayPositionsMarkers_read;
+  float* arrayPositionPivot_read;
+  char* calibrationFileName_read;
+  int dayCurrentDate_read, monthCurrentDate_read, yearCurrentDate_read   ;
+  float calibrationErrorRMS_read=0, calibrationErrorMean_read=0, calibrationErrorSD_read=0, 
+	  calibrationErrorMedian_read=0, calibrationErrorQ1_read=0, calibrationErrorQ3_read=0;
+
+  ReadXMLTool(pathXMLFileToRead, fileType_read, toolName_read, toolNumberOfMarkers_read, arrayPositionsMarkers_read, arrayPositionPivot_read,
+	  calibrationFileName_read, dayCurrentDate_read, monthCurrentDate_read, yearCurrentDate_read, calibrationErrorRMS_read, calibrationErrorMean_read,
+	  calibrationErrorSD_read, calibrationErrorMedian_read, calibrationErrorQ1_read, calibrationErrorQ3_read);
+  cout << "," << arrayPositionsMarkers_read[1] << "," << arrayPositionPivot_read[1] << "," << endl;
+
+
 /*
   fprintf(stdout, "[TestOptitrack]: Calling TT_Initialize\n");
 
