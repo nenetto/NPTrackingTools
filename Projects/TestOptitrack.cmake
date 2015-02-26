@@ -2,7 +2,7 @@
 # Date: 2012-10-28
 
 set(EP_OPTION_NAME "USE_${EP_NAME}")
-set(EP_REQUIRED_PROJECTS NPTrackingTools Laubrary)
+set(EP_REQUIRED_PROJECTS NPTrackingTools Laubrary tinyxml2 ITK)
 set(EP_OPTION_DESCRIPTION "Test Optitrack")
 set(EP_OPTION_DEFAULT ${${PROJECT_NAME}_TestOptitrack_Exe})
 
@@ -19,6 +19,7 @@ set(EP_CMAKE_ARGS
   -DTestOptitrack_BUILD_DOCUMENTATION:BOOL=${${PROJECT_NAME}_BUILD_DOCUMENTATION}
   -DNPTrackingTools_DIR:PATH=${${PROJECT_NAME}_NPTrackingTools_DIR}
   -DLaubrary_DIR:PATH=${${PROJECT_NAME}_Laubrary_DIR}
+  -Dtinyxml2_DIR:PATH=${${PROJECT_NAME}_tinyxml2_DIR}
   )
 
 if(${${PROJECT_NAME}_BUILD_DOCUMENTATION})
@@ -41,7 +42,7 @@ ExternalProject_Add(${EP_NAME}
   # build
   BINARY_DIR ${PROJECT_BINARY_DIR}/${EP_NAME}-build
   # install
-# INSTALL_COMMAND ""
+  INSTALL_COMMAND ""
   # test
   )
 

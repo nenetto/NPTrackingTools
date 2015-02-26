@@ -72,18 +72,24 @@ option(NPTrackingTools_DIR "")
 find_package (NPTrackingTools)
 target_link_libraries(${PROJECT_NAME} NPTrackingTools)
 
-<<<<<<< HEAD
-=======
-
 ###############################
 # Search for ITK ##
 ###############################
 find_package(ITK REQUIRED)
 include(${ITK_USE_FILE})
-#target_link_libraries(${PROJECT_NAME} ITKCommon ITKIO ITKCore)
 target_link_libraries(${PROJECT_NAME} ${ITK_LIBRARIES})
 
->>>>>>> 0c5d8962b782c26a505fec1762992a81b2162c85
+###############################
+# Search for tinyxml2 ##
+###############################
+list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMake")
+option(tinyxml2_DIR "")
+find_package (tinyxml2)
+include_directories(${tinyxml2_INCLUDE_DIR})
+message(tinyxml2_INCLUDE_DIR ${tinyxml2_INCLUDE_DIR})
+target_link_libraries(${PROJECT_NAME} ${tinyxml2_LIBRARY})
+
+
 # Headers (all are public)
 include_directories(include)
 include_directories(${PROJECT_BINARY_DIR}/CmakeFilesHeader)

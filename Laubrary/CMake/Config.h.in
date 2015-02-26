@@ -2,17 +2,6 @@
 #define PROJ_NAME ${PROJECT_NAME}
 #define VERSION_MAJOR ${${PROJECT_NAME}_VERSION_MAJOR}
 #define VERSION_MINOR ${${PROJECT_NAME}_VERSION_MINOR}
-<<<<<<< HEAD
-=======
 
 #include "${PROJECT_NAME}_Export.h"
-
 #define OPTITRACK_ATTEMPTS 10
-
-#define ${PROJECT_NAME}ClassMacro(className,SuperClassName) \
-typedef className        Self; \
-typedef SuperClassName      Superclass; \
-typedef itk::SmartPointer<Self> Pointer; \
-typedef itk::SmartPointer<const Self>  ConstPointer; \
-itkTypeMacro(className,SuperClassName)
->>>>>>> 0c5d8962b782c26a505fec1762992a81b2162c85

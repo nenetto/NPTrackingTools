@@ -8,11 +8,7 @@ INPUT                  = @doxy_main_page@ \
 FILE_PATTERNS          = *.h \
                          *.cc
 RECURSIVE              = YES
-<<<<<<< HEAD
-USE_MDFILE_AS_MAINPAGE = @doxy_main_page@
-=======
 USE_MDFILE_AS_MAINPAGE = @doxy_main_page@
 EXTRACT_ALL            = YES
-HAVE_DOT               = YES
 UML_LOOK               = YES
->>>>>>> 0c5d8962b782c26a505fec1762992a81b2162c85
+

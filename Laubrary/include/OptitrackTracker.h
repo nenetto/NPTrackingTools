@@ -8,6 +8,7 @@
 #include "NPTrackingTools.h"
 
 // OptitrackTol
+#include "OptitrackMacros.h"
 #include "OptitrackTool.h"
 
 // Extra std libs

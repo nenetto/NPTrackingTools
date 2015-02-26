@@ -24,6 +24,23 @@ option(Laubrary_DIR "")
 find_package (Laubrary)
 target_link_libraries(${PROJECT_NAME} Laubrary)
 
+###############################
+# Search for tinyxml2 ##
+###############################
+list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMake")
+option(tinyxml2_DIR "")
+find_package (tinyxml2)
+include_directories(${tinyxml2_INCLUDE_DIR})
+message(tinyxml2_INCLUDE_DIR ${tinyxml2_INCLUDE_DIR})
+target_link_libraries(${PROJECT_NAME} ${tinyxml2_LIBRARY})
+
+###############################
+# Search for ITK ##
+###############################
+find_package(ITK REQUIRED)
+include(${ITK_USE_FILE})
+target_link_libraries(${PROJECT_NAME} ${ITK_LIBRARIES})
+
 # Documentation
 option(TestOptitrack_BUILD_DOCUMENTATION "" OFF)
 

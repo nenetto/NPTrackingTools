@@ -144,7 +144,7 @@ NPRESULT TT_SetTrackableSettings(int Index, cTrackableSettings &Settings);  //==
 
 //== POINT CLOUD INTERFACE ==========================================================-----
 
-int      TT_CameraCount(int numberOfCameras);                    //== Returns Camera Count =====-----
+int      TT_CameraCount(int numberOfCameras = 0);                    //== Returns Camera Count =====-----
 float    TT_CameraXLocation(int index, float variableCameraPositionX = 0);       //== Returns Camera's X Coord =-----
 float    TT_CameraYLocation(int index, float variableCameraPositionY = 0);       //== Returns Camera's Y Coord =-----
 float    TT_CameraZLocation(int index, float variableCameraPositionZ = 0);       //== Returns Camera's Z Coord =-----
