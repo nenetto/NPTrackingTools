@@ -3,21 +3,23 @@
 namespace Optitrack{
 
 
-    void OptitrackTracker::SetState(OPTITRACK_TRACKER_STATE state_)
+    void OptitrackTracker::SetState(OptitrackTracker::OPTITRACK_TRACKER_STATE state_)
     {
         MutexLockHolder lock(*m_StateMutex);
-        if (m_state == state_)
+        if (m_State == state_)
         {
             return;
         }
-        this->m_state = state_;
+        this->m_State = state_;
         this->Modified();
+        this->m_StateMutex->Unlock();
     }
 
     OptitrackTracker::OPTITRACK_TRACKER_STATE OptitrackTracker::GetState( void )
     {
         MutexLockHolder lock(*m_StateMutex);
-        return this->m_state;
+        return this->m_State;
+        this->m_StateMutex->Unlock();
     }
 
     OptitrackTracker::OptitrackTracker()

@@ -6,7 +6,6 @@
 
 // NPTrackingTools library
 #include "NPTrackingTools.h"
-#define OPTITRACK_ATTEMPTS 10
 
 // OptitrackTol
 #include "OptitrackTool.h"
@@ -191,22 +190,15 @@ namespace Optitrack{
 
         /**
         * \brief Set the Cameras Exposure, Threshold and Intensity of IR LEDs. By Default it set the Video type to 4: Precision Mode for tracking
-        * //== VideoType:
-            * //==     0 = Segment Mode
-            * //==     1 = Grayscale Mode
-            * //==     2 = Object Mode
-            * //==     4 = Precision Mode
-            * //==     6 = MJPEG Mode     (V100R2 only)
-        * \return Returns true if all cameras were set up correctly
-        * @throw mitk::IGTException Throws an exception if System is not Initialized
+        * == VideoType:
+        * ==     0 = Segment Mode
+        * ==     1 = Grayscale Mode
+        * ==     2 = Object Mode
+        * ==     4 = Precision Mode
+        * ==     6 = MJPEG Mode     (V100R2 only)
+        * \return Returns ResultType SUCCESS if all cameras were set up correctly
         */
         ResultType SetCameraParams(int exposure, int threshold, int intensity, int videoType = 4);
-
-
-        void SetEvent(OPTITRACK_TRACKER_EVENT event_);
-        void SetState(OPTITRACK_TRACKER_STATE state_);
-        OPTITRACK_TRACKER_EVENT GetEvent( void );
-        OPTITRACK_TRACKER_STATE GetState( void );
 
         /** @brief Sets the directory where the calibration file of the MicronTracker can be found. */
         itkSetMacro(Exp,unsigned int);
@@ -241,17 +233,29 @@ namespace Optitrack{
         OptitrackTracker(const OptitrackTracker&);
         const OptitrackTracker& operator=(const OptitrackTracker&);
 
+        /** @brief Sets the tool Event */
+        void SetEvent(OPTITRACK_TRACKER_EVENT event_);
+
+        /** @brief Sets the tool State */
+        void SetState(OPTITRACK_TRACKER_STATE state_);
+
+        /** @brief Gets the tool Event */
+        OPTITRACK_TRACKER_EVENT GetEvent( void );
+
+        /** @brief Gets the tool State */
+        OPTITRACK_TRACKER_STATE GetState( void );
+
     private:
 
         /**
         * \brief State of the Tracker
         */
-        OPTITRACK_TRACKER_STATE m_state = STATE_TRACKER_NoState;
+        OPTITRACK_TRACKER_STATE m_State = STATE_TRACKER_NoState;
 
         /**
         * \brief Last Signal/Event Launched by Tracker
         */
-        OPTITRACK_TRACKER_EVENT m_event = EVENT_TRACKER_NoEvent;
+        OPTITRACK_TRACKER_EVENT m_Event = EVENT_TRACKER_NoEvent;
 
         /**
         * \brief Calibration File used for Tracking
@@ -333,3 +337,6 @@ namespace Optitrack{
 // 2. Line 224 cpp
 // 3. Line 246 cpp
 // 4. Line 342 cpp
+
+// 5. Create new std::out to log file.
+// 6. Print Self

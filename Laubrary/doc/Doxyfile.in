@@ -9,3 +9,6 @@ FILE_PATTERNS          = *.h \
                          *.cc
 RECURSIVE              = YES
 USE_MDFILE_AS_MAINPAGE = @doxy_main_page@
+EXTRACT_ALL            = YES
+HAVE_DOT               = YES
+UML_LOOK               = YES

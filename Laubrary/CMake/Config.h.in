@@ -5,6 +5,8 @@
 
 #include "${PROJECT_NAME}_Export.h"
 
+#define OPTITRACK_ATTEMPTS 10
+
 #define ${PROJECT_NAME}ClassMacro(className,SuperClassName) \
 typedef className        Self; \
 typedef SuperClassName      Superclass; \
