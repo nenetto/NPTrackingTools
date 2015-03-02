@@ -26,12 +26,6 @@
 #include <itkMutexLockHolder.h>
 #include <itkObject.h>
 
-/**
-* \brief MutexHolder to keep rest of Mutex
-*/
-typedef itk::MutexLockHolder<itk::FastMutexLock> MutexLockHolder;
-
-class Laubrary_EXPORT OptitrackTool;
 
 namespace Optitrack{
 
@@ -92,14 +86,6 @@ namespace Optitrack{
             EVENT_TRACKER_TrackerUpdateStatusErrorEvent = 13
         } OPTITRACK_TRACKER_EVENT;
 
-        /**
-        * \brief Different options for the result of the functions
-        */
-        typedef enum
-        {
-            FAILURE = 0,
-            SUCCESS = 1
-        } ResultType;
 
         /**
         * \brief Open the Connection with the Tracker. Calls LoadCalibration function and set the system up with the calibration file.
@@ -334,10 +320,5 @@ namespace Optitrack{
 
 // TODO
 //
-// 1. Access to State using Mutex
-// 2. Line 224 cpp
-// 3. Line 246 cpp
-// 4. Line 342 cpp
-
 // 5. Create new std::out to log file.
 // 6. Print Self
