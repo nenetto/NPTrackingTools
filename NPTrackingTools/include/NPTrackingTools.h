@@ -41,9 +41,6 @@ namespace Core
 
 struct Marker;
 
-//== NPRIGIDBODY PUBLIC INTERFACE ===================================================-----
-
-#define NPRESULT int                  //== NPRESULT Defines Call Success/Failure ====-----
 
 //== RIGID BODY STARTUP / SHUTDOWN ==================================================-----
 
@@ -58,47 +55,47 @@ struct Marker;
 #define NPRESULT int                  //== NPRESULT Defines Call Success/Failure ====-----
 
 //== RIGID BODY STARTUP / SHUTDOWN ==================================================-----
-NPRESULT TT_Initialize(bool NPTracking_FAIL_INVALIDLICENSE = false, bool NPTracking_FAIL_UNABLETOINITIALIZE = false);      //== Initialize Library ======================----- -
+TTAPI NPRESULT TT_Initialize(bool NPTracking_FAIL_INVALIDLICENSE = false, bool NPTracking_FAIL_UNABLETOINITIALIZE = false);      //== Initialize Library ======================----- -
 
-NPRESULT TT_Shutdown(bool NPTracking_FAIL_UNABLETOSHUTDOWN = false);        //== Shutdown Library ========================------
+TTAPI NPRESULT TT_Shutdown(bool NPTracking_FAIL_UNABLETOSHUTDOWN = false);        //== Shutdown Library ========================------
 
-NPRESULT TT_FinalCleanup(bool NPTracking_FAIL_UNABLETOCLEANUP = false);    //== This shuts down device driver, call =====------
+TTAPI NPRESULT TT_FinalCleanup(bool NPTracking_FAIL_UNABLETOCLEANUP = false);    //== This shuts down device driver, call =====------
 //== this before exiting your application. ===-----
 
 
 //== RIGID BODY INTERFACE ===========================================================-----
 
-NPRESULT TT_LoadCalibration(const char *filename, bool NPTracking_FAIL_INVALIDFILE = false, bool NPTracking_FAIL_FAILED = false); //== Load Calibration =====-----
-NPRESULT TT_LoadTrackables(const char *filename, bool NPTracking_FAIL_INVALIDFILE = false, bool NPTracking_FAIL_FAILED = false); //== Load Trackables ======-----
-NPRESULT TT_SaveTrackables(const char *filename, bool NPTracking_FAIL_FAILED = false); //== Save Trackables ======-----
-NPRESULT TT_AddTrackables(const char *filename, bool NPTracking_FAIL_INVALIDFILE = false, bool NPTracking_FAIL_FAILED = false); //== Add  Trackables ======-----
-NPRESULT TT_Update(bool NPTracking_FAIL_INVALIDLICENSE = false, bool NPTracking_FAIL_NOFRAMEAVAILABLE = false);                          //== Process incoming camera data --
-NPRESULT TT_UpdateSingleFrame(bool NPTracking_FAIL_INVALIDLICENSE = false, bool NPTracking_FAIL_NOFRAMEAVAILABLE = false);               //== Process incoming camera data --
-NPRESULT TT_LoadProject(const char *filename, bool NPTracking_FAIL_INVALIDFILE = false, bool NPTracking_FAIL_FAILED = false); //== Load Project File ==========---
-NPRESULT TT_SaveProject(const char *filename, bool NPTracking_FAIL_FAILED = false); //== Save Project File ==========---
+TTAPI NPRESULT TT_LoadCalibration(const char *filename, bool NPTracking_FAIL_INVALIDFILE = false, bool NPTracking_FAIL_FAILED = false); //== Load Calibration =====-----
+TTAPI NPRESULT TT_LoadTrackables(const char *filename, bool NPTracking_FAIL_INVALIDFILE = false, bool NPTracking_FAIL_FAILED = false); //== Load Trackables ======-----
+TTAPI NPRESULT TT_SaveTrackables(const char *filename, bool NPTracking_FAIL_FAILED = false); //== Save Trackables ======-----
+TTAPI NPRESULT TT_AddTrackables(const char *filename, bool NPTracking_FAIL_INVALIDFILE = false, bool NPTracking_FAIL_FAILED = false); //== Add  Trackables ======-----
+TTAPI NPRESULT TT_Update(bool NPTracking_FAIL_INVALIDLICENSE = false, bool NPTracking_FAIL_NOFRAMEAVAILABLE = false);                          //== Process incoming camera data --
+TTAPI NPRESULT TT_UpdateSingleFrame(bool NPTracking_FAIL_INVALIDLICENSE = false, bool NPTracking_FAIL_NOFRAMEAVAILABLE = false);               //== Process incoming camera data --
+TTAPI NPRESULT TT_LoadProject(const char *filename, bool NPTracking_FAIL_INVALIDFILE = false, bool NPTracking_FAIL_FAILED = false); //== Load Project File ==========---
+TTAPI NPRESULT TT_SaveProject(const char *filename, bool NPTracking_FAIL_FAILED = false); //== Save Project File ==========---
 
 
 
 //== FRAME ==========================================================================------
 
-int      TT_FrameMarkerCount(int variableTestNumberOfMarkers = 0);               //== Returns Frame Markers Count ---
-float    TT_FrameMarkerX(int index, bool NPTracking_FAIL_NOFRAMEAVAILABLE = false, float variableTestMarkerPositionX = 0);          //== Returns X Coord of Marker -----
-float    TT_FrameMarkerY(int index, bool NPTracking_FAIL_NOFRAMEAVAILABLE = false, float variableTestMarkerPositionY = 0);          //== Returns Y Coord of Marker -----
-float    TT_FrameMarkerZ(int index, bool NPTracking_FAIL_NOFRAMEAVAILABLE = false, float variableTestMarkerPositionZ = 0);          //== Returns Z Coord of Marker -----
-int      TT_FrameMarkerLabel(int index, int frameMarkerLabel = 0);      //== Returns Label of Marker -------
-double   TT_FrameTimeStamp(double frameTimeSpamp = 0.0);                 //== Time Stamp of Frame (seconds) -
+TTAPI int      TT_FrameMarkerCount(int variableTestNumberOfMarkers = 0);               //== Returns Frame Markers Count ---
+TTAPI float    TT_FrameMarkerX(int index, bool NPTracking_FAIL_NOFRAMEAVAILABLE = false, float variableTestMarkerPositionX = 0);          //== Returns X Coord of Marker -----
+TTAPI float    TT_FrameMarkerY(int index, bool NPTracking_FAIL_NOFRAMEAVAILABLE = false, float variableTestMarkerPositionY = 0);          //== Returns Y Coord of Marker -----
+TTAPI float    TT_FrameMarkerZ(int index, bool NPTracking_FAIL_NOFRAMEAVAILABLE = false, float variableTestMarkerPositionZ = 0);          //== Returns Z Coord of Marker -----
+TTAPI int      TT_FrameMarkerLabel(int index, int frameMarkerLabel = 0);      //== Returns Label of Marker -------
+TTAPI double   TT_FrameTimeStamp(double frameTimeSpamp = 0.0);                 //== Time Stamp of Frame (seconds) -
 
 //== TT_FrameCameraCentroid returns true if the camera is contributing
 //== to this 3D marker.  It also returns the location of the 2D centroid
 //== that is reconstructing to this 3D marker.
 
-bool     TT_FrameCameraCentroid(int index, int CameraIndex, float &X, float &Y, float Xdef = 10, float Ydef = 20, bool cameraContributionTo3DMarker = true);
+TTAPI bool     TT_FrameCameraCentroid(int index, int CameraIndex, float &X, float &Y, float Xdef = 10, float Ydef = 20, bool cameraContributionTo3DMarker = true);
 
 
 //== TRACKABLES CONTROL =============================================================------
 
-bool     TT_IsTrackableTracked(int index, bool NPTracking_FAIL_RIGIDBODYNOTFOUNDINCURRENTFRAME = false); //== Is trackable currently tracked ---
-void     TT_TrackableLocation(int RigidIndex,       //== Trackable Index ======---
+TTAPI bool     TT_IsTrackableTracked(int index, bool NPTracking_FAIL_RIGIDBODYNOTFOUNDINCURRENTFRAME = false); //== Is trackable currently tracked ---
+TTAPI void     TT_TrackableLocation(int RigidIndex,       //== Trackable Index ======---
 	float *x, float *y, float *z,                  //== Position ==---
 	float *qx, float *qy, float *qz, float *qw,    //== Orientation -- 
 	float *yaw, float *pitch, float *roll,
@@ -107,25 +104,25 @@ void     TT_TrackableLocation(int RigidIndex,       //== Trackable Index ======-
 	float qxdef = 0, float qydef = 0, float qzdef = 0, float qwdef = 0,  //== Orientation -- 
 	float yawdef = 0, float pitchdef = 0, float rolldef = 0);        //== Orientation --
 
-void     TT_ClearTrackableList();             //== Clear all trackables   =====---
-NPRESULT TT_RemoveTrackable(int Index, bool NPTracking_FAIL_FAILED = false);       //== Remove single trackable ====---
-int      TT_TrackableCount(int numberOfTrackables = 0);                 //== Returns number of trackables  -
+TTAPI void     TT_ClearTrackableList();             //== Clear all trackables   =====---
+TTAPI NPRESULT TT_RemoveTrackable(int Index, bool NPTracking_FAIL_FAILED = false);       //== Remove single trackable ====---
+TTAPI int      TT_TrackableCount(int numberOfTrackables = 0);                 //== Returns number of trackables  -
 
-int      TT_TrackableID(int index, int trackableID = 0);           //== Get Trackables ID ==========---
-void     TT_SetTrackableID(int index, int ID); //== Set Trackables ID ==========---
-const char* TT_TrackableName(int index);      //== Returns Trackable Name =====---
+TTAPI int      TT_TrackableID(int index, int trackableID = 0);           //== Get Trackables ID ==========---
+TTAPI void     TT_SetTrackableID(int index, int ID); //== Set Trackables ID ==========---
+TTAPI const char* TT_TrackableName(int index);      //== Returns Trackable Name =====---
 
-void     TT_SetTrackableEnabled(int index, bool enabled);    //== Set Tracking   ====---
-bool     TT_TrackableEnabled(int index, bool stateOfTrackable = true);                     //== Get Tracking   ====---
+TTAPI void     TT_SetTrackableEnabled(int index, bool enabled);    //== Set Tracking   ====---
+TTAPI bool     TT_TrackableEnabled(int index, bool stateOfTrackable = true);                     //== Get Tracking   ====---
 
-NPRESULT TT_TrackableTranslatePivot(int index, float x, float y, float z);
+TTAPI NPRESULT TT_TrackableTranslatePivot(int index, float x, float y, float z);
 
-int      TT_TrackableMarkerCount(int index, int numberOfTrackableMarkers = 0);             //== Get marker count   ====---
+TTAPI int      TT_TrackableMarkerCount(int index, int numberOfTrackableMarkers = 0);             //== Get marker count   ====---
 
-void     TT_TrackableMarker(int RigidIndex,              //== Get Trackable mrkr ====---
+TTAPI void     TT_TrackableMarker(int RigidIndex,              //== Get Trackable mrkr ====---
 	int MarkerIndex, float *x, float *y, float *z, float x_trackMarker_def = 0, float y_trackMarker_def = 0, float z_trackMarker_def = 0);
 
-void     TT_TrackablePointCloudMarker(int RigidIndex,    //== Get corresponding point cloud marker ======---
+TTAPI void     TT_TrackablePointCloudMarker(int RigidIndex,    //== Get corresponding point cloud marker ======---
 	int MarkerIndex, bool &Tracked,          //== If tracked is false, there is no
 	float &x, float &y, float &z, bool TrackedDef, float x_pointCloudMarker_def = 0, float y_pointCloudMarker_def = 0, float z_pointCloudMarker_def = 0);           //== corresponding point cloud marker.
 
@@ -135,7 +132,7 @@ void     TT_TrackablePointCloudMarker(int RigidIndex,    //== Get corresponding 
 //== contain of list of marker coordinates in the order: x1,y1,z1,x2,
 //== y2,z2,etc...xN,yN,zN.
 
-NPRESULT TT_CreateTrackable(const char* Name, int ID, int MarkerCount, float *MarkerList);
+TTAPI NPRESULT TT_CreateTrackable(const char* Name, int ID, int MarkerCount, float *MarkerList);
 /*
 NPRESULT TT_TrackableSettings(int Index, cTrackableSettings &Settings);  //== Get Trackable Settings =---
 NPRESULT TT_SetTrackableSettings(int Index, cTrackableSettings &Settings);  //== Set Trackable Settings =---
@@ -144,11 +141,11 @@ NPRESULT TT_SetTrackableSettings(int Index, cTrackableSettings &Settings);  //==
 
 //== POINT CLOUD INTERFACE ==========================================================-----
 
-int      TT_CameraCount(int numberOfCameras = 0);                    //== Returns Camera Count =====-----
-float    TT_CameraXLocation(int index, float variableCameraPositionX = 0);       //== Returns Camera's X Coord =-----
-float    TT_CameraYLocation(int index, float variableCameraPositionY = 0);       //== Returns Camera's Y Coord =-----
-float    TT_CameraZLocation(int index, float variableCameraPositionZ = 0);       //== Returns Camera's Z Coord =-----
-float    TT_CameraOrientationMatrix(int camera, int index, float orientationMatrixCameraIndex = 1); //== Orientation -----
+TTAPI int      TT_CameraCount(int numberOfCameras = 0);                    //== Returns Camera Count =====-----
+TTAPI float    TT_CameraXLocation(int index, float variableCameraPositionX = 0);       //== Returns Camera's X Coord =-----
+TTAPI float    TT_CameraYLocation(int index, float variableCameraPositionY = 0);       //== Returns Camera's Y Coord =-----
+TTAPI float    TT_CameraZLocation(int index, float variableCameraPositionZ = 0);       //== Returns Camera's Z Coord =-----
+TTAPI float    TT_CameraOrientationMatrix(int camera, int index, float orientationMatrixCameraIndex = 1); //== Orientation -----
 
 //= = Set camera settings.This function allows you to set the camera's
 //== video mode, exposure, threshold, and illumination settings.
@@ -164,23 +161,23 @@ float    TT_CameraOrientationMatrix(int camera, int index, float orientationMatr
 //== Threshold: Valid values are: 0-255
 //== Intensity: Valid values are: 0-15  (This should be set to 15 for all most all
 //==                                     situations)
-bool     TT_SetCameraSettings(int CameraIndex, int VideoType, int Exposure, int Threshold, int Intensity, bool succesfulUpdateOfCameraSettings = true);
+TTAPI bool     TT_SetCameraSettings(int CameraIndex, int VideoType, int Exposure, int Threshold, int Intensity, bool succesfulUpdateOfCameraSettings = true);
 
 //= = CameraMarker fetches the 2D centroid location of the marker as seen by the camera.
-bool     TT_CameraMarker(int CameraIndex, int MarkerIndex, float &x, float &y, bool succesfulCameraMarker = true,
+TTAPI bool     TT_CameraMarker(int CameraIndex, int MarkerIndex, float &x, float &y, bool succesfulCameraMarker = true,
 	float x_cameraMarker_def = 0, float y_cameraMarker_def = 0);
 
 //== Backproject from 3D space to 2D space.  If you give this function a 3D
 //== location and select a camera, it will return where the point would land
 //== on the imager of that camera in to 2D space.  This basically locates
 //== where in the cameras FOV a 3D point would be located.
-void     TT_CameraBackproject(int CameraIndex, float X, float Y, float Z, float &CameraX, float &CameraY, float CameraX_def = 0, float CameraY_def = 0);
+TTAPI void     TT_CameraBackproject(int CameraIndex, float X, float Y, float Z, float &CameraX, float &CameraY, float CameraX_def = 0, float CameraY_def = 0);
 
 
 
 //== RESULT PROCESSING ========================================================================================-----
 
-const char *TT_GetResultString(NPRESULT result); //== Return Plain Text Message =======================------
+TTAPI const char *TT_GetResultString(NPRESULT result); //== Return Plain Text Message =======================------
 
 #define NPRESULT_SUCCESS                0             //== Successful Result ================================-------
 #define NPRESULT_FILENOTFOUND           1             //== File Not Found ===================================-------
