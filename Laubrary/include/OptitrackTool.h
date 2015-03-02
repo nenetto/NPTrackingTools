@@ -10,7 +10,6 @@
 
 // OptitrackTool
 #include "OptitrackMacros.h"
-//#include "OptitrackTracker.h"
 
 // Extra std libs
 #include <iostream>
@@ -34,6 +33,15 @@
 * \brief MutexHolder to keep rest of Mutex
 */
 typedef itk::MutexLockHolder<itk::FastMutexLock> MutexLockHolder;
+
+/**
+* \brief Different options for the result of the functions
+*/
+typedef enum
+{
+    FAILURE = 0,
+    SUCCESS = 1
+} ResultType;
 
 namespace Optitrack{
 
@@ -78,12 +86,13 @@ namespace Optitrack{
 
         /**
         * \brief Different options for the result of the functions
-        */
+        *
         typedef enum
         {
             FAILURE = 0,
             SUCCESS = 1
         } ResultType;
+        */
 
         ResultType ConfigureToolByTxtFile(std::string nameFile);
 
@@ -234,3 +243,5 @@ namespace Optitrack{
 // TODO
 //
 // 1. Check State Machine for all functions
+// 5. Create new std::out to log file.
+// 6. Print Self

@@ -52,7 +52,7 @@ namespace Optitrack
         this->m_StateMutex->Unlock();
     }
 
-    OptitrackTool::ResultType OptitrackTool::ConfigureToolByTxtFile(std::string nameFile)
+    ResultType OptitrackTool::ConfigureToolByTxtFile(std::string nameFile)
     {
         fprintf(stdout, "<INFO> - [OptitrackTool::SetToolByTxtFile]\n");
         OPTITRACK_TOOL_STATE previous_state = this->GetState();
@@ -215,7 +215,6 @@ namespace Optitrack
                     fclose(calib_file);
                     this->SetState(STATE_TOOL_Configurated);
                     return SUCCESS;
-
     }
 
     int OptitrackTool::GetIDnext( void )
@@ -256,7 +255,7 @@ namespace Optitrack
         return -1;
     }
 
-    OptitrackTool::ResultType OptitrackTool::DettachTrackable( void )
+    ResultType OptitrackTool::DettachTrackable( void )
     {
         fprintf(stdout, "<INFO> - [OptitrackTool::DeleteTrackable]\n");
         OPTITRACK_TOOL_STATE previous_state = this->GetState();
@@ -283,7 +282,7 @@ namespace Optitrack
         return FAILURE;
     }
 
-    OptitrackTool::ResultType OptitrackTool::SetPosition(vnl_vector_fixed<double,3> position)
+    ResultType OptitrackTool::SetPosition(vnl_vector_fixed<double,3> position)
     {
         fprintf(stdout, "<INFO> - [OptitrackTool::SetPosition]\n");
         // sets the position
@@ -295,7 +294,7 @@ namespace Optitrack
         return SUCCESS;
     }
 
-    OptitrackTool::ResultType OptitrackTool::SetOrientation(vnl_quaternion<double> orientation)
+    ResultType OptitrackTool::SetOrientation(vnl_quaternion<double> orientation)
     {
         fprintf(stdout, "<INFO> - [OptitrackTool::SetOrientation]\n");
         // sets the orientation as a quaternion
@@ -322,7 +321,7 @@ namespace Optitrack
         return this->m_Orientation;
     }
 
-    OptitrackTool::ResultType OptitrackTool::Enable( void )
+    ResultType OptitrackTool::Enable( void )
     {
         fprintf(stdout, "<INFO> - [OptitrackTool::Enable]\n");
         OPTITRACK_TOOL_STATE previous_state = this->GetState();
@@ -354,7 +353,7 @@ namespace Optitrack
         }
     }
 
-    OptitrackTool::ResultType OptitrackTool::Disable( void )
+    ResultType OptitrackTool::Disable( void )
     {
         fprintf(stdout, "<INFO> - [OptitrackTool::Disable]\n");
         OPTITRACK_TOOL_STATE previous_state = this->GetState();
@@ -386,7 +385,7 @@ namespace Optitrack
         }
     }
 
-    OptitrackTool::ResultType OptitrackTool::AttachTrackable( void )
+    ResultType OptitrackTool::AttachTrackable( void )
     {
         fprintf(stdout, "<INFO> - [OptitrackTool::AttachTrackable]\n");
         OPTITRACK_TOOL_STATE previous_state = this->GetState();
@@ -436,7 +435,7 @@ namespace Optitrack
                     if(NPRESULT_SUCCESS == resultCreateTrackable)
                     {
                         fprintf(stdout, "<INFO> - [OptitrackTool::AttachTrackable]: Pivot Translation Successfull\n");
-                        this->SetState(STATE_TOOL_Configurated);
+                        this->SetState(STATE_TOOL_Attached);
                         return SUCCESS;
                     }
                     else
@@ -519,7 +518,7 @@ namespace Optitrack
         return (fabs(pV) == std::numeric_limits<float>::infinity());
     }
 
-    OptitrackTool::ResultType OptitrackTool::UpdateTool( void )
+    ResultType OptitrackTool::UpdateTool( void )
     {
         fprintf(stdout, "<INFO> - [OptitrackTool::UpdateTool]\n");
         OPTITRACK_TOOL_STATE previous_state = this->GetState();

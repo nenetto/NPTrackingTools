@@ -78,7 +78,7 @@ namespace Optitrack{
         fprintf(stdout, "<INFO> - [OptitrackTracker::~OptitrackTracker]: OptitrackTracker deleted successfully \n");
     }
 
-    OptitrackTracker::ResultType OptitrackTracker::Open( void )
+    ResultType OptitrackTracker::Open( void )
     {
         fprintf(stdout, "<INFO> - [OptitrackTracker::InternalOpen]\n");
 
@@ -107,7 +107,7 @@ namespace Optitrack{
         }
     }
 
-    OptitrackTracker::ResultType OptitrackTracker::LoadCalibration( void )
+    ResultType OptitrackTracker::LoadCalibration( void )
     {
         fprintf(stdout, "<INFO> - [OptitrackTracker::LoadCalibration]\n");
         OPTITRACK_TRACKER_STATE previous_state = this->GetState();
@@ -146,7 +146,7 @@ namespace Optitrack{
         }
     }
 
-    OptitrackTracker::ResultType OptitrackTracker::Close( void )
+    ResultType OptitrackTracker::Close( void )
     {
         fprintf(stdout, "<INFO> - [OptitrackTracker::InternalClose]\n");
         OPTITRACK_TRACKER_STATE previous_state = this->GetState();
@@ -187,7 +187,7 @@ namespace Optitrack{
         return FAILURE;
     }
 
-    OptitrackTracker::ResultType OptitrackTracker::Reset( void )
+    ResultType OptitrackTracker::Reset( void )
     {
         fprintf(stdout, "<INFO> - [OptitrackTracker::InternalReset]\n");
         OPTITRACK_TRACKER_STATE previous_state = this->GetState();
@@ -214,7 +214,7 @@ namespace Optitrack{
         }
     }
 
-    OptitrackTracker::ResultType OptitrackTracker::AddTrackerTool( OptitrackTool* trackerTool )
+    ResultType OptitrackTracker::AddTrackerTool( OptitrackTool* trackerTool )
     {
         fprintf(stdout, "<INFO> - [OptitrackTracker::AddTrackerTool]\n");
         OPTITRACK_TRACKER_STATE previous_state = this->GetState();
@@ -223,11 +223,22 @@ namespace Optitrack{
         if( (previous_state == STATE_TRACKER_CalibratedState) ||
             (previous_state == STATE_TRACKER_TrackerToolAttached)  )
         {
-            //TO DO: trackerTool->Attach to the Tracker! using methods of trackerTool!
-            this->m_LoadedTools.push_back(trackerTool);
-            fprintf(stdout, "<INFO> - [OptitrackTracker::AddTrackerTool]: Tool Added to the InternalContainer\n");
-            this->SetState(previous_state);
-            return SUCCESS;
+            ResultType resultAttach = trackerTool->AttachTrackable();
+            ResultType resultEnable = trackerTool->Enable();
+
+            if( (resultAttach == SUCCESS) && (resultEnable == SUCCESS) )
+            {
+                this->m_LoadedTools.push_back(trackerTool);
+                fprintf(stdout, "<INFO> - [OptitrackTracker::AddTrackerTool]: Tool Added to the InternalContainer\n");
+                this->SetState(previous_state);
+                return SUCCESS;
+            }
+            else
+            {
+                fprintf(stdout, "#ERROR# - [OptitrackTracker::AddTrackerTool]: System cannot attach tool from previous state\n");
+                this->SetState(previous_state);
+                return FAILURE;
+            }
         }
         else
         {
@@ -237,7 +248,7 @@ namespace Optitrack{
         }
     }
 
-    OptitrackTracker::ResultType OptitrackTracker::RemoveTrackerTool( OptitrackTool * trackerTool )
+    ResultType OptitrackTracker::RemoveTrackerTool( OptitrackTool * trackerTool )
     {
         fprintf(stdout, "<INFO> - [OptitrackTracker::RemoveTrackerTool]\n");
         OPTITRACK_TRACKER_STATE previous_state = this->GetState();
@@ -245,11 +256,22 @@ namespace Optitrack{
 
         if( previous_state == STATE_TRACKER_CalibratedState )
         {
-            //unsigned int id = trackerTool->GetIdentifier();
-            //trackerTool->DettachFromTracker();
-            //m_LoadedTools.erase(m_LoadedTools.begin() + id); Se puede hacer desde la clase tool
-            this->SetState(STATE_TRACKER_CalibratedState);
-            return SUCCESS;
+            ResultType resultDettach = trackerTool->DettachTrackable();
+            ResultType resultDisable = trackerTool->Disable();
+
+            if( (resultDettach == SUCCESS) && (resultDisable == SUCCESS) )
+            {
+                int id = trackerTool->GetOptitrackID();
+                m_LoadedTools.erase(m_LoadedTools.begin() + id);
+                this->SetState(STATE_TRACKER_CalibratedState);
+                return SUCCESS;
+            }
+            else
+            {
+                fprintf(stdout, "#ERROR# - [OptitrackTracker::RemoveTrackerTool]: System cannot dettach tool from previous state\n");
+                this->SetState(previous_state);
+                return FAILURE;
+            }
 
         }
         else
@@ -258,7 +280,6 @@ namespace Optitrack{
             this->SetState(previous_state);
             return FAILURE;
         }
-
     }
 
     unsigned int OptitrackTracker::GetNumberOfAttachedTools( void )
@@ -267,7 +288,7 @@ namespace Optitrack{
         return this->m_LoadedTools.size();
     }
 
-    OptitrackTracker::ResultType OptitrackTracker::StartTracking( void )
+    ResultType OptitrackTracker::StartTracking( void )
     {
         fprintf(stdout, "<INFO> - [OptitrackTracker::StartTracking]\n");
         OPTITRACK_TRACKER_STATE previous_state = this->GetState();
@@ -341,7 +362,7 @@ namespace Optitrack{
                     OptitrackTool* currentTool = this->GetOptitrackTool(i);
                     if(currentTool != nullptr)
                     {
-                        //currentTool->updateTool(); TO DO
+                        currentTool->UpdateTool();
                     }
                     else
                     {
@@ -404,7 +425,7 @@ namespace Optitrack{
         return 0;
     }
 
-    OptitrackTracker::ResultType OptitrackTracker::StopTracking( void )
+    ResultType OptitrackTracker::StopTracking( void )
     {
         fprintf(stdout, "<INFO> - [OptitrackTracker::InternalStopTracking]\n");
         OPTITRACK_TRACKER_STATE previous_state = this->GetState();
@@ -434,7 +455,7 @@ namespace Optitrack{
         }
     }
 
-    OptitrackTracker::ResultType OptitrackTracker::SetCameraParams(int exposure, int threshold , int intensity, int videoType )
+    ResultType OptitrackTracker::SetCameraParams(int exposure, int threshold , int intensity, int videoType )
     {
         fprintf(stdout, "<INFO> - [OptitrackTracker::SetCameraParams]\n");
         OPTITRACK_TRACKER_STATE previous_state = this->GetState();
