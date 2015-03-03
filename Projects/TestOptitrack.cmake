@@ -2,9 +2,9 @@
 # Date: 2012-10-28
 
 set(EP_OPTION_NAME "USE_${EP_NAME}")
-set(EP_REQUIRED_PROJECTS NPTrackingTools Laubrary tinyxml2 ITK)
+set(EP_REQUIRED_PROJECTS BiiGOptitrackControl NPTrackingTools tinyxml2)
 set(EP_OPTION_DESCRIPTION "Test Optitrack")
-set(EP_OPTION_DEFAULT ${${PROJECT_NAME}_TestOptitrack_Exe})
+set(EP_OPTION_DEFAULT ON)
 
 
 cma_end_definition()
@@ -18,7 +18,7 @@ set(EP_CMAKE_ARGS
   -DCMAKE_INSTALL_PREFIX:PATH=${${PROJECT_NAME}_INSTALL_DIR}
   -DTestOptitrack_BUILD_DOCUMENTATION:BOOL=${${PROJECT_NAME}_BUILD_DOCUMENTATION}
   -DNPTrackingTools_DIR:PATH=${${PROJECT_NAME}_NPTrackingTools_DIR}
-  -DLaubrary_DIR:PATH=${${PROJECT_NAME}_Laubrary_DIR}
+  -DBiiGOptitrackControl_DIR:PATH=${${PROJECT_NAME}_BiiGOptitrackControl_DIR}
   -Dtinyxml2_DIR:PATH=${${PROJECT_NAME}_tinyxml2_DIR}
   )
 

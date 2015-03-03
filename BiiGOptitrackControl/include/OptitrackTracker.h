@@ -1,11 +1,15 @@
 #ifndef OPTITRACK_TRACKER_H
 #define OPTITRACK_TRACKER_H
 
-// Config from CMake
-#include "LaubraryConfig.h"
+// Configuration files
+#include "BiiGOptitrackControlConfig.h"
 
-// NPTrackingTools library
-#include "NPTrackingTools.h"
+// ITK Libs
+#include <itkMultiThreader.h>
+#include <itkFastMutexLock.h>
+#include <itksys/SystemTools.hxx>
+#include <itkMutexLockHolder.h>
+#include <itkObject.h>
 
 // OptitrackTol
 #include "OptitrackMacros.h"
@@ -19,21 +23,16 @@
 #include <sstream>
 #include <vector>
 
-// ITK Libs
-#include <itkMultiThreader.h>
-#include <itkFastMutexLock.h>
-#include <itksys/SystemTools.hxx>
-#include <itkMutexLockHolder.h>
-#include <itkObject.h>
+
 
 
 namespace Optitrack{
 
-    class Laubrary_EXPORT OptitrackTracker : public itk::Object{
+    class BiiGOptitrackControl_EXPORT OptitrackTracker : public itk::Object{
 
     public:
         friend class OptitrackTool;
-        LaubraryClassMacro(Optitrack::OptitrackTracker, itk::Object);
+        BiiGOptitrackControlClassMacro(Optitrack::OptitrackTracker, itk::Object);
         itkNewMacro(Self);
 
 

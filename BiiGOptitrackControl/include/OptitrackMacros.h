@@ -1,7 +1,7 @@
 #ifndef OPTITRACK_MACROS_H
 #define OPTITRACK_MACROS_H
 
-#define LaubraryClassMacro(className,SuperClassName) \
+#define BiiGOptitrackControlClassMacro(className,SuperClassName) \
 typedef className        Self; \
 typedef SuperClassName      Superclass; \
 typedef itk::SmartPointer<Self> Pointer; \

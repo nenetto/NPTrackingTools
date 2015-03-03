@@ -2,7 +2,7 @@
 cmake_minimum_required (VERSION 3.0.2)
 set(CMAKE_MACOSX_RPATH 0)
 
-project(Laubrary C CXX)
+project(BiiGOptitrackControl C CXX)
 
 
 # Delete previous configured files
@@ -35,12 +35,12 @@ endif()
 file(GLOB ${PROJECT_NAME}_SRC_FILES source/*.cpp)
 
 # Create  library
-option(Laubrary_BUILD_SHARED ON)
+option(${PROJECT_NAME}_BUILD_SHARED ON)
 
-if(Laubrary_BUILD_SHARED)
+if(${PROJECT_NAME}_BUILD_SHARED)
   add_library(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_SRC_FILES})
 else()
-  add_library(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_SRC_FILES})
+  add_library(${PROJECT_NAME} STATIC ${${PROJECT_NAME}_SRC_FILES})
 endif()
 
 # Include the Generator for the export Header in Windows.
@@ -70,14 +70,14 @@ list(APPEND ${PROJECT_NAME}_HDR_FILES ${${PROJECT_NAME}_SOURCE_HDR_FILES} ${${PR
 ###############################
 option(NPTrackingTools_DIR "")
 find_package (NPTrackingTools)
-target_link_libraries(${PROJECT_NAME} NPTrackingTools)
+target_link_libraries(${PROJECT_NAME} PRIVATE NPTrackingTools)
 
 ###############################
 # Search for ITK ##
 ###############################
 find_package(ITK REQUIRED)
 include(${ITK_USE_FILE})
-target_link_libraries(${PROJECT_NAME} ${ITK_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} PUBLIC ${ITK_LIBRARIES})
 
 ###############################
 # Search for tinyxml2 ##
@@ -87,7 +87,7 @@ option(tinyxml2_DIR "")
 find_package (tinyxml2)
 include_directories(${tinyxml2_INCLUDE_DIR})
 message(tinyxml2_INCLUDE_DIR ${tinyxml2_INCLUDE_DIR})
-target_link_libraries(${PROJECT_NAME} ${tinyxml2_LIBRARY})
+target_link_libraries(${PROJECT_NAME} INTERFACE ${tinyxml2_LIBRARY})
 
 
 # Headers (all are public)
@@ -126,13 +126,13 @@ export(PACKAGE ${PROJECT_NAME})
 
 
 # Documentation
-option(Laubrary_BUILD_DOCUMENTATION "" OFF)
+option(${PROJECT_NAME}_BUILD_DOCUMENTATION "" OFF)
 
-if(Laubrary_BUILD_DOCUMENTATION)
+if(${PROJECT_NAME}_BUILD_DOCUMENTATION)
     find_package(Doxygen)
-    option(Laubrary_BUILD_DOCUMENTATION "Create and install the HTML based API documentation (requires Doxygen)" ${DOXYGEN_FOUND})
+    option(${PROJECT_NAME}_BUILD_DOCUMENTATION "Create and install the HTML based API documentation (requires Doxygen)" ${DOXYGEN_FOUND})
 
-    if(Laubrary_BUILD_DOCUMENTATION)
+    if(${PROJECT_NAME}_BUILD_DOCUMENTATION)
         if(NOT DOXYGEN_FOUND)
             message(FATAL_ERROR "Doxygen is needed to build the documentation.")
         endif()

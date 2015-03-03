@@ -1,7 +1,10 @@
 #include "OptitrackTracker.h"
 
-namespace Optitrack{
+// NPTrackingTools library
+#include "NPTrackingTools.h"
 
+namespace Optitrack
+{
 
     void OptitrackTracker::SetState(OptitrackTracker::OPTITRACK_TRACKER_STATE state_)
     {

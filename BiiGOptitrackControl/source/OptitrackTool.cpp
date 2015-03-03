@@ -1,5 +1,9 @@
 #include "OptitrackTool.h"
 
+// NPTrackingTools library
+#include "NPTrackingTools.h"
+
+
 namespace Optitrack
 {
 

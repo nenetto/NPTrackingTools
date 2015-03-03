@@ -1,12 +1,17 @@
 #ifndef OPTITRACK_TOOL_H
 #define OPTITRACK_TOOL_H
 
-// Config from CMake
-#include "LaubraryConfig.h"
+// Configuration files
+#include "BiiGOptitrackControlConfig.h"
 
-
-// NPTrackingTools library
-#include "NPTrackingTools.h"
+// ITK Libs
+#include <itkMultiThreader.h>
+#include <itkFastMutexLock.h>
+#include <itksys/SystemTools.hxx>
+#include <itkMutexLockHolder.h>
+#include <itkObject.h>
+#include <vnl/vnl_quaternion.h>
+#include <vnl/vnl_vector_fixed.h>
 
 // OptitrackTool
 #include "OptitrackMacros.h"
@@ -20,14 +25,6 @@
 #include <limits.h>
 #include <math.h>
 
-// ITK Libs
-#include <itkMultiThreader.h>
-#include <itkFastMutexLock.h>
-#include <itksys/SystemTools.hxx>
-#include <itkMutexLockHolder.h>
-#include <itkObject.h>
-#include <vnl/vnl_quaternion.h>
-#include <vnl/vnl_vector_fixed.h>
 
 /**
 * \brief MutexHolder to keep rest of Mutex
@@ -45,11 +42,11 @@ typedef enum
 
 namespace Optitrack{
 
-    class Laubrary_EXPORT OptitrackTool: public itk::Object{
+    class BiiGOptitrackControl_EXPORT OptitrackTool: public itk::Object{
 
     public:
         friend class OptitrackTracker;
-        LaubraryClassMacro(Optitrack::OptitrackTool, itk::Object);
+        BiiGOptitrackControlClassMacro(Optitrack::OptitrackTool, itk::Object);
         itkNewMacro(Self);
 
 

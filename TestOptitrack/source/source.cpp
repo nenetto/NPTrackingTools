@@ -4,8 +4,10 @@
 #include <stdlib.h>
 #include <math.h>
 #include <tinyxml2.h>
-#include "NPTrackingTools.h"
-#include "Laubrary.h"
+//#include "NPTrackingTools.h"
+#include "BiiGOptitrackControl.h"
+#include "OptitrackTracker.h"
+#include "OptitrackTool.h"
 
 #ifndef XMLCheckResult
 #define XMLCheckResult(a_eResult) if (a_eResult != tinyxml2::XML_SUCCESS) { printf("Error: %i\n", a_eResult); }
@@ -276,7 +278,7 @@ void ReadXMLTool(std::string pathXMLFile, char &fileType, std::string &toolName,
 int main (int argc, char *argv[])
 {
 
-  Laubrary::message(); // Use of function in Laubrary
+  Optitrack::OptitrackTracker::Pointer tracker = Optitrack::OptitrackTracker::New();
 
   string toolName = "Tool";
   int numberOfMarkers = 3;

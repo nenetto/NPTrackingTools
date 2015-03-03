@@ -17,12 +17,12 @@ option(NPTrackingTools_DIR "")
 find_package (NPTrackingTools)
 target_link_libraries(${PROJECT_NAME} NPTrackingTools)
 
-###############################
-# Search for Laubrary ##
-###############################
-option(Laubrary_DIR "")
-find_package (Laubrary)
-target_link_libraries(${PROJECT_NAME} Laubrary)
+####################################
+# Search for BiiGOptitrackControl ##
+####################################
+option(BiiGOptitrackControl_DIR "")
+find_package (BiiGOptitrackControl)
+target_link_libraries(${PROJECT_NAME} BiiGOptitrackControl)
 
 ###############################
 # Search for tinyxml2 ##
