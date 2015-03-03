@@ -322,3 +322,4 @@ namespace Optitrack{
 //
 // 5. Create new std::out to log file.
 // 6. Print Self
+// 7. Add ITK matrices for transformation and function that allow select a tool as a Reference

@@ -8,18 +8,18 @@ namespace Optitrack{
         MutexLockHolder lock(*m_StateMutex);
         if (m_State == state_)
         {
+            this->m_StateMutex->Unlock();
             return;
         }
         this->m_State = state_;
         this->Modified();
         this->m_StateMutex->Unlock();
+        return;
     }
 
     OptitrackTracker::OPTITRACK_TRACKER_STATE OptitrackTracker::GetState( void )
     {
-        MutexLockHolder lock(*m_StateMutex);
         return this->m_State;
-        this->m_StateMutex->Unlock();
     }
 
     OptitrackTracker::OptitrackTracker()
