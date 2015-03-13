@@ -5,7 +5,7 @@
 #include <math.h>
 #include <tinyxml2.h>
 //#include "NPTrackingTools.h"
-#include "BiiGOptitrackControl.h"
+//#include "BiiGOptitrackControl.h"
 #include "OptitrackTracker.h"
 #include "OptitrackTool.h"
 

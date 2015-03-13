@@ -3,30 +3,19 @@
 
 // Configuration files
 #include "BiiGOptitrackControlConfig.h"
+#include "ExtraDefinitions.h"
+#include "OptitrackTool.h"
 
 // ITK Libs
 #include <itkMultiThreader.h>
 #include <itkFastMutexLock.h>
-#include <itksys/SystemTools.hxx>
-#include <itkMutexLockHolder.h>
 #include <itkObject.h>
-
-// OptitrackTol
-#include "OptitrackMacros.h"
-#include "OptitrackTool.h"
-
-// Extra std libs
-#include <iostream>
-#include <stdio.h>
-#include <cstdlib>
-#include <fstream>
-#include <sstream>
-#include <vector>
 
 
 
 
 namespace Optitrack{
+
 
     class BiiGOptitrackControl_EXPORT OptitrackTracker : public itk::Object{
 
@@ -138,13 +127,13 @@ namespace Optitrack{
         * \brief Remove tracker tool entry from internal containers
         * \return Returns SUCCESS if the tool was removed correctly, FAILURE otherwise.
         */
-        ResultType RemoveTrackerTool( OptitrackTool * trackerTool );
+        ResultType RemoveTrackerTool( OptitrackTool::Pointer trackerTool );
 
         /**
         * \brief Add tracker tool entry to internal containers
         * \return Returns SUCCESS if the tool was uploaded correctly, FAILURE otherwise.
         */
-        ResultType AddTrackerTool( OptitrackTool * trackerTool );
+        ResultType AddTrackerTool( OptitrackTool::Pointer trackerTool );
 
         /**
         * \brief Load the Calibration file to the Optitrack System and set the cameras in calibrated locations
@@ -164,7 +153,7 @@ namespace Optitrack{
         * \return Returns the tool which the number "toolNumber". Returns NULL, if there is
         * no tool with this number.
         */
-        OptitrackTool* GetOptitrackTool(unsigned int toolID);
+        OptitrackTool::Pointer GetOptitrackTool(unsigned int toolID);
 
         /**
         * \brief Return the tool pointer of the tool named toolNumber
@@ -172,7 +161,7 @@ namespace Optitrack{
         * \return Returns the tool which the number "toolNumber". Returns NULL, if there is
         * no tool with this number.
         */
-        OptitrackTool* OptitrackTracker::GetOptitrackToolByName( std::string toolName );
+        OptitrackTool::Pointer OptitrackTracker::GetOptitrackToolByName( std::string toolName );
 
         /**
         * \brief Set the Cameras Exposure, Threshold and Intensity of IR LEDs. By Default it set the Video type to 4: Precision Mode for tracking
@@ -213,6 +202,12 @@ namespace Optitrack{
         /** @brief Gets Current number of Connected Cameras */
         unsigned int GetCameraNumber( void ); // TODO Delete using ITK
 
+        /** @brief Gets the tool Event */
+        OPTITRACK_TRACKER_EVENT GetEvent( void );
+
+        /** @brief Gets the tool State */
+        OPTITRACK_TRACKER_STATE GetState( void );
+
     protected:
         OptitrackTracker();
         ~OptitrackTracker();
@@ -225,11 +220,6 @@ namespace Optitrack{
         /** @brief Sets the tool State */
         void SetState(OPTITRACK_TRACKER_STATE state_);
 
-        /** @brief Gets the tool Event */
-        OPTITRACK_TRACKER_EVENT GetEvent( void );
-
-        /** @brief Gets the tool State */
-        OPTITRACK_TRACKER_STATE GetState( void );
 
     private:
 
@@ -252,7 +242,7 @@ namespace Optitrack{
         * \brief Vector of pointers pointing to all defined tools
         */
         //std::vector<Optitrack::OptitrackTool*> m_LoadedTools;
-        std::vector<Optitrack::OptitrackTool::Pointer> m_LoadedTools;
+        std::vector<OptitrackTool::Pointer> m_LoadedTools;
 
         /**
         * \brief The Cameras Exposition

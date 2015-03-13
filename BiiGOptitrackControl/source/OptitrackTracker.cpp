@@ -3,6 +3,18 @@
 // NPTrackingTools library
 #include "NPTrackingTools.h"
 
+// ITK Libs
+#include <itksys/SystemTools.hxx>
+
+
+// Extra std libs
+#include <iostream>
+#include <stdio.h>
+#include <cstdlib>
+#include <fstream>
+#include <sstream>
+#include <vector>
+
 namespace Optitrack
 {
 
@@ -217,7 +229,7 @@ namespace Optitrack
         }
     }
 
-    ResultType OptitrackTracker::AddTrackerTool( OptitrackTool* trackerTool )
+    ResultType OptitrackTracker::AddTrackerTool( OptitrackTool::Pointer trackerTool )
     {
         fprintf(stdout, "<INFO> - [OptitrackTracker::AddTrackerTool]\n");
         OPTITRACK_TRACKER_STATE previous_state = this->GetState();
@@ -251,7 +263,7 @@ namespace Optitrack
         }
     }
 
-    ResultType OptitrackTracker::RemoveTrackerTool( OptitrackTool * trackerTool )
+    ResultType OptitrackTracker::RemoveTrackerTool( OptitrackTool::Pointer trackerTool )
     {
         fprintf(stdout, "<INFO> - [OptitrackTracker::RemoveTrackerTool]\n");
         OPTITRACK_TRACKER_STATE previous_state = this->GetState();
@@ -362,7 +374,7 @@ namespace Optitrack
             {
                 for ( unsigned int i = 0; i < this->GetNumberOfAttachedTools(); ++i)  // use mutexed methods to access tool container
                 {
-                    OptitrackTool* currentTool = this->GetOptitrackTool(i);
+                    OptitrackTool::Pointer currentTool = this->GetOptitrackTool(i);
                     if(currentTool != nullptr)
                     {
                         currentTool->UpdateTool();
@@ -380,7 +392,7 @@ namespace Optitrack
                 Sleep(1);
             }
 
-            m_TrackingFinishedMutex->Unlock(); // transfer control back to main thread ITK
+            m_TrackingFinishedMutex->Unlock(); // transfer control back to main thread
         }
         catch(...)
         {
@@ -532,10 +544,10 @@ namespace Optitrack
         return this->m_CameraNumber;
     }
 
-    OptitrackTool* OptitrackTracker::GetOptitrackTool( unsigned int toolID)
+    OptitrackTool::Pointer OptitrackTracker::GetOptitrackTool( unsigned int toolID)
     {
         fprintf(stdout, "<INFO> - [OptitrackTracker::GetOptitrackTool]\n");
-        OptitrackTool* t = nullptr;
+        OptitrackTool::Pointer t = nullptr;
 
         MutexLockHolder toolsMutexLockHolder(*m_ToolsMutex); // lock and unlock the mutex ITK
         if(toolID < this->GetNumberOfAttachedTools())
@@ -551,10 +563,10 @@ namespace Optitrack
         return t;
     }
 
-    OptitrackTool* OptitrackTracker::GetOptitrackToolByName( std::string toolName )
+    OptitrackTool::Pointer OptitrackTracker::GetOptitrackToolByName( std::string toolName )
     {
         fprintf(stdout, "<INFO> - [OptitrackTracker::GetOptitrackToolByName]\n");
-        OptitrackTool* t = nullptr;
+        OptitrackTool::Pointer t = nullptr;
 
 
         unsigned int toolCount = this->GetNumberOfAttachedTools();

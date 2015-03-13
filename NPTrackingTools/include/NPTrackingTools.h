@@ -3,8 +3,8 @@
 //== Tracking Tools DLL Library
 //== Copyright NaturalPoint, Inc.
 //==
-//== The Rigid Body DLL Library is designed to be a simple yet full featured interface to 
-//== the Rigid Body Library.  
+//== The Rigid Body DLL Library is designed to be a simple yet full featured interface to
+//== the Rigid Body Library.
 //==
 //====================================================================================-----
 
@@ -23,7 +23,7 @@
 #ifndef STATIC_TT_LINK
 #define TTAPI __declspec(dllimport)
 #else
-#define TTAPI  
+#define TTAPI
 #endif
 #endif
 
@@ -48,9 +48,9 @@ struct Marker;
  *  \brief This function attempts to initialize the Tracking Tools tracking API.
  *
  *  It should be called before attempting to use other compontents of the API.  It returns information about whether or not it succeeded.
- *   
+ *
  *  @return 0  if succeeded, 10 if a valid license is not found, and 11 if it was unable to initialize.
- *  
+ *
  */
 #define NPRESULT int                  //== NPRESULT Defines Call Success/Failure ====-----
 
@@ -97,11 +97,11 @@ TTAPI bool     TT_FrameCameraCentroid(int index, int CameraIndex, float &X, floa
 TTAPI bool     TT_IsTrackableTracked(int index, bool NPTracking_FAIL_RIGIDBODYNOTFOUNDINCURRENTFRAME = false); //== Is trackable currently tracked ---
 TTAPI void     TT_TrackableLocation(int RigidIndex,       //== Trackable Index ======---
 	float *x, float *y, float *z,                  //== Position ==---
-	float *qx, float *qy, float *qz, float *qw,    //== Orientation -- 
+	float *qx, float *qy, float *qz, float *qw,    //== Orientation --
 	float *yaw, float *pitch, float *roll,
 	bool NPTracking_FAIL_RIGIDBODYNOTFOUNDINCURRENTFRAME = false,
 	float xdef = 0, float ydef = 0, float zdef = 0,                      //== Position ==---
-	float qxdef = 0, float qydef = 0, float qzdef = 0, float qwdef = 0,  //== Orientation -- 
+	float qxdef = 0, float qydef = 0, float qzdef = 0, float qwdef = 0,  //== Orientation --
 	float yawdef = 0, float pitchdef = 0, float rolldef = 0);        //== Orientation --
 
 TTAPI void     TT_ClearTrackableList();             //== Clear all trackables   =====---
@@ -150,10 +150,10 @@ TTAPI float    TT_CameraOrientationMatrix(int camera, int index, float orientati
 //= = Set camera settings.This function allows you to set the camera's
 //== video mode, exposure, threshold, and illumination settings.
 
-//== VideoType:  
-//==     0 = Segment Mode   
-//==     1 = Grayscale Mode 
-//==     2 = Object Mode    
+//== VideoType:
+//==     0 = Segment Mode
+//==     1 = Grayscale Mode
+//==     2 = Object Mode
 //==     4 = Precision Mode
 //==     6 = MJPEG Mode     (V100R2 only)
 

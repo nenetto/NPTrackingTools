@@ -2,43 +2,15 @@
 #define OPTITRACK_TOOL_H
 
 // Configuration files
-#include "BiiGOptitrackControlConfig.h"
+#include "BiiGOptitrackControlConfig.h" // Export
+#include "ExtraDefinitions.h"
 
 // ITK Libs
-#include <itkMultiThreader.h>
 #include <itkFastMutexLock.h>
-#include <itksys/SystemTools.hxx>
-#include <itkMutexLockHolder.h>
-#include <itkObject.h>
 #include <vnl/vnl_quaternion.h>
 #include <vnl/vnl_vector_fixed.h>
-
-// OptitrackTool
-#include "OptitrackMacros.h"
-
-// Extra std libs
-#include <iostream>
-#include <stdio.h>
-#include <cstdlib>
-#include <fstream>
-#include <sstream>
-#include <limits.h>
-#include <math.h>
-
-
-/**
-* \brief MutexHolder to keep rest of Mutex
-*/
-typedef itk::MutexLockHolder<itk::FastMutexLock> MutexLockHolder;
-
-/**
-* \brief Different options for the result of the functions
-*/
-typedef enum
-{
-    FAILURE = 0,
-    SUCCESS = 1
-} ResultType;
+#include <vnl/vnl_matrix.h>
+#include <itkObject.h>
 
 namespace Optitrack{
 
@@ -136,6 +108,15 @@ namespace Optitrack{
         /** @brief Gets the tool m_OptitrackID. */
         itkGetMacro(OptitrackID,int);
 
+        /** @brief Sets the tool TransformMatrix */
+        itkSetMacro(TransformMatrix, vnl_matrix<double>);
+
+        /** @brief Gets the tool TransformMatrix. */
+        itkGetMacro(TransformMatrix, vnl_matrix<double>);
+
+        /** @brief Gets the tool State */
+        OPTITRACK_TOOL_STATE GetState( void );
+
     protected:
 
         OptitrackTool();
@@ -146,9 +127,6 @@ namespace Optitrack{
 
         /** @brief Sets the tool State */
         void SetState(OPTITRACK_TOOL_STATE state_);
-
-        /** @brief Gets the tool State */
-        OPTITRACK_TOOL_STATE GetState( void );
 
         ResultType SetPosition(vnl_vector_fixed<double,3> position);
 
@@ -229,6 +207,11 @@ namespace Optitrack{
         * \brief Configuration File, can be a XML file or a TXT file
         */
         std::string m_FileConfiguration;
+
+        /**
+        * \brief Transformation Matrix of the tool
+        */
+        vnl_matrix<double> m_TransformMatrix;
 
     };
 

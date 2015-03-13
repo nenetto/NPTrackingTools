@@ -1,8 +1,22 @@
 #include "OptitrackTool.h"
 
+#include "OptitrackHelpers.h"
+
 // NPTrackingTools library
 #include "NPTrackingTools.h"
 
+// ITK Libs
+#include <itkMultiThreader.h>
+#include <itksys/SystemTools.hxx>
+
+// Extra std libs
+#include <iostream>
+#include <stdio.h>
+#include <cstdlib>
+#include <fstream>
+#include <sstream>
+#include <limits.h>
+#include <math.h>
 
 namespace Optitrack
 {
@@ -22,6 +36,9 @@ namespace Optitrack
         this->m_Orientation[1] = 0.0f;
         this->m_Orientation[2] = 0.0f;
         this->m_Orientation[3] = 0.0f;
+
+        this->m_TransformMatrix = vnl_matrix<double>(4,4);
+        this->m_TransformMatrix.set_identity();
     }
 
     OptitrackTool::~OptitrackTool()
@@ -294,6 +311,9 @@ namespace Optitrack
         this->m_Position[1] = position[1];
         this->m_Position[2] = position[2];
 
+        OptitrackHelper::ConvertMatrix(this->m_TransformMatrix,  this->m_Position , this->m_Orientation);
+
+
         fprintf(stdout, "<INFO> - [OptitrackTool::SetPosition]: SUCESS \n");
         return SUCCESS;
     }
@@ -306,6 +326,8 @@ namespace Optitrack
         this->m_Orientation.y() = orientation.y();
         this->m_Orientation.z() = orientation.z();
         this->m_Orientation.r() = orientation.r();
+
+        OptitrackHelper::ConvertMatrix(this->m_TransformMatrix,  this->m_Position , this->m_Orientation);
 
         fprintf(stdout, "<INFO> - [OptitrackTool::SetPosition]: SUCESS \n");
         return SUCCESS;
@@ -566,6 +588,8 @@ namespace Optitrack
                 this->m_Orientation.y() = data[4];
                 this->m_Orientation.z() = -data[5];
                 this->m_Orientation.r() = data[6];
+
+                OptitrackHelper::ConvertMatrix(this->m_TransformMatrix,  this->m_Position , this->m_Orientation);
 
                 this->SetDataValid(true);
 
