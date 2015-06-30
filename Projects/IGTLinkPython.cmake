@@ -32,9 +32,6 @@ else()
     SOURCE_DIR ${PROJECT_BINARY_DIR}/${EP_NAME})
 endif()
 
-
-Message("[*****]DESTDIR:" ${${PROJECT_NAME}_INSTALL_DIR})
-
 ExternalProject_Add(${EP_NAME}
   DEPENDS ${EP_REQUIRED_PROJECTS}
   # download
