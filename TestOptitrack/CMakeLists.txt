@@ -79,11 +79,6 @@ endif()
 # INSTALLATION TARGET and Configuration Files
 #################################################################################################################
 
-add_custom_command( TARGET ${PROJECT_NAME} POST_BUILD
-                    COMMAND ${CMAKE_COMMAND} -E copy_directory
-                    "${PROJECT_BINARY_DIR}/../install/bin"
-                    $<TARGET_FILE_DIR:${PROJECT_NAME}>)
-
 
 #################################################################
 # Config File if INSTALL target and installation

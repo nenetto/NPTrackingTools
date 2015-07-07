@@ -87,7 +87,7 @@ option(tinyxml2_DIR "")
 find_package (tinyxml2)
 include_directories(${tinyxml2_INCLUDE_DIR})
 message(tinyxml2_INCLUDE_DIR ${tinyxml2_INCLUDE_DIR})
-target_link_libraries(${PROJECT_NAME} INTERFACE ${tinyxml2_LIBRARY})
+target_link_libraries(${PROJECT_NAME} PUBLIC ${tinyxml2_LIBRARY})
 
 
 # Headers (all are public)

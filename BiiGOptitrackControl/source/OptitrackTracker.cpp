@@ -1,7 +1,7 @@
 #include "OptitrackTracker.h"
 
 // NPTrackingTools library
-#include "NPTrackingTools.h"
+#include <NPTrackingTools.h>
 
 // ITK Libs
 #include <itksys/SystemTools.hxx>
@@ -48,7 +48,7 @@ namespace Optitrack
         this->m_TrackingFinishedMutex = itk::FastMutexLock::New();
         this->m_StateMutex = itk::FastMutexLock::New();
         this->m_TrackingFinishedMutex->Lock();  // execution rights are owned by the application thread at the beginning
-
+		this->m_State = STATE_TRACKER_Idle;
         //Clear List of tools
         this->m_LoadedTools.clear();
     }
@@ -106,20 +106,29 @@ namespace Optitrack
             this->SetState(STATE_TRACKER_CommunicationEstablished);
             return SUCCESS;
         }
+		else if (previous_state == STATE_TRACKER_Idle)
+		{
+			NPRESULT result = TT_Initialize();
 
-        NPRESULT result = TT_Initialize();
-
-        if( result == NPRESULT_SUCCESS)
-        {
-            this->SetState(STATE_TRACKER_CommunicationEstablished);
-            fprintf(stdout, "<INFO> - [OptitrackTracker::InternalOpen]: System was Initialized\n");
-            return SUCCESS;
-        }else
-        {
-            this->SetState(STATE_TRACKER_Idle);
-            fprintf(stdout, "#ERROR# - [OptitrackTracker::InternalOpen]: TT_Initialize failed\n");
-            return FAILURE;
-        }
+			if (result == NPRESULT_SUCCESS)
+			{
+				this->SetState(STATE_TRACKER_CommunicationEstablished);
+				fprintf(stdout, "<INFO> - [OptitrackTracker::InternalOpen]: System was Initialized\n");
+				return SUCCESS;
+			}
+			else
+			{
+				this->SetState(STATE_TRACKER_Idle);
+				fprintf(stdout, "#ERROR# - [OptitrackTracker::InternalOpen]: TT_Initialize failed\n");
+				return FAILURE;
+			}
+		}
+		else
+		{
+			this->SetState(previous_state);
+			fprintf(stdout, "#ERROR# - [OptitrackTracker::InternalOpen]: System cannot be initialized from that state!\n");
+			return FAILURE;
+		}
     }
 
     ResultType OptitrackTracker::LoadCalibration( void )
@@ -163,43 +172,60 @@ namespace Optitrack
 
     ResultType OptitrackTracker::Close( void )
     {
-        fprintf(stdout, "<INFO> - [OptitrackTracker::InternalClose]\n");
+		fprintf(stdout, "<INFO> - [OptitrackTracker::InternalClose]\n");
         OPTITRACK_TRACKER_STATE previous_state = this->GetState();
         this->SetState(STATE_TRACKER_AttemptingToCloseCommunication);
 
+		if ((previous_state == STATE_TRACKER_CommunicationEstablished) || (previous_state == STATE_TRACKER_CalibratedState))
+		{
 
-        fprintf(stdout, "<INFO> - [OptitrackTracker::InternalClose]: Stopping the Tracking\n");
-        ResultType resultStop = this->StopTracking();
-        if(resultStop == FAILURE)
-        {
-            fprintf(stdout, "#ERROR# - [OptitrackTracker::InternalClose]: Cannot Stop the Tracking\n");
-            this->SetState(previous_state);
-            return FAILURE;
-        }
+			fprintf(stdout, "<INFO> - [OptitrackTracker::InternalClose]: Stopping the Tracking\n");
+			ResultType resultStop = this->StopTracking();
+			if (resultStop == FAILURE)
+			{
+				fprintf(stdout, "#ERROR# - [OptitrackTracker::InternalClose]: Cannot Stop the Tracking\n");
+				this->SetState(previous_state);
+				return FAILURE;
+			}
 
 
-        for( int i=OPTITRACK_ATTEMPTS; i>0; i--)
-        {
-            TT_ClearTrackableList();
-            NPRESULT resultShutdown = TT_Shutdown();
+			for (int i = OPTITRACK_ATTEMPTS; i > 0; i--)
+			{
+				TT_ClearTrackableList();
+				NPRESULT resultShutdown = TT_Shutdown();
 
-            if(resultShutdown == NPRESULT_SUCCESS)
-            {
-                this->m_LoadedTools.clear();
-                fprintf(stdout, "<INFO> - [OptitrackTracker::InternalClose]: System has been Shutdown Correctly\n");
-                Sleep(2000);
-                this->SetState(STATE_TRACKER_Idle);
-                return SUCCESS;
-            }
-            else
-            {
-                fprintf(stdout, "<INFO> - [OptitrackTracker::InternalClose]: System cannot ShutDown now. Trying again...\n");
-            }
-        }
+				if (resultShutdown == NPRESULT_SUCCESS)
+				{
+					this->m_LoadedTools.clear();
+					fprintf(stdout, "<INFO> - [OptitrackTracker::InternalClose]: System has been Shutdown Correctly\n");
+					Sleep(2000);
+					this->SetState(STATE_TRACKER_Idle);
 
-        fprintf(stdout, "#ERROR# - [OptitrackTracker::InternalClose]: System cannot ShutDown now\n");
-        this->SetState(previous_state);
-        return FAILURE;
+					NPRESULT resultFinalCleanup = TT_FinalCleanup();
+					if (resultFinalCleanup == NPRESULT_SUCCESS)
+					{
+						return SUCCESS;
+					}
+					fprintf(stdout, "#ERROR# - [OptitrackTracker::InternalClose]: FinalCleanUp was not performed correctly!\n");
+					return FAILURE;
+				}
+				else
+				{
+					fprintf(stdout, "<INFO> - [OptitrackTracker::InternalClose]: System cannot ShutDown now. Trying again...\n");
+				}
+			}
+
+			fprintf(stdout, "#ERROR# - [OptitrackTracker::InternalClose]: System cannot ShutDown now\n");
+			this->SetState(previous_state);
+			return FAILURE;
+
+		}
+		else
+		{
+			fprintf(stdout, "#ERROR# - [OptitrackTracker::InternalClose]: System cannot be closed from previous state!\n");
+			this->SetState(previous_state);
+			return FAILURE;
+		}
     }
 
     ResultType OptitrackTracker::Reset( void )
@@ -224,7 +250,9 @@ namespace Optitrack
                 this->SetState(previous_state);
                 return FAILURE;
             }
-            this->SetState(STATE_TRACKER_CalibratedState);
+			
+			TT_ClearTrackableList(); //Añadido por DAVID
+			this->SetState(STATE_TRACKER_CommunicationEstablished);
             return SUCCESS;
         }
     }
@@ -235,8 +263,7 @@ namespace Optitrack
         OPTITRACK_TRACKER_STATE previous_state = this->GetState();
         this->SetState(STATE_TRACKER_AttemptingToAttachTrackerTool);
 
-        if( (previous_state == STATE_TRACKER_CalibratedState) ||
-            (previous_state == STATE_TRACKER_TrackerToolAttached)  )
+        if(previous_state == STATE_TRACKER_CalibratedState) 
         {
             ResultType resultAttach = trackerTool->AttachTrackable();
             ResultType resultEnable = trackerTool->Enable();
@@ -245,7 +272,7 @@ namespace Optitrack
             {
                 this->m_LoadedTools.push_back(trackerTool);
                 fprintf(stdout, "<INFO> - [OptitrackTracker::AddTrackerTool]: Tool Added to the InternalContainer\n");
-                this->SetState(previous_state);
+				this->SetState(STATE_TRACKER_CalibratedState);
                 return SUCCESS;
             }
             else
@@ -271,8 +298,8 @@ namespace Optitrack
 
         if( previous_state == STATE_TRACKER_CalibratedState )
         {
-            ResultType resultDettach = trackerTool->DettachTrackable();
             ResultType resultDisable = trackerTool->Disable();
+			ResultType resultDettach = trackerTool->DettachTrackable();
 
             if( (resultDettach == SUCCESS) && (resultDisable == SUCCESS) )
             {
@@ -283,7 +310,7 @@ namespace Optitrack
             }
             else
             {
-                fprintf(stdout, "#ERROR# - [OptitrackTracker::RemoveTrackerTool]: System cannot dettach tool from previous state\n");
+                fprintf(stdout, "#ERROR# - [OptitrackTracker::RemoveTrackerTool]: System cannot dettach tool\n");
                 this->SetState(previous_state);
                 return FAILURE;
             }
@@ -318,8 +345,7 @@ namespace Optitrack
         }
         else
         {
-            if( (previous_state == STATE_TRACKER_CalibratedState) ||
-            (previous_state == STATE_TRACKER_TrackerToolAttached)  )
+            if(previous_state == STATE_TRACKER_CalibratedState) 
             {
 
                 if(TT_Update() == NPRESULT_SUCCESS)

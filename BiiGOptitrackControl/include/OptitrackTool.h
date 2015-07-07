@@ -41,7 +41,8 @@ namespace Optitrack{
             STATE_TOOL_AttemptingToEnableTrackable = 13,
             STATE_TOOL_AttemptingToDisableTrackable = 14,
             STATE_TOOL_AttemptingToAttachTrackable = 15,
-            STATE_TOOL_AttemptingToUpdateTrackable = 16
+            STATE_TOOL_AttemptingToUpdateTrackable = 16,
+			STATE_TOOL_AttemptingToReadXmlFile = 17
         } OPTITRACK_TOOL_STATE;
 
         /**
@@ -64,6 +65,8 @@ namespace Optitrack{
         */
 
         ResultType ConfigureToolByTxtFile(std::string nameFile);
+
+		ResultType ConfigureToolByXmlFile(std::string nameFile);
 
         int GetIDnext( void );
 
