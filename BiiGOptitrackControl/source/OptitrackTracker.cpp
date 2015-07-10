@@ -15,6 +15,12 @@
 #include <sstream>
 #include <vector>
 
+//tinyxml2
+#include <tinyxml2.h>
+#ifndef XMLCheckResult
+#define XMLCheckResult(a_eResult) if (a_eResult != tinyxml2::XML_SUCCESS) { printf("Error: %i\n", a_eResult); }
+#endif
+
 namespace Optitrack
 {
 
@@ -611,6 +617,116 @@ namespace Optitrack
         return NULL;
     }
 
+	ResultType OptitrackTracker::LoadXMLConfigurationFile(std::string nameFile)
+	{
+		std::string calibrationFile;
+		float camparamExposure, camparamThreshold, camparamIntensity;
+		int toolNumber;
 
+
+		tinyxml2::XMLDocument xmlDoc;
+		char* char_Path = (char*)nameFile.c_str(); //Conversion from string to char*.
+		tinyxml2::XMLError eResult = xmlDoc.LoadFile(char_Path);
+		XMLCheckResult(eResult);
+		if (eResult != tinyxml2::XMLError::XML_SUCCESS){
+			fprintf(stdout, "[XML READING ERROR] Problem loading the file! \n");
+			return FAILURE;
+
+		}
+
+		tinyxml2::XMLElement * pRoot = xmlDoc.FirstChildElement("NPTrackingTools");
+		if (pRoot == nullptr) eResult = tinyxml2::XMLError::XML_ERROR_FILE_READ_ERROR;
+		XMLCheckResult(eResult);
+		if (eResult != tinyxml2::XMLError::XML_SUCCESS){
+			fprintf(stdout, "[XML READING ERROR] Problem accesing to NPTrackingTools element! \n");
+			return FAILURE;
+
+		}
+
+		//CalibrationFile
+		tinyxml2::XMLElement * pElement = pRoot->FirstChildElement("CalibrationFile");
+		if (pElement == nullptr) eResult = tinyxml2::XMLError::XML_ERROR_PARSING_ELEMENT;
+		XMLCheckResult(eResult);
+		if (eResult != tinyxml2::XMLError::XML_SUCCESS){
+			fprintf(stdout, "[XML READING ERROR] Problem parsing the element CalibrationFile! \n");
+			return FAILURE;
+
+		}
+		try
+		{
+			calibrationFile = pRoot->Attribute("file");
+		}
+		catch (int e)
+		{
+			fprintf(stdout, "[XML READING ERROR] Problem reading attribute File from CalibrationFile element! \n");
+			std::cout << e << std::endl;
+		}
+
+		//CameraParameters
+		pElement = pRoot->FirstChildElement("CameraParameters");
+		if (pElement == nullptr) eResult = tinyxml2::XMLError::XML_ERROR_PARSING_ELEMENT;
+		if (eResult == tinyxml2::XMLError::XML_SUCCESS){ //If CalibrationError element do not exist, attributes are not accessed.
+			eResult = pElement->QueryFloatAttribute("Exposure", &camparamExposure);
+			XMLCheckResult(eResult);
+
+			eResult = pElement->QueryFloatAttribute("Threshold", &camparamThreshold);
+			XMLCheckResult(eResult);
+
+			eResult = pElement->QueryFloatAttribute("Intensity", &camparamIntensity);
+			XMLCheckResult(eResult);
+		}
+
+		//ToolNumber
+		pElement = pRoot->FirstChildElement("ToolNumber");
+		if (pElement == nullptr) eResult = tinyxml2::XMLError::XML_ERROR_PARSING_ELEMENT;
+		XMLCheckResult(eResult);
+		if (eResult != tinyxml2::XMLError::XML_SUCCESS){
+			fprintf(stdout, "[XML READING ERROR] Problem parsing the element ToolMarkersNum! \n");
+			return FAILURE;
+
+		}
+		eResult = pElement->QueryIntAttribute("NTool", &toolNumber);
+		XMLCheckResult(eResult);
+
+		//Tools
+		/*
+		pElement = pRoot->FirstChildElement("ToolMarkers");
+		if (pElement == nullptr) eResult = tinyxml2::XMLError::XML_ERROR_PARSING_ELEMENT;
+		XMLCheckResult(eResult);
+		if (eResult != tinyxml2::XMLError::XML_SUCCESS){
+		fprintf(stdout, "[XML READING ERROR] Problem parsing the element ToolMarkers! \n");
+		return FAILURE;
+
+		}
+		int counter = 0, markerLocation = 0;
+		tinyxml2::XMLElement * pListElement = pElement->FirstChildElement("m1");
+		while ((counter < (toolNumberOfMarkers * 3)) && (pListElement != nullptr))
+		{
+		eResult = pListElement->QueryFloatAttribute("x", &this->m_CalibrationPoints[counter * 3 + 0]);
+		XMLCheckResult(eResult);
+		eResult = pListElement->QueryFloatAttribute("y", &this->m_CalibrationPoints[counter * 3 + 1]);
+		XMLCheckResult(eResult);
+		eResult = pListElement->QueryFloatAttribute("z", &this->m_CalibrationPoints[counter * 3 + 2]);
+		XMLCheckResult(eResult);
+
+		counter = counter + 1;
+
+		//Conversion from int to char*.
+		std::stringstream strs;
+		markerLocation = (counter / 3) + 1;
+		strs << (markerLocation);
+		std::string temp_str = "m" + strs.str();
+		char* char_type = (char*)temp_str.c_str();
+		pListElement = pListElement->NextSiblingElement(char_type);
+
+		//Optitrack works with Left Handed System
+		this->m_CalibrationPoints[counter * 3 + 0] = this->m_CalibrationPoints[counter * 3 + 0] / 1000;
+		this->m_CalibrationPoints[counter * 3 + 1] = this->m_CalibrationPoints[counter * 3 + 1] / 1000;
+		this->m_CalibrationPoints[counter * 3 + 2] = -this->m_CalibrationPoints[counter * 3 + 2] / 1000;
+		*/
+	º
+		
+		return FAILURE; //Failure=0 & Success=1
+	}
 
 }

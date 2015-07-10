@@ -249,11 +249,11 @@ namespace Optitrack
 
 		}
 
-		tinyxml2::XMLElement * pRoot = xmlDoc.FirstChildElement("NPTrackingTools");
+		tinyxml2::XMLElement * pRoot = xmlDoc.FirstChildElement("ConfigurationFile");
 		if (pRoot == nullptr) eResult = tinyxml2::XMLError::XML_ERROR_FILE_READ_ERROR;
 		XMLCheckResult(eResult);
 		if (eResult != tinyxml2::XMLError::XML_SUCCESS){
-			fprintf(stdout, "[XML READING ERROR] Problem accesing to NPTrackingTools element! \n");
+			fprintf(stdout, "[XML READING ERROR] Problem accesing to ConfigurationFile element! \n");
 			return FAILURE;
 
 		}
@@ -267,7 +267,7 @@ namespace Optitrack
 			return FAILURE;
 
 		}
-		
+
 		//CalibrationDate
 		pElement = pRoot->FirstChildElement("CalibrationDate");
 		if (pElement == nullptr) eResult = tinyxml2::XMLError::XML_ERROR_PARSING_ELEMENT;
@@ -306,7 +306,7 @@ namespace Optitrack
 			XMLCheckResult(eResult);
 
 		}
-		
+
 		//ToolName
 		pElement = pRoot->FirstChildElement("ToolName");
 		if (pElement == nullptr) eResult = tinyxml2::XMLError::XML_ERROR_PARSING_ELEMENT;
@@ -395,6 +395,10 @@ namespace Optitrack
 		}
 		return SUCCESS;
 	}
+
+		
+		
+	
 
     int OptitrackTool::GetIDnext( void )
     {
