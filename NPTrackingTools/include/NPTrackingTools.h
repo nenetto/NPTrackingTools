@@ -124,7 +124,7 @@ TTAPI void     TT_TrackableMarker(int RigidIndex,              //== Get Trackabl
 
 TTAPI void     TT_TrackablePointCloudMarker(int RigidIndex,    //== Get corresponding point cloud marker ======---
 	int MarkerIndex, bool &Tracked,          //== If tracked is false, there is no
-	float &x, float &y, float &z, bool TrackedDef, float x_pointCloudMarker_def = 0, float y_pointCloudMarker_def = 0, float z_pointCloudMarker_def = 0);           //== corresponding point cloud marker.
+	float &x, float &y, float &z, bool TrackedDef=true, float x_pointCloudMarker_def = 0, float y_pointCloudMarker_def = 0, float z_pointCloudMarker_def = 0);           //== corresponding point cloud marker.
 
 
 //== TT_CreateTrackable.  This creates a trackable based on the marker
@@ -162,6 +162,12 @@ TTAPI float    TT_CameraOrientationMatrix(int camera, int index, float orientati
 //== Intensity: Valid values are: 0-15  (This should be set to 15 for all most all
 //==                                     situations)
 TTAPI bool     TT_SetCameraSettings(int CameraIndex, int VideoType, int Exposure, int Threshold, int Intensity, bool succesfulUpdateOfCameraSettings = true);
+
+//== Fetch predistorted marker location.  This is basically where the
+//== camera would see the marker if there was no lens distortion.
+//== For most of our cameras/lenses, this location is only a few pixels
+//== from the distorted (TT_CameraMarker) position.
+TTAPI bool     TT_CameraMarkerPredistorted(int CameraIndex, int MarkerIndex, float &x, float &y, bool succesfulCameraMarkerPredistorted=true, float x_cameraMarker_def=0, float y_cameraMarker_def=0);
 
 //= = CameraMarker fetches the 2D centroid location of the marker as seen by the camera.
 TTAPI bool     TT_CameraMarker(int CameraIndex, int MarkerIndex, float &x, float &y, bool succesfulCameraMarker = true,
