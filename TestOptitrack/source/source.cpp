@@ -8,6 +8,7 @@
 //#include "BiiGOptitrackControl.h"
 #include "OptitrackTracker.h"
 #include "OptitrackTool.h"
+#include "OptitrackHelpers.h"
 
 #ifndef XMLCheckResult
 #define XMLCheckResult(a_eResult) if (a_eResult != tinyxml2::XML_SUCCESS) { printf("Error: %i\n", a_eResult); }
@@ -22,7 +23,7 @@ int main(int argc, char *argv[])
 {
 	int option;
 	cout << " " << endl;
-	cout << "Option: (1) LoadXMLConfFile (2) Manual" << endl;
+	cout << "Option: (1) LoadXMLConfFile (2) Manual (3) Pivoting Testing" << endl;
 	cin >> option;
 	
 	if (option == 1)
@@ -31,7 +32,7 @@ int main(int argc, char *argv[])
 		std::string myConfigurationFile = "C:/DavidGarciaMato/ConfigurationFile_TestDavid.xml";
 		int result = objTracker->LoadXMLConfigurationFile(myConfigurationFile);
 	} 
-	else
+	else if (option == 2)
 	{
 		Optitrack::OptitrackTracker::Pointer objTracker = Optitrack::OptitrackTracker::New();
 		std::string myCalfile = "C:/DavidGarciaMato/Calibration.cal";
@@ -571,6 +572,55 @@ int main(int argc, char *argv[])
 			currentState = objTracker->GetState();
 
 		}
+
+	}
+	else
+	{
+		Optitrack::OptitrackTracker::Pointer objTracker = Optitrack::OptitrackTracker::New();
+		std::string myCalfile = "C:/DavidGarciaMato/Calibration.cal";
+		objTracker->SetCalibrationFile(myCalfile);
+
+		/*
+		Optitrack::OptitrackTool::Pointer objToolPolaris = Optitrack::OptitrackTool::New();
+		std::string namefilePolaris = "C:/DavidGarciaMato/PunteroPolaris.txt";
+		objToolPolaris->ConfigureToolByTxtFile(namefilePolaris);
+		/*/
+		Optitrack::OptitrackTool::Pointer objToolPolaris = Optitrack::OptitrackTool::New();
+		std::string namefilePolaris = "C:/DavidGarciaMato/PunteroPolarisXML.xml";
+		objToolPolaris->ConfigureToolByXmlFile(namefilePolaris);
+
+		int result = objTracker->Open();
+		std::cout << " Open result: " << result << std::endl;
+		std::cout << " State -> " << objTracker->GetState() << std::endl;
+
+		result = objTracker->LoadCalibration();
+		std::cout << " LoadCalibration result: " << result << std::endl;
+		std::cout << " State -> " << objTracker->GetState() << std::endl;
+
+		result = objTracker->AddTrackerTool(objToolPolaris);
+		cout << " AddTracker result: " << result << endl;
+		cout << " State -> " << objTracker->GetState() << endl;
+		cout << " Tool State: " << objToolPolaris->GetState() << endl;
+		cout << " OptitrackID: " << objToolPolaris->GetOptitrackID() << endl;
+		cout << " Tool Name: " << objToolPolaris->GetToolName() << endl;
+
+		result = objTracker->StartTracking();
+		cout << " StartTracking result: " << result << endl;
+		cout << " State -> " << objTracker->GetState() << endl;
+
+		Sleep(1000);
+
+		vnl_vector_fixed<double, 3> resultPivoting = Optitrack::OptitrackHelper::Pivoting(objTracker, objToolPolaris->GetOptitrackID(), 20);
+			
+		Sleep(1000);
+
+		result = objTracker->StopTracking();
+		cout << " StopTracking result: " << result << endl;
+		cout << " State -> " << objTracker->GetState() << endl;
+
+		result = objTracker->Close();
+		cout << " Close result: " << result << endl;
+		cout << " State -> " << objTracker->GetState() << endl;
 
 	}
 
