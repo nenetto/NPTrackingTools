@@ -124,7 +124,7 @@ TTAPI void     TT_TrackableMarker(int RigidIndex,              //== Get Trackabl
 
 TTAPI void     TT_TrackablePointCloudMarker(int RigidIndex,    //== Get corresponding point cloud marker ======---
 	int MarkerIndex, bool &Tracked,          //== If tracked is false, there is no
-	float &x, float &y, float &z, bool TrackedDef, float x_pointCloudMarker_def = 0, float y_pointCloudMarker_def = 0, float z_pointCloudMarker_def = 0);           //== corresponding point cloud marker.
+	float &x, float &y, float &z, bool TrackedDef=true, float x_pointCloudMarker_def = 0, float y_pointCloudMarker_def = 0, float z_pointCloudMarker_def = 0);           //== corresponding point cloud marker.
 
 
 //== TT_CreateTrackable.  This creates a trackable based on the marker
