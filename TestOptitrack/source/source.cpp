@@ -36,6 +36,7 @@ int main(int argc, char *argv[])
 		Optitrack::OptitrackTracker::Pointer objTracker = Optitrack::OptitrackTracker::New();
 		std::string myCalfile = "C:/DavidGarciaMato/Calibration.cal";
 		objTracker->SetCalibrationFile(myCalfile);
+		
 		/*
 		Optitrack::OptitrackTool::Pointer objToolPolaris = Optitrack::OptitrackTool::New();
 		std::string namefilePolaris = "C:/DavidGarciaMato/PunteroPolaris.txt";
@@ -45,7 +46,6 @@ int main(int argc, char *argv[])
 		std::string namefilePolaris = "C:/DavidGarciaMato/PunteroPolarisXML.xml";
 		objToolPolaris->ConfigureToolByXmlFile(namefilePolaris);
 		
-
 		/*
 		Optitrack::OptitrackTool::Pointer objToolOptitrack = Optitrack::OptitrackTool::New();
 		std::string namefileOptitrack = "C:/DavidGarciaMato/OptitrackRigidBody.txt";
@@ -55,10 +55,6 @@ int main(int argc, char *argv[])
 		std::string namefileOptitrack = "C:/DavidGarciaMato/OptitrackRigidBodyXML.xml";
 		objToolOptitrack->ConfigureToolByXmlFile(namefileOptitrack);
 		
-
-
-		
-
 		int result;
 		int currentState = objTracker->GetState();
 		bool stop = false;
@@ -584,6 +580,7 @@ int main(int argc, char *argv[])
 
 }
 
+/*
 ResultType LoadXMLConfigurationFile(std::string nameFile)
 {
 	//== XML Configuration File reading
@@ -737,190 +734,6 @@ ResultType LoadXMLConfigurationFile(std::string nameFile)
 
 	return SUCCESS;
 }
-
-ResultType ConfigureToolByXmlFile(std::string nameFile)
-{
-	//Variable definition	
-	//Calibration Date
-	int dayCurrentDate, monthCurrentDate, yearCurrentDate;
-	//Calibration Error
-	float calibrationErrorRMS, calibrationErrorMean, calibrationErrorSD;
-	float calibrationErrorMedian, calibrationErrorQ1, calibrationErrorQ3;
-	//Tool name
-	std::string toolName;
-	//Number of markers
-	int toolNumberOfMarkers;
-	//Calibration file name
-	std::string calibrationFileName;
-	float calibrationPoints[12], pivotArray[3];
-
-	tinyxml2::XMLDocument xmlDoc;
-	char* char_Path = (char*)nameFile.c_str(); //Conversion from string to char*.
-	tinyxml2::XMLError eResult = xmlDoc.LoadFile(char_Path);
-	XMLCheckResult(eResult);
-	if (eResult != tinyxml2::XMLError::XML_SUCCESS){
-		fprintf(stdout, "[XML READING ERROR] Problem loading the file! \n");
-		return FAILURE;
-
-	}
-
-	tinyxml2::XMLElement * pRoot = xmlDoc.FirstChildElement("NPTrackingTools");
-	if (pRoot == nullptr) eResult = tinyxml2::XMLError::XML_ERROR_FILE_READ_ERROR;
-	XMLCheckResult(eResult);
-	if (eResult != tinyxml2::XMLError::XML_SUCCESS){
-		fprintf(stdout, "[XML READING ERROR] Problem accesing to ConfigurationFile element! \n");
-		return FAILURE;
-
-	}
-
-	//FileType
-	tinyxml2::XMLElement * pElement = pRoot->FirstChildElement("FileType");
-	if (pElement == nullptr) eResult = tinyxml2::XMLError::XML_ERROR_PARSING_ELEMENT;
-	XMLCheckResult(eResult);
-	if (eResult != tinyxml2::XMLError::XML_SUCCESS){
-		fprintf(stdout, "[XML READING ERROR] Problem parsing the element FileType! \n");
-		return FAILURE;
-
-	}
-	
-	//CalibrationDate
-	pElement = pRoot->FirstChildElement("CalibrationDate");
-	if (pElement == nullptr) eResult = tinyxml2::XMLError::XML_ERROR_PARSING_ELEMENT;
-	if (eResult == tinyxml2::XMLError::XML_SUCCESS){ //If CalibrationDate element do not exist, attributes are not accessed.
-	eResult = pElement->QueryIntAttribute("D", &dayCurrentDate);
-	XMLCheckResult(eResult);
-
-	eResult = pElement->QueryIntAttribute("M", &monthCurrentDate);
-	XMLCheckResult(eResult);
-
-	eResult = pElement->QueryIntAttribute("Y", &yearCurrentDate);
-	XMLCheckResult(eResult);
-
-	}
-
-	//CalibrationError
-	pElement = pRoot->FirstChildElement("CalibrationError");
-	if (pElement == nullptr) eResult = tinyxml2::XMLError::XML_ERROR_PARSING_ELEMENT;
-	if (eResult == tinyxml2::XMLError::XML_SUCCESS){ //If CalibrationError element do not exist, attributes are not accessed.
-	eResult = pElement->QueryFloatAttribute("RMS", &calibrationErrorRMS);
-	XMLCheckResult(eResult);
-
-	eResult = pElement->QueryFloatAttribute("Mean", &calibrationErrorMean);
-	XMLCheckResult(eResult);
-
-	eResult = pElement->QueryFloatAttribute("SD", &calibrationErrorSD);
-	XMLCheckResult(eResult);
-
-	eResult = pElement->QueryFloatAttribute("Median", &calibrationErrorMedian);
-	XMLCheckResult(eResult);
-
-	eResult = pElement->QueryFloatAttribute("Q1", &calibrationErrorQ1);
-	XMLCheckResult(eResult);
-
-	eResult = pElement->QueryFloatAttribute("Q3", &calibrationErrorQ3);
-	XMLCheckResult(eResult);
-
-	}
-	
-	//ToolName
-	pElement = pRoot->FirstChildElement("ToolName");
-	if (pElement == nullptr) eResult = tinyxml2::XMLError::XML_ERROR_PARSING_ELEMENT;
-	XMLCheckResult(eResult);
-	if (eResult != tinyxml2::XMLError::XML_SUCCESS){
-		fprintf(stdout, "[XML READING ERROR] Problem parsing the element ToolName! \n");
-		return FAILURE;
-
-	}
-	toolName = pElement->GetText();
-	//this->SetToolName(toolName);
-
-	//ToolMarkersNum
-	pElement = pRoot->FirstChildElement("ToolMarkersNum");
-	if (pElement == nullptr) eResult = tinyxml2::XMLError::XML_ERROR_PARSING_ELEMENT;
-	XMLCheckResult(eResult);
-	if (eResult != tinyxml2::XMLError::XML_SUCCESS){
-		fprintf(stdout, "[XML READING ERROR] Problem parsing the element ToolMarkersNum! \n");
-		return FAILURE;
-
-	}
-	eResult = pElement->QueryIntText(&toolNumberOfMarkers);
-	XMLCheckResult(eResult);
-	//this->SetNumberOfMarkers(toolNumberOfMarkers);
-
-	//ToolMarkers
-	pElement = pRoot->FirstChildElement("ToolMarkers");
-	if (pElement == nullptr) eResult = tinyxml2::XMLError::XML_ERROR_PARSING_ELEMENT;
-	XMLCheckResult(eResult);
-	if (eResult != tinyxml2::XMLError::XML_SUCCESS){
-		fprintf(stdout, "[XML READING ERROR] Problem parsing the element ToolMarkers! \n");
-		return FAILURE;
-
-	}
-	int counter = 0, markerLocation = 0;
-	tinyxml2::XMLElement * pListElement = pElement->FirstChildElement("m1");
-	while ((counter < (toolNumberOfMarkers * 3)) && (pListElement != nullptr))
-	{
-		eResult = pListElement->QueryFloatAttribute("x", &calibrationPoints[counter * 3 + 0]);
-		XMLCheckResult(eResult);
-		eResult = pListElement->QueryFloatAttribute("y", &calibrationPoints[counter * 3 + 1]);
-		XMLCheckResult(eResult);
-		eResult = pListElement->QueryFloatAttribute("z", &calibrationPoints[counter * 3 + 2]);
-		XMLCheckResult(eResult);
-
-		counter = counter + 1;
-
-		//Conversion from int to char*.
-		std::stringstream strs;
-		markerLocation = (counter / 3) + 1;
-		strs << (markerLocation);
-		std::string temp_str = "m" + strs.str();
-		char* char_type = (char*)temp_str.c_str();
-		pListElement = pListElement->NextSiblingElement(char_type);
-
-		//Optitrack works with Left Handed System
-		calibrationPoints[counter * 3 + 0] = calibrationPoints[counter * 3 + 0] / 1000;
-		calibrationPoints[counter * 3 + 1] = calibrationPoints[counter * 3 + 1] / 1000;
-		calibrationPoints[counter * 3 + 2] = -calibrationPoints[counter * 3 + 2] / 1000;
-
-	}
-
-
-
-	//ToolPivot
-	pElement = pRoot->FirstChildElement("ToolPivot");
-	if (pElement == nullptr) eResult = tinyxml2::XMLError::XML_ERROR_PARSING_ELEMENT;
-	XMLCheckResult(eResult);
-	if (eResult != tinyxml2::XMLError::XML_SUCCESS){
-		fprintf(stdout, "[XML READING ERROR] Problem parsing the element ToolPivot! \n");
-		return FAILURE;
-
-	}
-	eResult = pElement->QueryFloatAttribute("x", &pivotArray[0]);
-	XMLCheckResult(eResult);
-	eResult = pElement->QueryFloatAttribute("y", &pivotArray[1]);
-	XMLCheckResult(eResult);
-	eResult = pElement->QueryFloatAttribute("z", &pivotArray[2]);
-	XMLCheckResult(eResult);
-
-	//CalibrationFile
-	pElement = pRoot->FirstChildElement("CalibrationFile");
-	if (pElement == nullptr) eResult = tinyxml2::XMLError::XML_ERROR_PARSING_ELEMENT;
-	if (eResult == tinyxml2::XMLError::XML_SUCCESS){ //If CalibrationFile element do not exist, value is not read.
-		calibrationFileName = pElement->GetText();
-	}
-	
-	//Display results (TEST)
-	std::cout << "<INFO TEST DAVID - CONFIGURETOOLBYXMLFILE() >" << std::endl;
-	std::cout << "Tool name: " << toolName << std::endl;
-	std::cout << "Number of markers: " << toolNumberOfMarkers << std::endl;
-	std::cout << "Markers: " << calibrationPoints << std::endl;
-	std::cout << "Tool 2 File: " << pivotArray << std::endl;
-	
-	
-	
-	return SUCCESS;
-	
-}
-
+*/
 
 
