@@ -163,6 +163,12 @@ TTAPI float    TT_CameraOrientationMatrix(int camera, int index, float orientati
 //==                                     situations)
 TTAPI bool     TT_SetCameraSettings(int CameraIndex, int VideoType, int Exposure, int Threshold, int Intensity, bool succesfulUpdateOfCameraSettings = true);
 
+//== Fetch predistorted marker location.  This is basically where the
+//== camera would see the marker if there was no lens distortion.
+//== For most of our cameras/lenses, this location is only a few pixels
+//== from the distorted (TT_CameraMarker) position.
+TTAPI bool     TT_CameraMarkerPredistorted(int CameraIndex, int MarkerIndex, float &x, float &y, bool succesfulCameraMarkerPredistorted=true, float x_cameraMarker_def=0, float y_cameraMarker_def=0);
+
 //= = CameraMarker fetches the 2D centroid location of the marker as seen by the camera.
 TTAPI bool     TT_CameraMarker(int CameraIndex, int MarkerIndex, float &x, float &y, bool succesfulCameraMarker = true,
 	float x_cameraMarker_def = 0, float y_cameraMarker_def = 0);
