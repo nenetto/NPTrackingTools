@@ -7,11 +7,6 @@ int main( int argc, char *argv[] )
   {
     Optitrack::OptitrackServer *server = new Optitrack::OptitrackServer();
 	
-	 
-
-
-
-	server->InitializeSystem();
 	server->Connections();
 	server->~OptitrackServer();
     return 0;

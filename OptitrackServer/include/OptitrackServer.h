@@ -33,26 +33,16 @@ namespace Optitrack{
 
 		~OptitrackServer();
 
-		void InitializeSystem();
-
-		void SendInformation();
-
 		void Connections();
 
 		std::string ReceiveInstructions(igtl::Socket::Pointer instSocket);
-
-		/**
-		* \brief Start the Tracking Thread for the tools
-		*/
-		static ITK_THREAD_RETURN_TYPE ThreadSendNavigationInfo(void* pInfoStruct);
-
-	protected:
-
-		int SendTransform(igtl::Socket * socket, igtl::MessageHeader * header);
 		int SendPosition(igtl::Socket * socket);
 		int SendStatus(igtl::Socket * socket, int status);
-		int ReceiveStatus(igtl::Socket * socket, igtl::MessageHeader * header);
-		std::string ReceiveTransform(igtl::Socket * socket, igtl::MessageHeader * header);
+	
+
+	protected:
+		
+		void SendToolTransform(int i);
 
 #if OpenIGTLink_PROTOCOL_VERSION >= 2
 		int SendString(igtl::Socket * socket, std::string Str);
@@ -61,9 +51,17 @@ namespace Optitrack{
 
 	private:
 
+		/**
+		* \brief Start the Tracking Thread to send the transform for every tool
+		*/
+
+		static ITK_THREAD_RETURN_TYPE ThreadSendNavigationInfo(void* pInfoStruct);
+
 		void GetRandomTestVectors(float* position, float* quaternion);
 		void GetRandomTestMatrix(igtl::Matrix4x4& matrix);
-		void GetOptitrackToolTransformMatrix(igtl::Matrix4x4& matrix);
+		void GetOptitrackToolTransformMatrix(igtl::Matrix4x4& matrix, int i);
+
+
 		Optitrack::OptitrackTracker::Pointer m_Tracker;
 		Optitrack::OptitrackTool::Pointer m_Tool;
 
@@ -91,4 +89,4 @@ namespace Optitrack{
 	};
 
 }
-#endif //__NavigationBroadcaster_h
+#endif //__OptitrackServer_h

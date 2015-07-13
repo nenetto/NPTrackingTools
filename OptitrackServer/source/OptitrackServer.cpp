@@ -32,7 +32,6 @@
 
 #include "OptitrackServer.h"
 
-//Añadido por David (7-Julio)
 #include <stdio.h>
 #include <stdlib.h>
 #include "OptitrackTracker.h"
@@ -72,83 +71,13 @@ namespace Optitrack
 
 	OptitrackServer::~OptitrackServer()
 	{
-		int result = m_Tracker->Close();
-		std::cout << " Close result: " << result << std::endl;
-		std::cout << " State -> " << m_Tracker->GetState() << std::endl;
-		result = m_Tracker->Reset();
-
-		std::cout << " Reset result: " << result << std::endl;
-		std::cout << " State -> " << m_Tracker->GetState() << std::endl;
-
 		m_ServerSocket->CloseSocket();
 		
 		m_MultiThreader->Delete();
 	}
 
-
-	void OptitrackServer::InitializeSystem()
-	{
-
-		m_Tracker = Optitrack::OptitrackTracker::New();
-		std::string myCalfile = "C:/DavidGarciaMato/Calibration.cal";
-		m_Tracker->SetCalibrationFile(myCalfile);
-
-		m_Tool = Optitrack::OptitrackTool::New();
-		std::string namefilePolaris = "C:/DavidGarciaMato/PunteroPolaris.txt";
-		m_Tool->ConfigureToolByTxtFile(namefilePolaris);
-	
-		Optitrack::OptitrackTool::Pointer objToolOptitrack = Optitrack::OptitrackTool::New();
-		std::string namefilePolaris = "C:/David/PunteroPolarisXML.xml";
-		objToolOptitrack->ConfigureToolByXmlFile(namefilePolaris);
-		
-
-		Optitrack::OptitrackTool::Pointer objToolOptitrack = Optitrack::OptitrackTool::New();
-		std::string namefileOptitrack = "C:/DavidGarciaMato/OptitrackRigidBody.txt";
-		objToolOptitrack->ConfigureToolByTxtFile(namefileOptitrack);
-		
-		Optitrack::OptitrackTool::Pointer objToolOptitrack = Optitrack::OptitrackTool::New();
-		std::string namefileOptitrack = "C:/David/OptitrackRigidBodyXML.xml";
-		objToolOptitrack->ConfigureToolByXmlFile(namefileOptitrack);
-
-	}
-
-
-	std::string OptitrackServer::ReceiveTransform(igtl::Socket * socket, igtl::MessageHeader * header)
-	{
-		std::cerr << "Receiving TRANSFORM data type." << std::endl;
-
-		// Create a message buffer to receive transform data
-		igtl::TransformMessage::Pointer transMsg;
-		transMsg = igtl::TransformMessage::New();
-		transMsg->SetMessageHeader(header);
-		transMsg->AllocatePack();
-
-		std::cerr << "Receiving TRANSFORM device name: " << header->GetDeviceName() << std::endl;
-		// Receive transform data from the socket
-		socket->Receive(transMsg->GetPackBodyPointer(), transMsg->GetPackBodySize());
-
-		// Deserialize the transform data
-		// If you want to skip CRC check, call Unpack() without argument.
-		int c = transMsg->Unpack(1);
-
-		if (c & igtl::MessageHeader::UNPACK_BODY) // if CRC check is OK
-		{
-			// Retrive the transform data
-			igtl::Matrix4x4 matrix;
-			transMsg->GetMatrix(matrix);
-			igtl::PrintMatrix(matrix);
-			return header->GetDeviceName();
-		}
-
-		return header->GetDeviceName();
-
-	}
-
 	void OptitrackServer::Connections()
 	{
-
-
-
 		int result;
 		int currentState = m_Tracker->GetState();
 		bool stop = false;
@@ -188,14 +117,6 @@ namespace Optitrack
 		
 	}
 
-	std::string OptitrackServer::ReceiveInstructions(igtl::Socket::Pointer instSocket)
-	{
-		//Añadido por David (09-07-2015)
-		m_RequestMessage = ReceiveString(m_Socket, /* ¿?header?¿*/);
-		return m_RequestMessage;
-	}
-
-
 	ITK_THREAD_RETURN_TYPE OptitrackServer::ThreadSendNavigationInfo(void* pInfoStruct)
 	{
 
@@ -218,15 +139,16 @@ namespace Optitrack
 
 		if (server != NULL)
 		{
-			// Call the TrackTools function in this thread
-			server->SendInformation();
+			for (int i = 0; i < server->m_Tracker->GetNumberOfAttachedTools(); i++)
+			{
+				// Call the TrackTools function in this thread
+				server->SendToolTransform(i);
+			}
 		}
 		else
 		{
 			fprintf(stdout, "#ERROR# - [OptitrackServer::ThreadStartTracking]: server is NULL\n");
 		}
-
-		//m_Tracker->StopTracking();
 
 		server->m_ThreadID = -1; // reset thread ID because we end the thread here
 		return ITK_THREAD_RETURN_VALUE;
@@ -236,7 +158,7 @@ namespace Optitrack
 
 	}
 
-	void OptitrackServer::SendInformation()
+	void OptitrackServer::SendToolTransform(int i)
 	{
 		igtl::TransformMessage::Pointer transMsg;
 		transMsg = igtl::TransformMessage::New();
@@ -258,7 +180,7 @@ namespace Optitrack
 				if (m_Socket.IsNotNull())
 				{
 					igtl::Matrix4x4 matrix;
-					GetOptitrackToolTransformMatrix(matrix);
+					GetOptitrackToolTransformMatrix(matrix, i);
 					//GetRandomTestMatrix(matrix);
 					transMsg->SetMatrix(matrix);
 					transMsg->Pack();
@@ -270,61 +192,6 @@ namespace Optitrack
 		}
 
 	}
-
-	int OptitrackServer::SendTransform(igtl::Socket * socket, igtl::MessageHeader * header)
-	{
-		std::cerr << "Receiving TRANSFORM data type." << std::endl;
-
-		// Create a message buffer to receive transform data
-		igtl::TransformMessage::Pointer transMsg;
-		transMsg = igtl::TransformMessage::New();
-		transMsg->SetMessageHeader(header);
-		transMsg->AllocatePack();
-
-		// Receive transform data from the socket
-		socket->Receive(transMsg->GetPackBodyPointer(), transMsg->GetPackBodySize());
-
-		// Deserialize the transform data
-		// If you want to skip CRC check, call Unpack() without argument.
-		int c = transMsg->Unpack(1);
-
-		if (c & igtl::MessageHeader::UNPACK_BODY) // if CRC check is OK
-		{
-			// Retrive the transform data
-			igtl::Matrix4x4 matrix;
-			transMsg->GetMatrix(matrix);
-			igtl::PrintMatrix(matrix);
-			return 1;
-		}
-
-		return 0;
-
-	}
-
-	int OptitrackServer::SendPosition(igtl::Socket * socket)
-	{
-		std::cerr << "Sending POSITION data type." << std::endl;
-
-		//------------------------------------------------------------
-		// Allocate Transform Message Class
-
-		igtl::PositionMessage::Pointer positionMsg;
-		positionMsg = igtl::PositionMessage::New();
-		positionMsg->SetDeviceName("Tracker");
-		positionMsg->SetPackType(igtl::PositionMessage::ALL); // default
-		float position[3];
-		float quaternion[4];
-
-		GetRandomTestVectors(position, quaternion);
-		positionMsg->SetPosition(position);
-		positionMsg->SetQuaternion(quaternion);
-		positionMsg->Pack();
-		socket->Send(positionMsg->GetPackPointer(), positionMsg->GetPackSize());
-		igtl::Sleep(10); // wait
-
-		return 1;
-	}
-
 
 	int OptitrackServer::SendStatus(igtl::Socket * socket, int status)
 	{
@@ -397,7 +264,6 @@ namespace Optitrack
 
 	}
 
-
 #endif //OpenIGTLink_PROTOCOL_VERSION >= 2
 
 	//------------------------------------------------------------
@@ -456,14 +322,14 @@ namespace Optitrack
 		igtl::PrintMatrix(matrix);
 	}
 
-	void OptitrackServer::GetOptitrackToolTransformMatrix(igtl::Matrix4x4& matrix)
+	void OptitrackServer::GetOptitrackToolTransformMatrix(igtl::Matrix4x4& matrix, int i)
 	{
 		vnl_vector_fixed<double,3> position;
 		float orientation[4];
 	    
-		position[0] = this->m_Tool->GetPosition()[0];
-		position[1] = this->m_Tool->GetPosition()[1];
-		position[2] = this->m_Tool->GetPosition()[2];
+		position[0] = this->m_Tracker->GetOptitrackTool(i)->GetPosition()[0];
+		position[1] = this->m_Tracker->GetOptitrackTool(i)->GetPosition()[1];
+		position[2] = this->m_Tracker->GetOptitrackTool(i)->GetPosition()[2];
 
 		std::cout << "position   =" << m_Tool->GetPosition() << std::endl;
 
