@@ -14,6 +14,7 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <time.h>
 
 namespace Optitrack
 {
@@ -250,7 +251,7 @@ namespace Optitrack
                 this->SetState(previous_state);
                 return FAILURE;
             }
-			
+
 			TT_ClearTrackableList(); //Añadido por DAVID
 			this->SetState(STATE_TRACKER_CommunicationEstablished);
             return SUCCESS;
@@ -526,6 +527,10 @@ namespace Optitrack
 
                     if(resultSetCameraSettings)
                     {
+                        this->SetVideoType(videoType);
+                        this->SetExp(exposure);
+                        this->SetThr(threshold);
+                        this->SetLed(intensity);
                         fprintf(stdout, "<INFO> - [OptitrackTracker::SetCameraParams]: Camera #%d params are set\n",cam);
                         i = 0; // End attempts for camera #cam
                     }
@@ -609,6 +614,78 @@ namespace Optitrack
 
         fprintf(stdout, "#ERROR# - [OptitrackTracker::GetOptitrackToolByName]: Tool Named %s does not exist\n",toolName);
         return NULL;
+    }
+
+	void sleep(unsigned int mseconds)
+	{
+		clock_t goal = mseconds + clock();
+		while (goal > clock());
+	}
+
+
+    ResultType OptitrackTracker::checkNumberOfMarkers( void )
+    {
+        // Check number of Cameras
+        int numberOfCameras = TT_CameraCount(8);
+
+        // Variables for API results
+        int resultUpdate, markerCount, cameraSettingsChanged;
+        bool abort = false;
+        bool *CameraUsed = new bool[numberOfCameras];
+
+
+        for (int camera1 = 0; camera1 < numberOfCameras; camera1++)
+        {
+            for (int camera2 = camera1 + 1; camera2 < numberOfCameras; camera2++)
+            {
+
+                if (abort)
+                {
+                    return ResultType::FAILURE;
+                }
+
+                // Shutdown rest of cameras
+
+                for (int camIndex = 0; camIndex < numberOfCameras; camIndex++)
+                {
+                    if (camIndex == camera1 || camIndex == camera2)
+                    {
+                        cameraSettingsChanged = TT_SetCameraSettings(camIndex, this->GetVideoType(), this->GetExp(), this->GetThr(), this->GetLed());
+                    }
+                    else
+                    {
+                        // Turn off the camera
+                        cameraSettingsChanged = TT_SetCameraSettings(camIndex, 2, 1, 255, 15);
+                    }
+                }
+
+                // Message
+                fprintf(stdout, "Testing Pair: %i - %i\n", camera1, camera2);
+
+                // Read 100 frames and check that only one marker is in the field of view
+                for (int count = 0; count < 50; count++)
+                {
+                    resultUpdate = TT_Update();
+                    markerCount = TT_FrameMarkerCount();
+
+                    if (markerCount > 1)
+                    {
+                        // Camera pair is watching more than one marker
+                        fprintf(stdout, "Camera Pair: %i - %i is watching more than one marker\n", camera1, camera2);
+                        fprintf(stdout, "[ABORTING]: Please make sure only one marker is visible in the field of view\n");
+                        abort = true;
+                        break;
+                    }
+
+
+                    sleep(5);
+                }
+
+
+            }
+        }
+
+        return ResultType::SUCCESS;
     }
 
 

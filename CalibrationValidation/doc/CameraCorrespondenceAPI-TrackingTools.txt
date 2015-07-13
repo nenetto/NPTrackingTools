@@ -1,0 +1,20 @@
+Camera correspondence when 8 cameras are connected:
+
+API          ->            TrackingTools
+
+1							8
+2							7
+3							6
+4							5
+5							2
+6							1
+7							4
+8							3
+
+
+Camera Correspondence when 2 cameras are connected:
+
+API          ->            TrackingTools
+
+1							2
+2							1

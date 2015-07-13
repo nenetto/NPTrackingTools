@@ -148,6 +148,12 @@ namespace Optitrack{
         unsigned int GetNumberOfAttachedTools( void );
 
         /**
+        * \brief Study if the number of markers is higher than 1 in the field of view
+        * \return Returns true if the test is passed (only one marker is visible).
+        */
+        ResultType checkNumberOfMarkers( void );
+
+        /**
         * \brief Return the tool pointer of the tool number toolNumber
         * \param toolNumber The number of the tool which should be given back.
         * \return Returns the tool which the number "toolNumber". Returns NULL, if there is
@@ -192,6 +198,12 @@ namespace Optitrack{
 
         /** @brief Gets the current calibration directory. */
         itkGetMacro(Thr,unsigned int);
+
+        /** @brief Sets the Video Type of Cameras. */
+        itkSetMacro(VideoType,unsigned int);
+
+        /** @brief Gets the Video Type of Cameras. */
+        itkGetMacro(VideoType,unsigned int);
 
         /** @brief Gets the current calibration file. */
         itkGetMacro(CalibrationFile,std::string);
@@ -258,6 +270,11 @@ namespace Optitrack{
         * \brief The Cameras Thr
         */
         unsigned int m_Thr;
+
+        /**
+        * \brief The Cameras Video Type
+        */
+        unsigned int m_VideoType;
 
         /**
         * \brief The Cameras Thr
