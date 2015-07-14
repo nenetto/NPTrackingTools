@@ -227,7 +227,7 @@ namespace Optitrack{
         /** @brief Gets the tool State */
         OPTITRACK_TRACKER_STATE GetState( void );
 
-		ResultType OptitrackTracker::LoadXMLConfigurationFile(std::string configurationFilePath);
+		ResultType LoadXMLConfigurationFile(std::string configurationFilePath);
 
     protected:
         OptitrackTracker();
