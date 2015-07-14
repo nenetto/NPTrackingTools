@@ -13,7 +13,7 @@
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>20</x>
@@ -69,13 +69,34 @@
             <item>
              <layout class="QVBoxLayout" name="verticalLayout">
               <item>
-               <widget class="QSpinBox" name="spinBox_2"/>
+               <widget class="QSpinBox" name="exposure">
+                <property name="minimum">
+                 <number>1</number>
+                </property>
+                <property name="maximum">
+                 <number>480</number>
+                </property>
+               </widget>
               </item>
               <item>
-               <widget class="QSpinBox" name="spinBox"/>
+               <widget class="QSpinBox" name="threshold">
+                <property name="minimum">
+                 <number>1</number>
+                </property>
+                <property name="maximum">
+                 <number>255</number>
+                </property>
+               </widget>
               </item>
               <item>
-               <widget class="QSpinBox" name="spinBox_3"/>
+               <widget class="QSpinBox" name="led">
+                <property name="maximum">
+                 <number>15</number>
+                </property>
+                <property name="value">
+                 <number>15</number>
+                </property>
+               </widget>
               </item>
              </layout>
             </item>
@@ -93,7 +114,11 @@
            </widget>
           </item>
           <item>
-           <widget class="QLineEdit" name="lineEdit"/>
+           <widget class="QLineEdit" name="calibrationFile">
+            <property name="text">
+             <string>Calibration.cal</string>
+            </property>
+           </widget>
           </item>
          </layout>
         </item>
@@ -116,7 +141,11 @@
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="lineEdit_2"/>
+         <widget class="QLineEdit" name="resultfile">
+          <property name="text">
+           <string>Results.csv</string>
+          </property>
+         </widget>
         </item>
        </layout>
       </item>
@@ -130,7 +159,7 @@
      </widget>
     </item>
     <item>
-     <widget class="QPushButton" name="pushButton">
+     <widget class="QPushButton" name="run">
       <property name="text">
        <string>Perform Test</string>
       </property>
