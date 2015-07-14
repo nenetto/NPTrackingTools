@@ -48,7 +48,8 @@ namespace Optitrack{
             STATE_TRACKER_AttemptingToAttachTrackerTool = 17,
             STATE_TRACKER_AttemptingToStartTracking = 18,
             STATE_TRACKER_AttemptingToSetCameraParams = 19,
-            STATE_TRACKER_AttemptingToDetachTrackerTool = 20
+            STATE_TRACKER_AttemptingToDetachTrackerTool = 20,
+			STATE_TRACKER_AttemptingToTestCalibration = 21
         } OPTITRACK_TRACKER_STATE;
 
         /**
@@ -149,9 +150,15 @@ namespace Optitrack{
 
         /**
         * \brief Study if the number of markers is higher than 1 in the field of view
-        * \return Returns true if the test is passed (only one marker is visible).
+        * \return Returns SUCCESS if the test is passed (only one marker is visible).
         */
-        ResultType checkNumberOfMarkers( void );
+        ResultType CheckNumberOfMarkers( void );
+
+		/**
+		* \brief Study if the calibration is correct by camera pairs study
+		* \return Returns SUCCESS if test was performed
+		*/
+		ResultType TestCalibration(std::string FileName);
 
         /**
         * \brief Return the tool pointer of the tool number toolNumber
@@ -167,7 +174,7 @@ namespace Optitrack{
         * \return Returns the tool which the number "toolNumber". Returns NULL, if there is
         * no tool with this number.
         */
-        OptitrackTool::Pointer OptitrackTracker::GetOptitrackToolByName( std::string toolName );
+        OptitrackTool::Pointer GetOptitrackToolByName( std::string toolName );
 
         /**
         * \brief Set the Cameras Exposure, Threshold and Intensity of IR LEDs. By Default it set the Video type to 4: Precision Mode for tracking
@@ -274,7 +281,7 @@ namespace Optitrack{
         /**
         * \brief The Cameras Video Type
         */
-        unsigned int m_VideoType;
+        unsigned int m_VideoType = 2;
 
         /**
         * \brief The Cameras Thr
@@ -300,7 +307,6 @@ namespace Optitrack{
         * \brief MultiThreader that starts continuous tracking update
         */
         bool m_StopTracking;
-
 
         /**
         * \brief MultiThreader that starts continuous tracking update

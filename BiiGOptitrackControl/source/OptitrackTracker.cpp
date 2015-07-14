@@ -622,11 +622,10 @@ namespace Optitrack
 		while (goal > clock());
 	}
 
-
-    ResultType OptitrackTracker::checkNumberOfMarkers( void )
+    ResultType OptitrackTracker::CheckNumberOfMarkers( void )
     {
         // Check number of Cameras
-        int numberOfCameras = TT_CameraCount(8);
+        int numberOfCameras = TT_CameraCount();
 
         // Variables for API results
         int resultUpdate, markerCount, cameraSettingsChanged;
@@ -668,10 +667,10 @@ namespace Optitrack
                     resultUpdate = TT_Update();
                     markerCount = TT_FrameMarkerCount();
 
-                    if (markerCount > 1)
+                    if (markerCount != 1)
                     {
                         // Camera pair is watching more than one marker
-                        fprintf(stdout, "Camera Pair: %i - %i is watching more than one marker\n", camera1, camera2);
+						fprintf(stdout, "Camera Pair: %i - %i is watching %i markers\n", camera1, camera2, markerCount);
                         fprintf(stdout, "[ABORTING]: Please make sure only one marker is visible in the field of view\n");
                         abort = true;
                         break;
@@ -688,6 +687,164 @@ namespace Optitrack
         return ResultType::SUCCESS;
     }
 
+	int CameraCorrespondeceBetweenAPIandTrackingTools(int numberOfCameras, int CameraNumber)
+	{
+		if (numberOfCameras == 8)
+		{
+			switch (CameraNumber)
+			{
+			case 1:
+				return 8;
+			case 2:
+				return 7;
+			case 3:
+				return 6;
+			case 4:
+				return 5;
+			case 5:
+				return 2;
+			case 6:
+				return 1;
+			case 7:
+				return 4;
+			case 8:
+				return 3;
+			default:
+				return 0;
+				break;
+			}
+		}
+		else if (numberOfCameras == 2)
+		{
+			switch (CameraNumber)
+			{
+			case 1:
+				return 2;
+			case 2:
+				return 1;
+			default:
+				return 0;
+				break;
+			}
+		}
+		else
+		{
+			return CameraNumber;
+		}
+	}
 
+	int GetMarkerPosition2D3D(std::ostream* stream, int numberOfCameras, int Camera1, int Camera2)
+	{
+		NPRESULT resultUpdate;
+
+		int MarkerCount = 0;
+		bool *CameraUsed = new bool[numberOfCameras];
+		for (int camIndex = 0; camIndex < numberOfCameras; camIndex++)
+		{
+			if (camIndex == Camera1 || camIndex == Camera2)
+			{
+				CameraUsed[camIndex] = true;
+			}
+			else
+			{
+				CameraUsed[camIndex] = false;
+			}
+		}
+
+		int TrackingToolsCamera1 = CameraCorrespondeceBetweenAPIandTrackingTools(numberOfCameras, Camera1 + 1);
+		int TrackingToolsCamera2 = CameraCorrespondeceBetweenAPIandTrackingTools(numberOfCameras, Camera2 + 1);
+
+		std::string camera_pair = "_" + std::to_string(TrackingToolsCamera1) + std::to_string(TrackingToolsCamera2);
+
+		float FrameMarkerX, FrameMarkerY, FrameMarkerZ;
+
+		for (int count = 0; count < 1000; count++)
+		{
+			resultUpdate = TT_Update();
+			MarkerCount = TT_FrameMarkerCount();
+
+			if (MarkerCount != 0)
+			{
+				for (int m = 0; m < MarkerCount; m++)
+				{
+					FrameMarkerX = TT_FrameMarkerX(m) * 1000;
+					FrameMarkerY = TT_FrameMarkerY(m) * 1000;
+					FrameMarkerZ = TT_FrameMarkerZ(m) * 1000;
+
+					float X1, Y1, X2, Y2 = 0;
+					bool Camera1ContributesToMarkerPos = TT_FrameCameraCentroid(m, Camera1, X1, Y1);
+					bool Camera2ContributesToMarkerPos = TT_FrameCameraCentroid(m, Camera2, X2, Y2);
+					*stream << count << ";" << m << ";" << FrameMarkerX << ";" << FrameMarkerY << ";" << FrameMarkerZ << ";" << TrackingToolsCamera1 << ";" << TrackingToolsCamera2 << ";" << X1 << ";" << Y1 << ";" << X2 << ";" << Y2 << ";" << "\n";
+				}
+			}
+			else
+			{
+				fprintf(stdout, "No markers detected \n");
+				*stream << count << ";" << "NoMarkers" << ";" << "NA" << ";" << "NA" << ";" << "NA" << ";" << TrackingToolsCamera1 << ";" << TrackingToolsCamera2 << ";" << "NA" << ";" << "NA" << ";" << "NA" << ";" << "NA" << ";" << "\n";
+			}
+
+			sleep(5);
+		}
+
+		return resultUpdate;
+	}
+
+	ResultType OptitrackTracker::TestCalibration(std::string FileName)
+	{
+		fprintf(stdout, "<INFO> - [OptitrackTracker::TestCalibration]\n");
+		OPTITRACK_TRACKER_STATE previous_state = this->GetState();
+		this->SetState(STATE_TRACKER_AttemptingToTestCalibration);
+
+
+		if (previous_state == STATE_TRACKER_CalibratedState)
+		{
+
+			int numberOfCameras = TT_CameraCount();
+
+			// Prepare the file
+			std::ostream* stream; ///< the output stream
+			stream = new std::ofstream(FileName);
+			stream->precision(10);
+			//File header
+			*stream << "TimeStamp" << ";MarkerIndex" << ";X_3D" << ";Y_3D" << ";Z_3D" << ";CameraUsed1" << ";CameraUsed2" << ";XCam1" << ";YCam1" << ";XCam2" << ";YCam2" << "\n";
+
+			for (int i = 0; i < numberOfCameras - 1; i++)
+			{
+				//Set a 1st camera to normal threshold level and normal exp level so the camera can see the markers
+				bool CameraSettingsChanged = TT_SetCameraSettings(i, this->GetVideoType(), this->GetExp(), this->GetThr(), this->GetLed());
+
+
+				for (int j = i + 1; j < numberOfCameras; j++)
+				{
+					//Set a 2nd camera to normal threshold level and normal exp level so the camera can see the markers
+					CameraSettingsChanged = TT_SetCameraSettings(j, this->GetVideoType(), this->GetExp(), this->GetThr(), this->GetLed());
+
+					fprintf(stdout, "Starting tracking for pair %i - %i \n", i, j);
+					GetMarkerPosition2D3D(stream, numberOfCameras, i, j);
+
+					//Set 2nd camera to highest threshold level (255) and minimum exp level (1) so the camera can see the markers
+					CameraSettingsChanged = TT_SetCameraSettings(j, 2, 1, 255, 15);
+
+				}
+
+				//Set 1st camera to highest threshold level (255) and minimum exp level (1) so the camera cannot see the markers
+				CameraSettingsChanged = TT_SetCameraSettings(i, 2, 1, 255, 15);
+
+			}
+
+			stream->flush();
+			this->SetState(previous_state);
+			return SUCCESS;
+
+		}
+		else
+		{
+			fprintf(stdout, "#ERROR# - [OptitrackTracker::TestCalibration]: Previous State is not valid to Perform Test\n");
+			this->SetState(previous_state);
+			return FAILURE;
+		}
+
+
+	}
 
 }
