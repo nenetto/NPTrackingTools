@@ -586,7 +586,7 @@ int main(int argc, char *argv[])
 		objToolPolaris->ConfigureToolByTxtFile(namefilePolaris);
 		/*/
 		Optitrack::OptitrackTool::Pointer objToolPolaris = Optitrack::OptitrackTool::New();
-		std::string namefilePolaris = "C:/DavidGarciaMato/PunteroPolarisXML.xml";
+		std::string namefilePolaris = "C:/DavidGarciaMato/PunteroPolarisXML_PivotingTesting.xml";
 		objToolPolaris->ConfigureToolByXmlFile(namefilePolaris);
 
 		int result = objTracker->Open();
@@ -608,11 +608,11 @@ int main(int argc, char *argv[])
 		cout << " StartTracking result: " << result << endl;
 		cout << " State -> " << objTracker->GetState() << endl;
 
-		Sleep(1000);
+		Sleep(500);
 
 		vnl_vector_fixed<double, 3> resultPivoting = Optitrack::OptitrackHelper::Pivoting(objTracker, objToolPolaris->GetOptitrackID(), 20);
-			
-		Sleep(1000);
+		
+		Sleep(500);
 
 		result = objTracker->StopTracking();
 		cout << " StopTracking result: " << result << endl;
@@ -621,6 +621,8 @@ int main(int argc, char *argv[])
 		result = objTracker->Close();
 		cout << " Close result: " << result << endl;
 		cout << " State -> " << objTracker->GetState() << endl;
+
+		cout << " Result pivoting: " << resultPivoting << endl;
 
 	}
 
