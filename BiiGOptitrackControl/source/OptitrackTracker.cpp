@@ -854,7 +854,6 @@ namespace Optitrack
 
 	}
 
-}
 
     ResultType OptitrackTracker::LoadXMLConfigurationFile(std::string nameFile)
     {
