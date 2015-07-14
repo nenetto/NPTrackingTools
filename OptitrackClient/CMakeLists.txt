@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.0.2)
 
 # Project for the executable
-project(OptitrackServerController C CXX)
+project(OptitrackClient C CXX)
 
 # Add cpp files that form the library
 file(GLOB ${PROJECT_NAME}_SRC_FILES source/*.cpp)
@@ -36,13 +36,13 @@ target_link_libraries(${PROJECT_NAME} PUBLIC ${OpenIGTLink_LIBRARY})
 
 
 # Documentation
-option(OptitrackServerController_BUILD_DOCUMENTATION "" OFF)
+option(OptitrackClient_BUILD_DOCUMENTATION "" OFF)
 
-if(OptitrackServerController_BUILD_DOCUMENTATION)
+if(OptitrackClient_BUILD_DOCUMENTATION)
     find_package(Doxygen)
-    option(OptitrackServerController_BUILD_DOCUMENTATION "Create and install the HTML based API documentation (requires Doxygen)" ${DOXYGEN_FOUND})
+    option(OptitrackClient_BUILD_DOCUMENTATION "Create and install the HTML based API documentation (requires Doxygen)" ${DOXYGEN_FOUND})
 
-    if(OptitrackServerController_BUILD_DOCUMENTATION)
+    if(OptitrackClient_BUILD_DOCUMENTATION)
         if(NOT DOXYGEN_FOUND)
             message(FATAL_ERROR "Doxygen is needed to build the documentation.")
         endif()

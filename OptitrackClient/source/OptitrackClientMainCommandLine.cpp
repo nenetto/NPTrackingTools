@@ -1,14 +1,12 @@
-#include "OptitrackServer.h"
+#include "OptitrackClient.h"
 #include "igtlSocket.h"
 
 int main( int argc, char *argv[] )
 {
   try 
   {
-    Optitrack::OptitrackServer *server = new Optitrack::OptitrackServer();
-	
-	server->Connections();
-	server->~OptitrackServer();
+    Optitrack::OptitrackClient *client = new Optitrack::OptitrackClient();
+
     return 0;
   }
   catch( std::exception &e )
