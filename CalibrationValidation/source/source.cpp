@@ -12,14 +12,13 @@
 
 
 void printHelp(void);
-unsigned int checkNumberOfMarkers(Optitrack::OptitrackTracker* objTracker);
 
 int main(int argc, char *argv[])
 {
 
 	// Check number of parameters
 
-	if (argc < 3)
+	if (argc < 5)
 	{
 		fprintf(stdout, "[ERROR] The number of parameters is wrong.\n");
 		printHelp();
@@ -30,7 +29,11 @@ int main(int argc, char *argv[])
 		// Read parameters
 
 		std::string calFile(argv[1]);
-		std::string resultFile(argv[2]);
+		int Thr = atoi(argv[2]);
+		int Exp = atoi(argv[3]);
+		int Led = atoi(argv[4]);
+		std::string resultFile(argv[5]);
+		
 
 		fprintf(stdout, "Calibration File: %s\n", calFile.c_str());
 		fprintf(stdout, "Result File: %s\n", resultFile.c_str());
@@ -47,6 +50,9 @@ int main(int argc, char *argv[])
 		// Open Connection
 		objTracker->Open();
 		objTracker->LoadCalibration();
+
+		// Set Camera Params
+		objTracker->SetCameraParams(Exp, Thr, Led);
 
 		// Testing Number of viewed markers
 		int result = objTracker->CheckNumberOfMarkers();
@@ -68,9 +74,12 @@ void printHelp(void)
 {
 	fprintf(stdout, "[Usage of CalibrationValidation]\n");
 	fprintf(stdout, "\n");
-	fprintf(stdout, "CalibrationValidation.exe CalibrationFile OutputResultFile");
+	fprintf(stdout, "CalibrationValidation.exe CalibrationFile Thr Exp Led OutputResultFile");
 	fprintf(stdout, "\n");
 	fprintf(stdout, "CalibrationFile: Path to the tested calibration file ");
+	fprintf(stdout, "Thr: Set Camera Threshold ");
+	fprintf(stdout, "Exp: Set Camera Exposure ");
+	fprintf(stdout, "Led: Set Camera Illumination ");
 	fprintf(stdout, "OutputResultFile: Path to the CSV file where results will be saved");
 }
 
