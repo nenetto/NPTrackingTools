@@ -680,6 +680,7 @@ namespace Optitrack
 						fprintf(stdout, "Camera Pair: %i - %i is watching %i markers\n", camera1, camera2, markerCount);
                         fprintf(stdout, "[ABORTING]: Please make sure only one marker is visible in the field of view\n");
                         abort = true;
+						return ResultType::FAILURE;
                         break;
                     }
 
@@ -764,6 +765,8 @@ namespace Optitrack
 		std::string camera_pair = "_" + std::to_string(TrackingToolsCamera1) + std::to_string(TrackingToolsCamera2);
 
 		float FrameMarkerX, FrameMarkerY, FrameMarkerZ;
+		float X1, Y1, X2, Y2 = 0;
+		bool Camera1ContributesToMarkerPos, Camera2ContributesToMarkerPos;
 
 		for (int count = 0; count < 1000; count++)
 		{
@@ -778,16 +781,15 @@ namespace Optitrack
 					FrameMarkerY = TT_FrameMarkerY(m) * 1000;
 					FrameMarkerZ = TT_FrameMarkerZ(m) * 1000;
 
-					float X1, Y1, X2, Y2 = 0;
-					bool Camera1ContributesToMarkerPos = TT_FrameCameraCentroid(m, Camera1, X1, Y1);
-					bool Camera2ContributesToMarkerPos = TT_FrameCameraCentroid(m, Camera2, X2, Y2);
-					*stream << count << ";" << m << ";" << FrameMarkerX << ";" << FrameMarkerY << ";" << FrameMarkerZ << ";" << TrackingToolsCamera1 << ";" << TrackingToolsCamera2 << ";" << X1 << ";" << Y1 << ";" << X2 << ";" << Y2 << ";" << "\n";
+					Camera1ContributesToMarkerPos = TT_FrameCameraCentroid(m, Camera1, X1, Y1);
+					Camera2ContributesToMarkerPos = TT_FrameCameraCentroid(m, Camera2, X2, Y2);
+					*stream << count << ";" << m << ";" << FrameMarkerX << ";" << FrameMarkerY << ";" << FrameMarkerZ << ";" << TrackingToolsCamera1 << ";" << TrackingToolsCamera2 << ";" << X1 << ";" << Y1 << ";" << X2 << ";" << Y2 << ";" << "Pair" << "\n";
 				}
 			}
 			else
 			{
 				fprintf(stdout, "No markers detected \n");
-				*stream << count << ";" << "NoMarkers" << ";" << "NA" << ";" << "NA" << ";" << "NA" << ";" << TrackingToolsCamera1 << ";" << TrackingToolsCamera2 << ";" << "NA" << ";" << "NA" << ";" << "NA" << ";" << "NA" << ";" << "\n";
+				*stream << count << ";" << "NoMarkers" << ";" << "NA" << ";" << "NA" << ";" << "NA" << ";" << TrackingToolsCamera1 << ";" << TrackingToolsCamera2 << ";" << "NA" << ";" << "NA" << ";" << "NA" << ";" << "NA" << ";" << "Pair" << "\n";
 			}
 
 			sleep(5);
@@ -813,8 +815,43 @@ namespace Optitrack
 			stream = new std::ofstream(FileName);
 			stream->precision(10);
 			//File header
-			*stream << "TimeStamp" << ";MarkerIndex" << ";X_3D" << ";Y_3D" << ";Z_3D" << ";CameraUsed1" << ";CameraUsed2" << ";XCam1" << ";YCam1" << ";XCam2" << ";YCam2" << "\n";
+			*stream << "TimeStamp" << ";MarkerIndex" << ";X_3D" << ";Y_3D" << ";Z_3D" << ";CameraUsed1" << ";CameraUsed2" << ";XCam1" << ";YCam1" << ";XCam2" << ";YCam2" << ";CameraPair" << "\n";
 
+			// Track All cameras
+			for (int i = 0; i < numberOfCameras - 1; i++)
+			{
+				bool CameraSettingsChanged = TT_SetCameraSettings(i, this->GetVideoType(), this->GetExp(), this->GetThr(), this->GetLed());
+			}
+
+			int resultUpdate, MarkerCount;
+			float FrameMarkerX, FrameMarkerY, FrameMarkerZ;
+
+			for (int count = 0; count < 1000; count++)
+			{
+				resultUpdate = TT_Update();
+				MarkerCount = TT_FrameMarkerCount();
+
+				if (MarkerCount != 0)
+				{
+					for (int m = 0; m < MarkerCount; m++)
+					{
+						FrameMarkerX = TT_FrameMarkerX(m) * 1000;
+						FrameMarkerY = TT_FrameMarkerY(m) * 1000;
+						FrameMarkerZ = TT_FrameMarkerZ(m) * 1000;
+						*stream << count << ";" << m << ";" << FrameMarkerX << ";" << FrameMarkerY << ";" << FrameMarkerZ << ";" << "-1" << ";" << "-1" << ";" << "NA" << ";" << "NA" << ";" << "NA" << ";" << "NA" << ";" << "All" << "\n";
+					}
+				}
+				else
+				{
+					fprintf(stdout, "No markers detected \n");
+					*stream << count << ";" << "NoMarkers" << ";" << "NA" << ";" << "NA" << ";" << "NA" << ";" << "-1" << ";" << "-1" << ";" << "NA" << ";" << "NA" << ";" << "NA" << ";" << "NA" << ";" << "All" << "\n";
+				}
+
+				sleep(5);
+			}
+
+
+			// Track Camera Pairs
 			for (int i = 0; i < numberOfCameras - 1; i++)
 			{
 				//Set a 1st camera to normal threshold level and normal exp level so the camera can see the markers
