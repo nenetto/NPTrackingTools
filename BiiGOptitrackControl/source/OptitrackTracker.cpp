@@ -803,9 +803,16 @@ namespace Optitrack
 			*stream << "TimeStamp" << ";MarkerIndex" << ";X_3D" << ";Y_3D" << ";Z_3D" << ";CameraUsed1" << ";CameraUsed2" << ";XCam1" << ";YCam1" << ";XCam2" << ";YCam2" << ";CameraPair" << "\n";
 
 			// Track All cameras
-			for (int i = 0; i < numberOfCameras - 1; i++)
+			for (int i = 0; i < numberOfCameras; i++)
 			{
-				bool CameraSettingsChanged = TT_SetCameraSettings(i, this->GetVideoType(), this->GetExp(), this->GetThr(), this->GetLed());
+				//bool CameraSettingsChanged = TT_SetCameraSettings(i, this->GetVideoType(), this->GetExp(), this->GetThr(), this->GetLed());
+				bool CameraSettingsChanged = TT_SetCameraSettings(i, 4, 7, 200, 15);
+
+				std::cout << "Camera settings of all cameras have been set!:" << std::endl;
+				std::cout << "  -Video type:" << this->GetVideoType() << std::endl;
+				std::cout << "  -Exposure:" << this->GetExp() << std::endl;
+				std::cout << "  -Threshold:" << this->GetThr() << std::endl;
+				std::cout << "  -LED:" << this->GetLed() << std::endl;
 			}
 
 			int resultUpdate, MarkerCount;
@@ -813,8 +820,11 @@ namespace Optitrack
 
 			for (int count = 0; count < 1000; count++)
 			{
+				sleep(5); 
 				resultUpdate = TT_Update();
+				std::cout << "Result Update:" << resultUpdate << std::endl;
 				MarkerCount = TT_FrameMarkerCount();
+				std::cout << "Frame marker count:" << MarkerCount << std::endl;
 
 				if (MarkerCount != 0)
 				{
@@ -832,7 +842,6 @@ namespace Optitrack
 					*stream << count << ";" << "NoMarkers" << ";" << "NA" << ";" << "NA" << ";" << "NA" << ";" << "-1" << ";" << "-1" << ";" << "NA" << ";" << "NA" << ";" << "NA" << ";" << "NA" << ";" << "All" << "\n";
 				}
 
-				sleep(5);
 			}
 
 
@@ -840,13 +849,13 @@ namespace Optitrack
 			for (int i = 0; i < numberOfCameras - 1; i++)
 			{
 				//Set a 1st camera to normal threshold level and normal exp level so the camera can see the markers
-				bool CameraSettingsChanged = TT_SetCameraSettings(i, this->GetVideoType(), this->GetExp(), this->GetThr(), this->GetLed());
+				bool CameraSettingsChanged = TT_SetCameraSettings(i, 4, 7, 200, 15);
 
 
 				for (int j = i + 1; j < numberOfCameras; j++)
 				{
 					//Set a 2nd camera to normal threshold level and normal exp level so the camera can see the markers
-					CameraSettingsChanged = TT_SetCameraSettings(j, this->GetVideoType(), this->GetExp(), this->GetThr(), this->GetLed());
+					CameraSettingsChanged = TT_SetCameraSettings(j, 4, 7, 200, 15);
 
 					fprintf(stdout, "Starting tracking for pair %i - %i \n", i, j);
 					GetMarkerPosition2D3D(stream, numberOfCameras, i, j);
