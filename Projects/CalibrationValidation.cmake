@@ -2,7 +2,7 @@
 # Date: 2012-10-28
 
 set(EP_OPTION_NAME "USE_${EP_NAME}")
-set(EP_REQUIRED_PROJECTS BiiGOptitrackControl NPTrackingTools tinyxml2 Qt)
+set(EP_REQUIRED_PROJECTS BiiGOptitrackControl NPTrackingTools tinyxml2)
 set(EP_OPTION_DESCRIPTION "Camera Validation Software")
 set(EP_OPTION_DEFAULT ON)
 

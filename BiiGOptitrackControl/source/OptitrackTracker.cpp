@@ -122,6 +122,7 @@ namespace Optitrack
 			{
 				this->SetState(STATE_TRACKER_CommunicationEstablished);
 				fprintf(stdout, "<INFO> - [OptitrackTracker::InternalOpen]: System was Initialized\n");
+				Sleep(30);
 				return SUCCESS;
 			}
 			else
@@ -172,6 +173,7 @@ namespace Optitrack
             {
                 fprintf(stdout, "<INFO> - [OptitrackTracker::LoadCalibration]: Calibration was successfully loaded\n");
                 this->SetState(STATE_TRACKER_CalibratedState);
+				Sleep(30);
                 return SUCCESS;
             }
 
