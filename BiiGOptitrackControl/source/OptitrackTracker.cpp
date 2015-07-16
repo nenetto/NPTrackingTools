@@ -631,70 +631,53 @@ namespace Optitrack
 		while (goal > clock());
 	}
 
-    ResultType OptitrackTracker::CheckNumberOfMarkers( void )
-    {
-        // Check number of Cameras
-        int numberOfCameras = TT_CameraCount();
+	ResultType OptitrackTracker::CheckNumberOfMarkers(void)
+	{
+		// Check number of Cameras
+		int numberOfCameras = TT_CameraCount();
 
-        // Variables for API results
-        int resultUpdate, markerCount, cameraSettingsChanged;
-        bool abort = false;
-        bool *CameraUsed = new bool[numberOfCameras];
+		// Variables for API results
+		int resultUpdate, markerCount, cameraSettingsChanged, numberFailTrackingEvents;
+		int iterations = 0, cameraMarkerCount;
+		int maxIterationNumber = 50;
 
+		int *trackingFailureArray = new int[numberOfCameras];
+		std::fill_n(trackingFailureArray, numberOfCameras, 0);
 
-        for (int camera1 = 0; camera1 < numberOfCameras; camera1++)
-        {
-            for (int camera2 = camera1 + 1; camera2 < numberOfCameras; camera2++)
-            {
+		while (iterations < maxIterationNumber)
+		{
+			Sleep(5);
+			resultUpdate = TT_UpdateSingleFrame();
+			std::cout << " Update result: " << resultUpdate << std::endl;
+			//markerCount = TT_FrameMarkerCount();
+			//std::cout << " TT_FrameMarkerCount() result: " << markerCount << std::endl;
+			//numberOfCameras = TT_CameraCount();
+			//std::cout << " TT_CameraCount result: " << numberOfCameras << std::endl;
+			for (int cameraIndex = 0; cameraIndex < numberOfCameras; cameraIndex++)
+			{
+				cameraMarkerCount = TT_CameraMarkerCount(cameraIndex);
+				std::cout << " TT_CameraMarkerCount result: " << cameraMarkerCount << " (Camera " << cameraIndex << ")" << std::endl;
 
-                if (abort)
-                {
-                    return ResultType::FAILURE;
-                }
+				if (cameraMarkerCount != 1)
+				{
+					trackingFailureArray[cameraIndex] = trackingFailureArray[cameraIndex] + 1;
+				}
 
-                // Shutdown rest of cameras
+			}
+			iterations++;
+		}
 
-                for (int camIndex = 0; camIndex < numberOfCameras; camIndex++)
-                {
-                    if (camIndex == camera1 || camIndex == camera2)
-                    {
-                        cameraSettingsChanged = TT_SetCameraSettings(camIndex, this->GetVideoType(), this->GetExp(), this->GetThr(), this->GetLed());
-                    }
-                    else
-                    {
-                        // Turn off the camera
-                        cameraSettingsChanged = TT_SetCameraSettings(camIndex, 2, 1, 255, 15);
-                    }
-                }
+		for (int cameraIndex = 0; cameraIndex < numberOfCameras; cameraIndex++){
+			if ((trackingFailureArray[cameraIndex] / 50) >= 0.3)
+			{
+				// Camera pair is watching more than one marker
+				fprintf(stdout, "Camera %i is not visualizing just one marker.\n", cameraIndex);
+				fprintf(stdout, "[ABORTING]: Please make sure only one marker is visible in the field of view of each camera.\n");
+				return ResultType::FAILURE;
+			}
+		}
 
-                // Message
-                fprintf(stdout, "Testing Pair: %i - %i\n", camera1, camera2);
-
-                // Read 100 frames and check that only one marker is in the field of view
-                for (int count = 0; count < 50; count++)
-                {
-                    resultUpdate = TT_Update();
-                    markerCount = TT_FrameMarkerCount();
-
-                    if (markerCount != 1)
-                    {
-                        // Camera pair is watching more than one marker
-						fprintf(stdout, "Camera Pair: %i - %i is watching %i markers\n", camera1, camera2, markerCount);
-                        fprintf(stdout, "[ABORTING]: Please make sure only one marker is visible in the field of view\n");
-                        abort = true;
-						return ResultType::FAILURE;
-                        break;
-                    }
-
-
-                    sleep(5);
-                }
-
-
-            }
-        }
-
-        return ResultType::SUCCESS;
+		return ResultType::SUCCESS;
     }
 
 	int CameraCorrespondeceBetweenAPIandTrackingTools(int numberOfCameras, int CameraNumber)
