@@ -101,7 +101,14 @@ namespace Optitrack
         fprintf(stdout, "<INFO> - [OptitrackTracker::~OptitrackTracker]: OptitrackTracker deleted successfully \n");
     }
 
-    ResultType OptitrackTracker::Open( void )
+	/*! \brief Initialization of the system.
+	* 
+	* This function allows the system to be initialize by moving the rigid body to Communication Established state.
+	a normal member taking two arguments and returning an integer value.
+	* 
+	* @return Result of the system initialization: SUCCESS or FAILURE.
+	*/
+	ResultType OptitrackTracker::Open( void )
     {
         fprintf(stdout, "<INFO> - [OptitrackTracker::InternalOpen]\n");
 
@@ -140,6 +147,13 @@ namespace Optitrack
 		}
     }
 
+	/*! \brief Load the calibration file.
+	*
+	* This function allows the system to load the calibration file of the OptiTrack system. For a correct loading of the file
+	* the system must be initialized and the file must be optimum (.cal extension).
+	*
+	* @return Result of calibration file loading: SUCCESS or FAILURE.
+	*/
     ResultType OptitrackTracker::LoadCalibration( void )
     {
         fprintf(stdout, "<INFO> - [OptitrackTracker::LoadCalibration]\n");
@@ -180,6 +194,13 @@ namespace Optitrack
         }
     }
 
+	/*! \brief Shutdown of the system.
+	*
+	* This function closes the system. First, it stops the tracking Then, the system is shutdown. Finally, the function shuts 
+	* down the camera device driver and ensures all the driver threads are terminated properly.
+	* 
+	* @return Result of the system shutdown: SUCCESS or FAILURE.
+	*/
     ResultType OptitrackTracker::Close( void )
     {
 		fprintf(stdout, "<INFO> - [OptitrackTracker::InternalClose]\n");
@@ -238,6 +259,13 @@ namespace Optitrack
 		}
     }
 
+	/*! \brief Reset of the system.
+	*
+	* This function resets the system. The tracking is stopped and all currently loaded rigid body definitions are removed. This resetting enables the 
+	* system to load a new calibration file.
+	*
+	* @return Result of the system reset: SUCCESS or FAILURE.
+	*/
     ResultType OptitrackTracker::Reset( void )
     {
         fprintf(stdout, "<INFO> - [OptitrackTracker::InternalReset]\n");
@@ -267,6 +295,13 @@ namespace Optitrack
         }
     }
 
+	/*! \brief Addition of tool to the system.
+	*
+	* This function allows to add a tool to the system. The tool is attached and enabled.
+	*
+	* @param OptiTrackTool object corresponding to the tool which wants to be added.
+	* @return Result of the tool addition: SUCCESS or FAILURE.
+	*/
     ResultType OptitrackTracker::AddTrackerTool( OptitrackTool::Pointer trackerTool )
     {
         fprintf(stdout, "<INFO> - [OptitrackTracker::AddTrackerTool]\n");
@@ -300,6 +335,13 @@ namespace Optitrack
         }
     }
 
+	/*! \brief Removal of tool from the system.
+	*
+	* This function allows to remove a tool from the system. The tool is disabled and dettached.
+	*
+	* @param OptiTrackTool object corresponding to the tool which wants to be removed.
+	* @return Result of the tool removal: SUCCESS or FAILURE.
+	*/
     ResultType OptitrackTracker::RemoveTrackerTool( OptitrackTool::Pointer trackerTool )
     {
         fprintf(stdout, "<INFO> - [OptitrackTracker::RemoveTrackerTool]\n");
@@ -334,12 +376,24 @@ namespace Optitrack
         }
     }
 
+	/*! \brief Obtain number of tools attached to the system.
+	*
+	* This function provides the number of tools which are attached to the system.
+	*
+	* @return Number of tools attached (unsigned int).
+	*/
     unsigned int OptitrackTracker::GetNumberOfAttachedTools( void )
     {
         MutexLockHolder lock(*m_ToolsMutex);
         return this->m_LoadedTools.size();
     }
 
+	/*! \brief Start the tracking of tools.
+	*
+	* This function starts the tracking of all tools attached by launching a thread.
+	*
+	* @return Result of the tracking initialization: SUCCESS or FAILURE.
+	*/
     ResultType OptitrackTracker::StartTracking( void )
     {
         fprintf(stdout, "<INFO> - [OptitrackTracker::StartTracking]\n");
@@ -389,6 +443,10 @@ namespace Optitrack
         }
     }
 
+	/*! \brief Tracking of attached tools.
+	*
+	* This function tracks all tools attached to the system.
+	*/
     void OptitrackTracker::TrackTools()
     {
         fprintf(stdout, "<INFO> - [OptitrackTracker::TrackTools]\n");
@@ -440,6 +498,12 @@ namespace Optitrack
         }
     }
 
+	/*! \brief Tracking thread.
+	*
+	* This function handles the ITK thread for the tracking.
+	*
+	* @return Return 0.
+	*/
     ITK_THREAD_RETURN_TYPE OptitrackTracker::ThreadStartTracking(void* pInfoStruct)
     {
         fprintf(stdout, "<INFO> - [OptitrackTracker::ThreadStartTracking]\n");
@@ -476,6 +540,12 @@ namespace Optitrack
         return 0;
     }
 
+	/*! \brief Stop the tracking of tools.
+	*
+	* This function stops the tracking of tools.
+	*
+	* @return Result of the tracking stoppage: SUCCESS or FAILURE.
+	*/
     ResultType OptitrackTracker::StopTracking( void )
     {
         fprintf(stdout, "<INFO> - [OptitrackTracker::InternalStopTracking]\n");
@@ -506,6 +576,16 @@ namespace Optitrack
         }
     }
 
+	/*! \brief Setting of camera parameter.
+	*
+	* This function allows to set some of the camera settings to the whole set of cameras, such as exposure, threshold, illumination, and video mode.	*
+	* @param exposure: Valid values are 1-480.
+	* @param threshold: Pixels with intensities darker than this value will be filtered out when using processed video modes. Valid values are 0-255.
+	* @param intensity: This should be set to 15 for almost all situations. The recommended method for reducing IR LED brightness is to lower the
+    * camera exposure setting, this has the effect of shortening the IR strobe duration. Valid values are 0-15.	* @param videoType: The desired in-camera video processing mode. Valid values are: Segment Mode (0), Grayscale Mode (1), Object Mode (2), 
+	* Precision Mode (4), and MJPEG Mode (V100R2 only) (6).
+	* @return Result of the camera parameters setting: SUCCESS or FAILURE.
+	*/
     ResultType OptitrackTracker::SetCameraParams(int exposure, int threshold , int intensity, int videoType )
     {
         fprintf(stdout, "<INFO> - [OptitrackTracker::SetCameraParams]\n");
@@ -561,6 +641,12 @@ namespace Optitrack
         return SUCCESS;
     }
 
+	/*! \brief Get the number of connected cameras.
+	*
+	* This function provides the number of connected cameras.
+	*
+	* @return Number of connected cameras (unsigned int).
+	*/
     unsigned int OptitrackTracker::GetCameraNumber( void )
     {
         fprintf(stdout, "<INFO> - [OptitrackTracker::GetCameraNumber]\n");
@@ -584,7 +670,7 @@ namespace Optitrack
         return this->m_CameraNumber;
     }
 
-    OptitrackTool::Pointer OptitrackTracker::GetOptitrackTool( unsigned int toolID)
+	OptitrackTool::Pointer OptitrackTracker::GetOptitrackTool( unsigned int toolID)
     {
         fprintf(stdout, "<INFO> - [OptitrackTracker::GetOptitrackTool]\n");
         OptitrackTool::Pointer t = nullptr;
@@ -884,7 +970,6 @@ namespace Optitrack
 
 
 	}
-
 
     ResultType OptitrackTracker::LoadXMLConfigurationFile(std::string nameFile)
     {
