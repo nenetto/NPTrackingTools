@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
 {
 	int option;
 	cout << " " << endl;
-	cout << "Option: (1) LoadXMLConfFile (2) Manual (3) Pivoting Testing" << endl;
+	cout << "Option: (1) LoadXMLConfFile; (2) Manual; (3) Pivoting Testing; (4) Calibration Validation; (5) Client & Server" << endl;
 	cin >> option;
 	
 	if (option == 1)
@@ -574,7 +574,7 @@ int main(int argc, char *argv[])
 		}
 
 	}
-	else
+	else if (option == 3)
 	{
 		Optitrack::OptitrackTracker::Pointer objTracker = Optitrack::OptitrackTracker::New();
 		std::string myCalfile = "C:/DavidGarciaMato/Calibration.cal";
@@ -623,6 +623,68 @@ int main(int argc, char *argv[])
 		cout << " State -> " << objTracker->GetState() << endl;
 
 		cout << " Result pivoting: " << resultPivoting << endl;
+
+	}
+	else if (option == 4)
+	{
+		// Read parameters
+		std::string calFile, resultFile;
+		int Thr, Exp, Led;
+		std::cout << "Calibration file path: " << std::endl;
+		std::cin >> calFile;
+		std::cout << "Exposure: " << std::endl;
+		std::cin >> Exp;
+		std::cout << "Threshold: " << std::endl;
+		std::cin >> Thr;
+		std::cout << "Led: " << std::endl;
+		std::cin >> Led;
+		std::cout << "Path for results file: " << std::endl;
+		std::cin >> resultFile;
+
+		fprintf(stdout, "Calibration File: %s\n", calFile.c_str());
+		fprintf(stdout, "Result File: %s\n", resultFile.c_str());
+
+		// Create Tracker
+		Optitrack::OptitrackTracker::Pointer objTracker = Optitrack::OptitrackTracker::New();
+
+		// Load Calibration File
+		objTracker->SetCalibrationFile(calFile);
+
+		int result = objTracker->Close();
+		std::cout << " Close result: " << result << std::endl;
+		std::cout << " State -> " << objTracker->GetState() << std::endl;
+
+		// Open Connection
+		result = objTracker->Open();
+		std::cout << " Open result: " << result << std::endl;
+		std::cout << " State -> " << objTracker->GetState() << std::endl;
+
+		result = objTracker->LoadCalibration();
+		std::cout << " LoadCalibration result: " << result << std::endl;
+		std::cout << " State -> " << objTracker->GetState() << std::endl;
+
+		int numCam = objTracker->GetCameraNumber();
+
+		// Set Camera Params
+		//objTracker->SetCameraParams(Exp, Thr, Led);
+		result = objTracker->SetCameraParams(Exp, Thr, Led, 4);
+		std::cout << " SetCamParams result: " << result << std::endl;
+
+		// Testing Number of viewed markers
+		result = objTracker->CheckNumberOfMarkers();
+
+		if (result == 1)
+		{
+			fprintf(stdout, "SUCCESS for one marker\n");
+			objTracker->TestCalibration(resultFile);
+		}
+
+		result = objTracker->Close();
+		std::cout << " Close result: " << result << std::endl;
+		std::cout << " State -> " << objTracker->GetState() << std::endl;
+	}
+	else if (option == 5)
+	{
 
 	}
 
