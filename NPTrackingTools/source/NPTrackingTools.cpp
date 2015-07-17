@@ -372,8 +372,9 @@ bool     TT_CameraMarkerPredistorted(int CameraIndex, int MarkerIndex, float &x,
 	return (succesfulCameraMarkerPredistorted);
 }
 
-
-
+int      TT_CameraMarkerCount(int CameraIndex, int numberOfCameraMarkers) { //== Camera's 2D Marker Count =--- 
+	return (numberOfCameraMarkers);
+}
 //= = CameraMarker fetches the 2D centroid location of the marker as seen by the camera.
 bool     TT_CameraMarker(int CameraIndex, int MarkerIndex, float &x, float &y, bool succesfulCameraMarker,
 	float x_cameraMarker_def, float y_cameraMarker_def){

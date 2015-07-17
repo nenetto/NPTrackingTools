@@ -169,6 +169,8 @@ TTAPI bool     TT_SetCameraSettings(int CameraIndex, int VideoType, int Exposure
 //== from the distorted (TT_CameraMarker) position.
 TTAPI bool     TT_CameraMarkerPredistorted(int CameraIndex, int MarkerIndex, float &x, float &y, bool succesfulCameraMarkerPredistorted=true, float x_cameraMarker_def=0, float y_cameraMarker_def=0);
 
+TTAPI   int      TT_CameraMarkerCount(int CameraIndex, int numberOfCameraMarkers=0); //== Camera's 2D Marker Count =---
+
 //= = CameraMarker fetches the 2D centroid location of the marker as seen by the camera.
 TTAPI bool     TT_CameraMarker(int CameraIndex, int MarkerIndex, float &x, float &y, bool succesfulCameraMarker = true,
 	float x_cameraMarker_def = 0, float y_cameraMarker_def = 0);
