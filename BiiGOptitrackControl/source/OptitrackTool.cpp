@@ -811,16 +811,16 @@ namespace Optitrack
 				transformMatrix(2, 0) = -2 * this->m_Orientation.r()*this->m_Orientation.y() - 2 * this->m_Orientation.x()*this->m_Orientation.z();
 				transformMatrix(2, 1) = 2 * this->m_Orientation.r()*this->m_Orientation.x() - 2 * this->m_Orientation.y()*this->m_Orientation.z();
 				transformMatrix(2, 2) = (-2)*pow(this->m_Orientation.x(), 2) - 2 * pow(this->m_Orientation.y(), 2) + 1;
-				transformMatrix(2, 3) = -this->m_Position[2];
+				transformMatrix(2, 3) = this->m_Position[2];
 				transformMatrix(3, 0) = 0.0;
 				transformMatrix(3, 1) = 0.0;
 				transformMatrix(3, 2) = 0.0;
 				transformMatrix(3, 3) = 1.0;
 
-				//fprintf(stdout, "<test David> transformMatrix(0,0)=%f transformMatrix(0,1)=%f transformMatrix(0,2)=%f transformMatrix(0,3)=%f \n", transformMatrix(0,0), transformMatrix(0,1), transformMatrix(0,2), transformMatrix(0,3));
-				//fprintf(stdout, "<test David> transformMatrix(1,0)=%f transformMatrix(1,1)=%f transformMatrix(1,2)=%f transformMatrix(1,3)=%f \n", transformMatrix(1,0), transformMatrix(1,1), transformMatrix(1,2), transformMatrix(1,3));
-				//fprintf(stdout, "<test David> transformMatrix(2,0)=%f transformMatrix(2,1)=%f transformMatrix(2,2)=%f transformMatrix(2,3)=%f \n", transformMatrix(2,0), transformMatrix(2,1), transformMatrix(2,2), transformMatrix(2,3));
-				//fprintf(stdout, "<test David> transformMatrix(3,0)=%f transformMatrix(3,1)=%f transformMatrix(3,2)=%f transformMatrix(3,3)=%f \n", transformMatrix(3,0), transformMatrix(3,1), transformMatrix(3,2), transformMatrix(3,3));
+				fprintf(stdout, "<test David> transformMatrix(0,0)=%f transformMatrix(0,1)=%f transformMatrix(0,2)=%f transformMatrix(0,3)=%f \n", transformMatrix(0,0), transformMatrix(0,1), transformMatrix(0,2), transformMatrix(0,3));
+				fprintf(stdout, "<test David> transformMatrix(1,0)=%f transformMatrix(1,1)=%f transformMatrix(1,2)=%f transformMatrix(1,3)=%f \n", transformMatrix(1,0), transformMatrix(1,1), transformMatrix(1,2), transformMatrix(1,3));
+				fprintf(stdout, "<test David> transformMatrix(2,0)=%f transformMatrix(2,1)=%f transformMatrix(2,2)=%f transformMatrix(2,3)=%f \n", transformMatrix(2,0), transformMatrix(2,1), transformMatrix(2,2), transformMatrix(2,3));
+				fprintf(stdout, "<test David> transformMatrix(3,0)=%f transformMatrix(3,1)=%f transformMatrix(3,2)=%f transformMatrix(3,3)=%f \n", transformMatrix(3,0), transformMatrix(3,1), transformMatrix(3,2), transformMatrix(3,3));
 
 				this->SetTransformMatrix(transformMatrix);
 

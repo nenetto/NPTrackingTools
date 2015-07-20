@@ -90,10 +90,10 @@ namespace Optitrack
 				T = mytool->GetTransformMatrix();
 				
 				//TEST DAVID
-				//fprintf(stdout, "<test David> T(0,0)=%f T(0,1)=%f T(0,2)=%f T(0,3)=%f \n", T[0][0], T[0][1], T[0][2], T[0][3]);
-				//fprintf(stdout, "<test David> T(1,0)=%f T(1,1)=%f T(1,2)=%f T(1,3)=%f \n", T[1][0], T[1][1], T[1][2], T[1][3]);
-				//fprintf(stdout, "<test David> T(2,0)=%f T(2,1)=%f T(2,2)=%f T(2,3)=%f \n", T[2][0], T[2][1], T[2][2], T[2][3]);
-				//fprintf(stdout, "<test David> T(3,0)=%f T(3,1)=%f T(3,2)=%f T(3,3)=%f \n", T[3][0], T[3][1], T[3][2], T[3][3]);
+				fprintf(stdout, "<test David> T(0,0)=%f T(0,1)=%f T(0,2)=%f T(0,3)=%f \n", T[0][0], T[0][1], T[0][2], T[0][3]);
+				fprintf(stdout, "<test David> T(1,0)=%f T(1,1)=%f T(1,2)=%f T(1,3)=%f \n", T[1][0], T[1][1], T[1][2], T[1][3]);
+				fprintf(stdout, "<test David> T(2,0)=%f T(2,1)=%f T(2,2)=%f T(2,3)=%f \n", T[2][0], T[2][1], T[2][2], T[2][3]);
+				fprintf(stdout, "<test David> T(3,0)=%f T(3,1)=%f T(3,2)=%f T(3,3)=%f \n", T[3][0], T[3][1], T[3][2], T[3][3]);
 
 				// Save matrix
 				for (unsigned int i = 0; i < 3; i++) //DAVID: he cambiado i < 6 por i < 4

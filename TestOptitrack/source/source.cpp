@@ -594,6 +594,7 @@ int main(int argc, char *argv[])
 		std::cout << " State -> " << objTracker->GetState() << std::endl;
 
 		result = objTracker->LoadCalibration();
+		result = objTracker->SetCameraParams(7, 206, 15);
 		std::cout << " LoadCalibration result: " << result << std::endl;
 		std::cout << " State -> " << objTracker->GetState() << std::endl;
 
@@ -603,6 +604,8 @@ int main(int argc, char *argv[])
 		cout << " Tool State: " << objToolPolaris->GetState() << endl;
 		cout << " OptitrackID: " << objToolPolaris->GetOptitrackID() << endl;
 		cout << " Tool Name: " << objToolPolaris->GetToolName() << endl;
+
+		result = objToolPolaris->UpdateTool();
 
 		result = objTracker->StartTracking();
 		cout << " StartTracking result: " << result << endl;
