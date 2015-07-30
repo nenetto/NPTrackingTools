@@ -168,8 +168,6 @@ if(NPTrackingTools_BUILD_DOCUMENTATION)
 endif()
 
 
-# Python Fake Wapping
-
 # Python Wrapping
 
 option(NPTrackingTools_PYTHON "" OFF)
