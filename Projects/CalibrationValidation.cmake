@@ -2,7 +2,7 @@
 # Date: 2012-10-28
 
 set(EP_OPTION_NAME "USE_${EP_NAME}")
-set(EP_REQUIRED_PROJECTS BiiGOptitrackControl NPTrackingTools tinyxml2)
+set(EP_REQUIRED_PROJECTS BiiGOptitrackControl NPTrackingTools tinyxml2 ITK)
 set(EP_OPTION_DESCRIPTION "Camera Validation Software")
 set(EP_OPTION_DEFAULT ON)
 
@@ -20,6 +20,7 @@ set(EP_CMAKE_ARGS
   -DNPTrackingTools_DIR:PATH=${${PROJECT_NAME}_NPTrackingTools_DIR}
   -DBiiGOptitrackControl_DIR:PATH=${${PROJECT_NAME}_BiiGOptitrackControl_DIR}
   -Dtinyxml2_DIR:PATH=${${PROJECT_NAME}_tinyxml2_DIR}
+  -DITK_DIR:PATH=${${PROJECT_NAME}_ITK_DIR}
   )
 
 if(${${PROJECT_NAME}_BUILD_DOCUMENTATION})

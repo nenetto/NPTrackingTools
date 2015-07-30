@@ -28,11 +28,11 @@ target_link_libraries(${PROJECT_NAME} PUBLIC ${ITK_LIBRARIES})
 # Search for OpenIGTLink     ##
 ###############################
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMake")
-option(OpenIGTLink_DIR "")
-find_package (OpenIGTLink)
-include_directories(${OpenIGTLink_INCLUDE_DIR})
-message(OpenIGTLink_INCLUDE_DIR ${OpenIGTLink_INCLUDE_DIR})
-target_link_libraries(${PROJECT_NAME} PUBLIC ${OpenIGTLink_LIBRARY})
+find_package (OpenIGTLink REQUIRED)
+include_directories(${OpenIGTLink_INCLUDE_DIRS})
+link_directories(${OpenIGTLink_LIBRARY_DIRS})
+target_link_libraries(${PROJECT_NAME} PUBLIC optimized ${OpenIGTLink_LIBRARY_DIRS}/Release/OpenIGTLink.lib PUBLIC debug ${OpenIGTLink_LIBRARY_DIRS}/Debug/OpenIGTLink.lib)
+
 
 
 # Documentation
