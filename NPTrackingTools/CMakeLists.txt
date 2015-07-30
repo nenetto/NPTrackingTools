@@ -37,6 +37,8 @@ else()
     set(BINARY_DIR_TEMPLATE   ${TrackingToolsAPI_BINARY_DIRS})
     set(SHARED_TEMPLATE       ${TrackingToolsAPI_SHARED})
     set(DEFINITIONS_TEMPLATE  ${TrackingToolsAPI_DEFINITIONS})
+    set(LIBRARY_DIR_TEMPLATE  ${TrackingToolsAPI_LIB_DIR})
+
 
 
     # Create installation and export targets for real NPTrackingTools
