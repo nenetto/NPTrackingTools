@@ -56,7 +56,7 @@ install(TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}-targets
         LIBRARY DESTINATION lib
         PUBLIC_HEADER DESTINATION inc
         )
-install(EXPORT ${PROJECT_NAME}-targets DESTINATION lib/${PROJECT_NAME})
+install(EXPORT ${PROJECT_NAME}-targets DESTINATION lib)
 
 #################################################################
 # Config File that will be used if the package is not installed

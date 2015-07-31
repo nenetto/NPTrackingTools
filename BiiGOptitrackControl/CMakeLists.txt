@@ -106,8 +106,8 @@ install(TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}-targets
         LIBRARY DESTINATION lib
         PUBLIC_HEADER DESTINATION inc
         )
-install(EXPORT ${PROJECT_NAME}-targets DESTINATION lib/${PROJECT_NAME})
-
+install(EXPORT ${PROJECT_NAME}-targets DESTINATION lib)
+install (TARGETS ${PROJECT_NAME} DESTINATION lib)
 #################################################################
 # Config File that will be used if the package is not installed
 #################################################################
@@ -126,7 +126,6 @@ configure_file("${PROJECT_SOURCE_DIR}/CMake/${PROJECT_NAME}Config.cmake.in" "${P
 
 # Add to the search path of find_package
 export(PACKAGE ${PROJECT_NAME})
-
 
 # Documentation
 option(${PROJECT_NAME}_BUILD_DOCUMENTATION "" OFF)
@@ -160,7 +159,25 @@ if(${PROJECT_NAME}_BUILD_DOCUMENTATION)
 endif()
 
 
-
+# Copy libraries to install dir
+IF ( ${CMAKE_GENERATOR} MATCHES "Visual Studio" )
+  FILE(COPY 
+    ${OpenIGTLink_LIBRARY_DIRS}/Release/
+    DESTINATION ${PLUS_EXECUTABLE_OUTPUT_PATH}/Release
+    FILES_MATCHING REGEX .*${CMAKE_SHARED_LIBRARY_SUFFIX}
+    )
+  FILE(COPY 
+    ${OpenIGTLink_LIBRARY_DIRS}/Debug/
+    DESTINATION ${PLUS_EXECUTABLE_OUTPUT_PATH}/Debug
+    FILES_MATCHING REGEX .*${CMAKE_SHARED_LIBRARY_SUFFIX}
+    )    
+ELSE()
+    FILE(COPY 
+      ${OpenIGTLink_LIBRARY_DIRS}/
+      DESTINATION ${PLUS_EXECUTABLE_OUTPUT_PATH}
+      FILES_MATCHING REGEX .*${CMAKE_SHARED_LIBRARY_SUFFIX}
+      )
+ENDIF()
 
 
 
