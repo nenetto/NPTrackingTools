@@ -119,7 +119,10 @@ target_include_directories(${PROJECT_NAME} PUBLIC
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/inc>
 )
 
-export(TARGETS ${PROJECT_NAME} FILE ${PROJECT_NAME}Config.cmake EXPORT_LINK_INTERFACE_LIBRARIES)
+export(TARGETS ${PROJECT_NAME} FILE "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Targets.cmake")
+
+configure_file("${PROJECT_SOURCE_DIR}/CMake/${PROJECT_NAME}Config.cmake.in" "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake" @ONLY)
+
 
 # Add to the search path of find_package
 export(PACKAGE ${PROJECT_NAME})

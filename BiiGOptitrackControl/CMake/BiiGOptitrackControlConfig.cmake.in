@@ -1,0 +1,16 @@
+# - Config file for the BiiGOptitrackControl package
+# It defines the following variables
+#  BiiGOptitrackControl_INCLUDE_DIRS - include directories for FooBar
+#  BiiGOptitrackControl_LIBRARIES    - libraries to link against
+
+# Compute paths
+get_filename_component(BiiGOptitrackControl_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+set(BiiGOptitrackControl_INCLUDE_DIRS "@BiiGOptitrackControl_INCLUDE_DIRS@")
+
+# These are IMPORTED targets created by BiiGOptitrackControlTargets.cmake
+set(BiiGOptitrackControl_LIBRARIES BiiGOptitrackControl)
+
+# Our library dependencies (contains definitions for IMPORTED targets)
+include("${BiiGOptitrackControl_CMAKE_DIR}/BiiGOptitrackControlTargets.cmake")
+
+
