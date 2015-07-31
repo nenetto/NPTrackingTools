@@ -104,10 +104,11 @@ set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${${PROJECT_NAME
 install(TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}-targets
         RUNTIME DESTINATION bin
         LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION lib
         PUBLIC_HEADER DESTINATION inc
         )
 install(EXPORT ${PROJECT_NAME}-targets DESTINATION lib)
-install (TARGETS ${PROJECT_NAME} DESTINATION lib)
+#install (TARGETS ${PROJECT_NAME} DESTINATION lib)
 #################################################################
 # Config File that will be used if the package is not installed
 #################################################################
