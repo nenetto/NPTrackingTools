@@ -40,14 +40,11 @@ else()
     set(LIBRARY_DIR_TEMPLATE  ${TrackingToolsAPI_LIB_DIR})
 
 
-
     # Create installation and export targets for real NPTrackingTools
     set(FILE_TO_BE_CONFIGURED "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake")
     if(EXISTS ${FILE_TO_BE_CONFIGURED})
-      message("Existe!")
       file(REMOVE ${FILE_TO_BE_CONFIGURED})
     endif()
-    message("NO Existe!")
     configure_file (
       "${PROJECT_SOURCE_DIR}/CMake/${PROJECT_NAME}/${PROJECT_NAME}Config.cmake.in"
       ${FILE_TO_BE_CONFIGURED}
