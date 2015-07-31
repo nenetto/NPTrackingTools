@@ -70,7 +70,7 @@ list(APPEND ${PROJECT_NAME}_HDR_FILES ${${PROJECT_NAME}_SOURCE_HDR_FILES} ${${PR
 ###############################
 option(NPTrackingTools_DIR "")
 find_package (NPTrackingTools)
-target_link_libraries(${PROJECT_NAME} PRIVATE NPTrackingTools)
+target_link_libraries(${PROJECT_NAME} PUBLIC NPTrackingTools)
 
 ###############################
 # Search for ITK ##
@@ -119,7 +119,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/inc>
 )
 
-export(TARGETS ${PROJECT_NAME} FILE ${PROJECT_NAME}Config.cmake)
+export(TARGETS ${PROJECT_NAME} FILE ${PROJECT_NAME}Config.cmake EXPORT_LINK_INTERFACE_LIBRARIES)
 
 # Add to the search path of find_package
 export(PACKAGE ${PROJECT_NAME})
