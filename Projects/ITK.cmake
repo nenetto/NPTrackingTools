@@ -54,13 +54,13 @@ else()
     SOURCE_DIR ${PROJECT_BINARY_DIR}/${EP_NAME}
     CMAKE_ARGS ${EP_CMAKE_ARGS}
     # build
-    BINARY_DIR ${PROJECT_BINARY_DIR}/${EP_NAME}-build
+    BINARY_DIR ${PROJECT_BINARY_DIR}/${EP_NAME}-b
     # install
     INSTALL_COMMAND ""
     # test
     )
 
-  set(${PROJECT_NAME}_${EP_NAME}_DIR "${PROJECT_BINARY_DIR}/${EP_NAME}-build" CACHE INTERNAL "")
+  set(${PROJECT_NAME}_${EP_NAME}_DIR "${PROJECT_BINARY_DIR}/${EP_NAME}-b" CACHE INTERNAL "")
 
 endif()
 
