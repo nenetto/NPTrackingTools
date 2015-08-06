@@ -462,32 +462,23 @@ namespace Optitrack
         int num_trackables = -1;
         int resultUpdate;
 
-        for( int i=OPTITRACK_ATTEMPTS; i>0; i--)
+
+        num_trackables =    TT_TrackableCount();
+		fprintf(stdout, "<INFO> - [OptitrackTool::GetIDnext]: Number of Trackables %i \n", num_trackables);
+
+        if(num_trackables > -1)
         {
-            resultUpdate = TT_Update();
-            if(NPRESULT_SUCCESS == resultUpdate)
-            {
-                num_trackables =    TT_TrackableCount();
-                if(num_trackables > -1)
-                {
-                    fprintf(stdout, "<INFO> - [OptitrackTool::GetIDnext]: Next ID %i \n",num_trackables);
-                    this->SetState(previous_state);
-                    return num_trackables;
-                }
-                else
-                {
-                    fprintf(stdout, "#ERROR# - [OptitrackTool::GetIDnext]: GetIDnext FAILED\n");
-                    this->SetState(previous_state);
-                    return -1;
-                }
-
-            }
-
+            fprintf(stdout, "<INFO> - [OptitrackTool::GetIDnext]: Next ID %i \n",num_trackables);
+            this->SetState(previous_state);
+            return num_trackables;
+        }
+        else
+        {
+            fprintf(stdout, "#ERROR# - [OptitrackTool::GetIDnext]: GetIDnext FAILED\n");
+            this->SetState(previous_state);
+            return -1;
         }
 
-        fprintf(stdout, "#ERROR# - [OptitrackTool::GetIDnext]: GetIDnext FAILED\n");
-        this->SetState(previous_state);
-        return -1;
     }
 
     ResultType OptitrackTool::DettachTrackable( void )
@@ -817,18 +808,13 @@ namespace Optitrack
 				transformMatrix(3, 2) = 0.0;
 				transformMatrix(3, 3) = 1.0;
 
-				fprintf(stdout, "<test David> transformMatrix(0,0)=%f transformMatrix(0,1)=%f transformMatrix(0,2)=%f transformMatrix(0,3)=%f \n", transformMatrix(0,0), transformMatrix(0,1), transformMatrix(0,2), transformMatrix(0,3));
-				fprintf(stdout, "<test David> transformMatrix(1,0)=%f transformMatrix(1,1)=%f transformMatrix(1,2)=%f transformMatrix(1,3)=%f \n", transformMatrix(1,0), transformMatrix(1,1), transformMatrix(1,2), transformMatrix(1,3));
-				fprintf(stdout, "<test David> transformMatrix(2,0)=%f transformMatrix(2,1)=%f transformMatrix(2,2)=%f transformMatrix(2,3)=%f \n", transformMatrix(2,0), transformMatrix(2,1), transformMatrix(2,2), transformMatrix(2,3));
-				fprintf(stdout, "<test David> transformMatrix(3,0)=%f transformMatrix(3,1)=%f transformMatrix(3,2)=%f transformMatrix(3,3)=%f \n", transformMatrix(3,0), transformMatrix(3,1), transformMatrix(3,2), transformMatrix(3,3));
-
 				this->SetTransformMatrix(transformMatrix);
 
                 this->SetDataValid(true);
 
-                fprintf(stdout, "<INFO> - [OptitrackTool::UpdateTool]: Success  Tool %s\n",this->GetToolName());
-                fprintf(stdout, "<INFO> - [OptitrackTool::UpdateTool]:          Pos = [ %f , %f , %f ]\n",this->m_Position[0],this->m_Position[1],this->m_Position[2]);
-                fprintf(stdout, "<INFO> - [OptitrackTool::UpdateTool]:          Ori = [ %f , %f , %f , %f ]\n",this->m_Orientation.x(),this->m_Orientation.y(),this->m_Orientation.z(),this->m_Orientation.r());
+                //fprintf(stdout, "<INFO> - [OptitrackTool::UpdateTool]: Success  Tool %s\n",this->GetToolName());
+                //fprintf(stdout, "<INFO> - [OptitrackTool::UpdateTool]:          Pos = [ %f , %f , %f ]\n",this->m_Position[0],this->m_Position[1],this->m_Position[2]);
+                //fprintf(stdout, "<INFO> - [OptitrackTool::UpdateTool]:          Ori = [ %f , %f , %f , %f ]\n",this->m_Orientation.x(),this->m_Orientation.y(),this->m_Orientation.z(),this->m_Orientation.r());
 
                 this->SetState(STATE_TOOL_Enabled);
                 return SUCCESS;
@@ -841,7 +827,7 @@ namespace Optitrack
         }
         else
         {
-         fprintf(stdout, "<INFO> - [OptitrackTool::UpdateTool]: Failed API Updating\n");
+         //fprintf(stdout, "<INFO> - [OptitrackTool::UpdateTool]: Failed API Updating\n");
          this->SetState(previous_state);
          this->SetDataValid(false);
          return FAILURE;

@@ -59,6 +59,7 @@ namespace Optitrack
 		this->m_State = STATE_TRACKER_Idle;
         //Clear List of tools
         this->m_LoadedTools.clear();
+		fprintf(stdout, "<INFO> - [OptitrackTracker::OptitrackTracker] #### \n");
     }
 
     OptitrackTracker::~OptitrackTracker()
@@ -210,14 +211,14 @@ namespace Optitrack
 		if ((previous_state == STATE_TRACKER_CommunicationEstablished) || (previous_state == STATE_TRACKER_CalibratedState))
 		{
 
-			fprintf(stdout, "<INFO> - [OptitrackTracker::InternalClose]: Stopping the Tracking\n");
-			ResultType resultStop = this->StopTracking();
-			if (resultStop == FAILURE)
-			{
-				fprintf(stdout, "#ERROR# - [OptitrackTracker::InternalClose]: Cannot Stop the Tracking\n");
-				this->SetState(previous_state);
-				return FAILURE;
-			}
+			//fprintf(stdout, "<INFO> - [OptitrackTracker::InternalClose]: Stopping the Tracking\n");
+			//ResultType resultStop = this->StopTracking();
+			//if (resultStop == FAILURE)
+			//{
+			//	fprintf(stdout, "#ERROR# - [OptitrackTracker::InternalClose]: Cannot Stop the Tracking\n");
+			//	this->SetState(previous_state);
+			//	return FAILURE;
+			//}
 
 
 			for (int i = OPTITRACK_ATTEMPTS; i > 0; i--)
@@ -412,26 +413,18 @@ namespace Optitrack
             if(previous_state == STATE_TRACKER_CalibratedState) 
             {
 
-                if(TT_Update() == NPRESULT_SUCCESS)
-                {
-                    fprintf(stdout, "<INFO> - [OptitrackTracker::InternalStartTracking]: Ready for Tracking\n");
-                    // Change the m_StopTracking Variable to false
-                    this->m_StopTrackingMutex->Lock();
-                    this->m_StopTracking = false;
-                    this->m_StopTrackingMutex->Unlock();
-                    this->m_TrackingFinishedMutex->Unlock(); // transfer the execution rights to tracking thread
+                fprintf(stdout, "<INFO> - [OptitrackTracker::InternalStartTracking]: Ready for Tracking\n");
+                // Change the m_StopTracking Variable to false
+                this->m_StopTrackingMutex->Lock();
+                this->m_StopTracking = false;
+                this->m_StopTrackingMutex->Unlock();
+                this->m_TrackingFinishedMutex->Unlock(); // transfer the execution rights to tracking thread
 
-                    // Launch multiThreader using the Function ThreadStartTracking that executes the TrackTools() method
-                    m_ThreadID = m_MultiThreader->SpawnThread(this->ThreadStartTracking, this);
-                    this->SetState(STATE_TRACKER_Tracking);
-                    return SUCCESS;
-                }
-                else
-                {
-                    fprintf(stdout, "#ERROR# - [OptitrackTracker::InternalStartTracking]: Could not Update System at least once\n");
-                    this->SetState(previous_state);
-                    return FAILURE;
-                }
+                // Launch multiThreader using the Function ThreadStartTracking that executes the TrackTools() method
+                m_ThreadID = m_MultiThreader->SpawnThread(this->ThreadStartTracking, this);
+                this->SetState(STATE_TRACKER_Tracking);
+                return SUCCESS;
+
             }
             else
             {
@@ -483,7 +476,7 @@ namespace Optitrack
                 this->m_StopTrackingMutex->Lock();
                 localStopTracking = this->m_StopTracking;
                 this->m_StopTrackingMutex->Unlock();
-                Sleep(1);
+                Sleep(2);
             }
 
             m_TrackingFinishedMutex->Unlock(); // transfer control back to main thread
@@ -564,7 +557,7 @@ namespace Optitrack
             m_StopTracking = true;
             m_StopTrackingMutex->Unlock();
             m_TrackingFinishedMutex->Lock();
-            this->SetState(STATE_TRACKER_CalibratedState);
+			this->SetState(STATE_TRACKER_CommunicationEstablished);
             return SUCCESS;
 
         }
@@ -596,6 +589,7 @@ namespace Optitrack
         bool resultSetCameraSettings;
 
         unsigned int camera_number = this->GetCameraNumber();
+		fprintf(stdout, "<INFO> - [OptitrackTracker::SetCameraParams]: Number of Cameras #%d\n", camera_number);
         // If no cameras are connected
         if(camera_number == 0)
         {
@@ -608,29 +602,25 @@ namespace Optitrack
         {
             for( int i=OPTITRACK_ATTEMPTS; i>0; i--)
             {
-                resultUpdate = TT_Update(); // Get Update for the Optitrack API
 
-                if(resultUpdate == NPRESULT_SUCCESS)
+                resultSetCameraSettings = TT_SetCameraSettings(cam,videoType,exposure,threshold,intensity);
+
+                if(resultSetCameraSettings)
                 {
-                    resultSetCameraSettings = TT_SetCameraSettings(cam,videoType,exposure,threshold,intensity);
-
-                    if(resultSetCameraSettings)
+                    this->SetVideoType(videoType);
+                    this->SetExp(exposure);
+                    this->SetThr(threshold);
+                    this->SetLed(intensity);
+                    fprintf(stdout, "<INFO> - [OptitrackTracker::SetCameraParams]: Camera #%d params are set\n",cam);
+                    i = 0; // End attempts for camera #cam
+                }
+                else
+                {
+                    if(i == 1)
                     {
-                        this->SetVideoType(videoType);
-                        this->SetExp(exposure);
-                        this->SetThr(threshold);
-                        this->SetLed(intensity);
-                        fprintf(stdout, "<INFO> - [OptitrackTracker::SetCameraParams]: Camera #%d params are set\n",cam);
-                        i = 0; // End attempts for camera #cam
-                    }
-                    else
-                    {
-                        if(i == 1)
-                        {
-                            fprintf(stdout, "#ERROR# - [OptitrackTracker::SetCameraParams]: Carmera #%d failed\n",cam);
-                            this->SetState(previous_state);
-                            return FAILURE;
-                        }
+                        fprintf(stdout, "#ERROR# - [OptitrackTracker::SetCameraParams]: Carmera #%d failed\n",cam);
+                        this->SetState(previous_state);
+                        return FAILURE;
                     }
                 }
             }
@@ -655,16 +645,10 @@ namespace Optitrack
 
         for( int i=OPTITRACK_ATTEMPTS; i>0; i--)
         {
-          resultUpdate = TT_Update(); // Get Update for the Optitrack API
-          if(resultUpdate == NPRESULT_SUCCESS)
-          {
-            this->m_CameraNumber = TT_CameraCount();
-            i = 0;
-          }
-          else
-          {
-            Sleep(30);
-          }
+
+			this->m_CameraNumber = TT_CameraCount();
+			i = 0;
+
         }
 
         return this->m_CameraNumber;
@@ -986,7 +970,7 @@ namespace Optitrack
         tinyxml2::XMLError eResult = xmlDoc.LoadFile(char_Path);
         XMLCheckResult(eResult);
         if (eResult != tinyxml2::XMLError::XML_SUCCESS){
-            fprintf(stdout, "[XML READING ERROR] Problem loading the file! \n");
+			fprintf(stdout, "[XML READING ERROR] Problem loading the file! %s\n", nameFile);
             return FAILURE;
 
         }
