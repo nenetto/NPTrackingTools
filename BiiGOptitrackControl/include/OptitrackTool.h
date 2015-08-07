@@ -85,6 +85,8 @@ namespace Optitrack{
 
         vnl_quaternion<double> GetOrientation( void );
 
+		vnl_matrix<double> OptitrackTool::GetTransformMatrix(void);
+
         bool IsTracked( void );
 		/** @brief Returns true if the current position data is valid(no error during tracking, tracking error below threshold, ...) */
 		
@@ -115,12 +117,6 @@ namespace Optitrack{
         /** @brief Gets the tool m_OptitrackID. */
         itkGetMacro(OptitrackID,int);
 
-        /** @brief Sets the tool TransformMatrix */
-        itkSetMacro(TransformMatrix, vnl_matrix<double>);
-
-        /** @brief Gets the tool TransformMatrix. */
-        itkGetMacro(TransformMatrix, vnl_matrix<double>);
-
         /** @brief Gets the tool State */
         OPTITRACK_TOOL_STATE GetState( void );
 
@@ -138,6 +134,8 @@ namespace Optitrack{
         ResultType SetPosition(vnl_vector_fixed<double,3> position);
 
         ResultType SetOrientation(vnl_quaternion<double> orientation);
+
+		ResultType OptitrackTool::SetTransformMatrix(vnl_matrix<double> transform);
 
         bool IsIndeterminateValue(const float pV);
 

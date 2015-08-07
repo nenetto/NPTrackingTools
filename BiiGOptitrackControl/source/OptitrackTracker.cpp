@@ -463,24 +463,31 @@ namespace Optitrack
             this->m_StopTrackingMutex->Unlock();
             while ((this->GetState() == STATE_TRACKER_Tracking) && (localStopTracking == false))
             {
-                for ( unsigned int i = 0; i < this->GetNumberOfAttachedTools(); ++i)  // use mutexed methods to access tool container
-                {
-                    OptitrackTool::Pointer currentTool = this->GetOptitrackTool(i);
-                    if(currentTool != nullptr)
-                    {
-                        currentTool->UpdateTool();
-                    }
-                    else
-                    {
-                        //std::cout << "Get data from tool number " << i << " failed" << std::endl; TODO
-                    }
-                }
+				if (TT_Update() == NPRESULT_SUCCESS)
+				{
+					for (unsigned int i = 0; i < this->GetNumberOfAttachedTools(); ++i)  // use mutexed methods to access tool container
+					{
+						OptitrackTool::Pointer currentTool = this->GetOptitrackTool(i);
+						if (currentTool != nullptr)
+						{
+							currentTool->UpdateTool();
+							//fprintf(stdout, "Updating tool named: %s", currentTool->GetToolName().c_str());
+						}
+						else
+						{
+							//std::cout << "Get data from tool number " << i << " failed" << std::endl; TODO
+						}
+					}
 
-                /* Update the local copy of m_StopTracking */
-                this->m_StopTrackingMutex->Lock();
-                localStopTracking = this->m_StopTracking;
-                this->m_StopTrackingMutex->Unlock();
-                Sleep(2);
+					/* Update the local copy of m_StopTracking */
+					this->m_StopTrackingMutex->Lock();
+					localStopTracking = this->m_StopTracking;
+					this->m_StopTrackingMutex->Unlock();
+					Sleep(2);
+				}
+				else{
+					//fprintf(stdout, "#ERROR# - [OptitrackTracker::TrackTools]: Update Failed");
+				}
             }
 
             m_TrackingFinishedMutex->Unlock(); // transfer control back to main thread

@@ -514,6 +514,21 @@ namespace Optitrack
         return SUCCESS;
     }
 
+	ResultType OptitrackTool::SetTransformMatrix(vnl_matrix<double> transform)
+	{
+		//fprintf(stdout, "<INFO> - [OptitrackTool::SetTransformMatrix]\n");
+		// sets the position
+
+		for (int i = 0; i < 4; i++){
+			for (int j = 0; j < 4; j++){
+				this->m_TransformMatrix(j, i) = transform(j, i);
+			}
+		}
+
+		//fprintf(stdout, "<INFO> - [OptitrackTool::SetTransformMatrix]: SUCESS \n");
+		return SUCCESS;
+	}
+
     ResultType OptitrackTool::SetOrientation(vnl_quaternion<double> orientation)
     {
         //fprintf(stdout, "<INFO> - [OptitrackTool::SetOrientation]\n");
@@ -540,6 +555,13 @@ namespace Optitrack
         //fprintf(stdout, "<INFO> - [OptitrackTool::GetOrientation]: SUCESS \n");
         return this->m_Orientation;
     }
+
+	vnl_matrix<double> OptitrackTool::GetTransformMatrix(void)
+	{
+		//fprintf(stdout, "<INFO> - [OptitrackTool::GetTransformMatrix]\n");
+		//fprintf(stdout, "<INFO> - [OptitrackTool::GetTransformMatrix]: SUCESS \n");
+		return this->m_TransformMatrix;
+	}
 
     ResultType OptitrackTool::AttachTrackable( void )
     {
@@ -690,76 +712,92 @@ namespace Optitrack
         float yaw,pitch,roll;
         float data[7];
 
-        if(TT_Update() == NPRESULT_SUCCESS)
+        if(this->IsTracked())
         {
-            if(this->IsTracked())
-            {
-                TT_TrackableLocation(this->m_OptitrackID,   &data[0],    &data[1],    &data[2],                 // Position
-                                                            &data[3],    &data[4],    &data[5],    &data[6],    // Orientation
-                                                            &yaw,        &pitch,      &roll);                   // Orientation
+            TT_TrackableLocation(this->m_OptitrackID,   &data[0],    &data[1],    &data[2],                 // Position
+                                                        &data[3],    &data[4],    &data[5],    &data[6],    // Orientation
+                                                        &yaw,        &pitch,      &roll);                   // Orientation
 
-                for( int i=0; i<7; i++)
+            for( int i=0; i<7; i++)
+            {
+                if( this->IsInfiniteValue(data[i]) || this->IsInfiniteValue(data[i])) // Possible Tracking check for INF numbers
                 {
-                    if( this->IsInfiniteValue(data[i]) || this->IsInfiniteValue(data[i])) // Possible Tracking check for INF numbers
-                    {
-                        this->SetDataValid(false);
-						this->SetState(previous_state);
-                        fprintf(stdout, "<INFO> - [OptitrackTool::UpdateTool]: Data set to INF by the system\n");
-                        return FAILURE;
-                    }
+                    this->SetDataValid(false);
+					this->SetState(previous_state);
+                    fprintf(stdout, "<INFO> - [OptitrackTool::UpdateTool]: Data set to INF by the system\n");
+                    return FAILURE;
                 }
-
-            // m -> mm
-                this->m_Position[0] = data[0]*1000;
-                this->m_Position[1] = data[1]*1000;
-                this->m_Position[2] = -data[2]*1000; // Correction from LeftHanded to RightHanded system
-
-                this->m_Orientation.x() = data[3];
-                this->m_Orientation.y() = data[4];
-                this->m_Orientation.z() = -data[5];
-                this->m_Orientation.r() = data[6];
-
-				vnl_matrix<double> transformMatrix = vnl_matrix<double>(4, 4);
-				//transformMatrix(0, 0) = (-2)*pow(this->m_Orientation.y(), 2) - 2 * pow(this->m_Orientation.z(), 2) + 1;
-				//transformMatrix(0, 1) = 2 * this->m_Orientation.r()*this->m_Orientation.z() + 2 * this->m_Orientation.x()*this->m_Orientation.y();
-				//transformMatrix(0, 2) = 2 * this->m_Orientation.r()*this->m_Orientation.y() - 2 * this->m_Orientation.x()*this->m_Orientation.z();
-				//transformMatrix(0, 3) = this->m_Position[0];
-				//transformMatrix(1, 0) = 2 * this->m_Orientation.x()*this->m_Orientation.y() - 2 * this->m_Orientation.r()*this->m_Orientation.z();
-				//transformMatrix(1, 1) = (-2) * pow(this->m_Orientation.x(), 2) - 2 * pow(this->m_Orientation.z(), 2) + 1;
-				//transformMatrix(1, 2) = -2 * this->m_Orientation.r()*this->m_Orientation.x() - 2 * this->m_Orientation.y()*this->m_Orientation.z();
-				//transformMatrix(1, 3) = this->m_Position[1];
-				//transformMatrix(2, 0) = -2 * this->m_Orientation.r()*this->m_Orientation.y() - 2 * this->m_Orientation.x()*this->m_Orientation.z();
-				//transformMatrix(2, 1) = 2 * this->m_Orientation.r()*this->m_Orientation.x() - 2 * this->m_Orientation.y()*this->m_Orientation.z();
-				//transformMatrix(2, 2) = (-2)*pow(this->m_Orientation.x(), 2) - 2 * pow(this->m_Orientation.y(), 2) + 1;
-				//transformMatrix(2, 3) = this->m_Position[2];
-				//transformMatrix(3, 0) = 0.0;
-				//transformMatrix(3, 1) = 0.0;
-				//transformMatrix(3, 2) = 0.0;
-				//transformMatrix(3, 3) = 1.0;
-
-				this->ConvertMatrix(transformMatrix, this->m_Position, this->m_Orientation);
-
-				this->SetTransformMatrix(transformMatrix);
-
-                this->SetDataValid(true);
-
-				this->SetState(STATE_TOOL_Attached);
-                return SUCCESS;
             }
-            else
-            {
-                this->SetDataValid(false);
-				this->SetState(previous_state);
-            fprintf(stdout, "<INFO> - [OptitrackTool::UpdateTool]: Trackable %s NOT tracked\n", this->GetToolName());
-            }
+
+        // m -> mm
+
+			vnl_vector_fixed<double, 3> position;
+			vnl_quaternion<double> orientation;
+
+			position[0] = data[0] * 1000;
+			position[1] = data[1] * 1000;
+			position[2] = -data[2] * 1000; // Correction from LeftHanded to RightHanded system
+			this->SetPosition(position);
+
+			//fprintf(stdout, "%s Position:[%f,%f,%f]\n", this->GetToolName().c_str(),this->m_Position[0], this->m_Position[1], this->m_Position[2]);
+
+			orientation.x() = data[3];
+			orientation.y() = data[4];
+			orientation.z() = -data[5];
+			orientation.r() = data[6];
+			this->SetOrientation(orientation);
+			//fprintf(stdout, "%s Orientation:[%f,%f,%f]\n",this->GetToolName().c_str(), this->m_Orientation.x(), this->m_Orientation.y(), this->m_Orientation.z(), this->m_Orientation.r());
+
+            //this->m_Position[0] = data[0]*1000;
+            //this->m_Position[1] = data[1]*1000;
+            //this->m_Position[2] = -data[2]*1000; // Correction from LeftHanded to RightHanded system
+
+            //this->m_Orientation.x() = data[3];
+            //this->m_Orientation.y() = data[4];
+            //this->m_Orientation.z() = -data[5];
+            //this->m_Orientation.r() = data[6];
+
+			vnl_matrix<double> transformMatrix = vnl_matrix<double>(4, 4);
+			//transformMatrix(0, 0) = (-2)*pow(this->m_Orientation.y(), 2) - 2 * pow(this->m_Orientation.z(), 2) + 1;
+			//transformMatrix(0, 1) = 2 * this->m_Orientation.r()*this->m_Orientation.z() + 2 * this->m_Orientation.x()*this->m_Orientation.y();
+			//transformMatrix(0, 2) = 2 * this->m_Orientation.r()*this->m_Orientation.y() - 2 * this->m_Orientation.x()*this->m_Orientation.z();
+			//transformMatrix(0, 3) = this->m_Position[0];
+			//transformMatrix(1, 0) = 2 * this->m_Orientation.x()*this->m_Orientation.y() - 2 * this->m_Orientation.r()*this->m_Orientation.z();
+			//transformMatrix(1, 1) = (-2) * pow(this->m_Orientation.x(), 2) - 2 * pow(this->m_Orientation.z(), 2) + 1;
+			//transformMatrix(1, 2) = -2 * this->m_Orientation.r()*this->m_Orientation.x() - 2 * this->m_Orientation.y()*this->m_Orientation.z();
+			//transformMatrix(1, 3) = this->m_Position[1];
+			//transformMatrix(2, 0) = -2 * this->m_Orientation.r()*this->m_Orientation.y() - 2 * this->m_Orientation.x()*this->m_Orientation.z();
+			//transformMatrix(2, 1) = 2 * this->m_Orientation.r()*this->m_Orientation.x() - 2 * this->m_Orientation.y()*this->m_Orientation.z();
+			//transformMatrix(2, 2) = (-2)*pow(this->m_Orientation.x(), 2) - 2 * pow(this->m_Orientation.y(), 2) + 1;
+			//transformMatrix(2, 3) = this->m_Position[2];
+			//transformMatrix(3, 0) = 0.0;
+			//transformMatrix(3, 1) = 0.0;
+			//transformMatrix(3, 2) = 0.0;
+			//transformMatrix(3, 3) = 1.0;
+
+			this->ConvertMatrix(transformMatrix, this->m_Position, this->m_Orientation);
+
+			this->SetTransformMatrix(transformMatrix);
+
+			//fprintf(stdout, "%s Matrix:[%f,%f,%f,%f]\n", this->GetToolName().c_str(), this->m_TransformMatrix(0, 0), this->m_TransformMatrix(0, 1), m_TransformMatrix(0, 2), m_TransformMatrix(0, 3));
+
+
+            this->SetDataValid(true);
+
+			this->SetState(STATE_TOOL_Attached);
+            return SUCCESS;
         }
         else
         {
+            this->SetDataValid(false);
+			this->SetState(previous_state);
+        fprintf(stdout, "<INFO> - [OptitrackTool::UpdateTool]: Trackable %s NOT tracked\n", this->GetToolName());
+        }
+
          //fprintf(stdout, "<INFO> - [OptitrackTool::UpdateTool]: Failed API Updating\n");
          this->SetState(previous_state);
          this->SetDataValid(false);
          return FAILURE;
-        }
     }
 
 	void OptitrackTool::ConvertMatrix(vnl_matrix<double> &R, vnl_vector_fixed<double, 3> position, vnl_quaternion<double> orientation)
