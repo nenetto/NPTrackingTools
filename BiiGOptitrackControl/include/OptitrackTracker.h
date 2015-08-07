@@ -10,8 +10,37 @@
 #include <itkMultiThreader.h>
 #include <itkFastMutexLock.h>
 #include <itkObject.h>
+#include <itksys/SystemTools.hxx>
+
+// VNL
+#include <vnl/vnl_sparse_matrix_linear_system.h>
+#include <vnl/algo/vnl_lsqr.h>
+#include <vnl/vnl_vector.h>
+#include <vnl/vnl_sparse_matrix.h>
+#include <vnl/vnl_quaternion.h>
+#include <vnl/vnl_vector_fixed.h>
+#include <vnl/vnl_matrix.h>
 
 
+// Extra std libs
+#include <iostream>
+#include <stdio.h>
+#include <cstdlib>
+#include <fstream>
+#include <sstream>
+#include <limits.h>
+#include <math.h>
+#include <time.h>
+
+// NPTrackingTools library
+#include <NPTrackingTools.h>
+
+
+//tinyxml2 lib
+#include <tinyxml2.h>
+#ifndef XMLCheckResult
+#define XMLCheckResult(a_eResult) if (a_eResult != tinyxml2::XML_SUCCESS) { printf("Error: %i\n", a_eResult); }
+#endif
 
 
 namespace Optitrack{
@@ -240,6 +269,8 @@ namespace Optitrack{
 
         /** @brief Sets the tool State */
         void SetState(OPTITRACK_TRACKER_STATE state_);
+
+		vnl_vector_fixed<double, 3> Pivoting(unsigned int optitrackID, unsigned int sampleNumber);
 
 
     private:

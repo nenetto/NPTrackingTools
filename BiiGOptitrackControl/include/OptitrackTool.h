@@ -12,6 +12,24 @@
 #include <vnl/vnl_matrix.h>
 #include <itkObject.h>
 
+// Extra std libs
+#include <iostream>
+#include <stdio.h>
+#include <cstdlib>
+#include <fstream>
+#include <sstream>
+#include <limits.h>
+#include <math.h>
+
+//tinyxml2 lib
+#include <tinyxml2.h>
+#ifndef XMLCheckResult
+#define XMLCheckResult(a_eResult) if (a_eResult != tinyxml2::XML_SUCCESS) { printf("Error: %i\n", a_eResult); }
+#endif
+
+// NPTrackingTools (Optitrack API) 
+#include <NPTrackingTools.h>
+
 namespace Optitrack{
 
     class BiiGOptitrackControl_EXPORT OptitrackTool: public itk::Object{
@@ -32,8 +50,6 @@ namespace Optitrack{
             STATE_TOOL_Idle = 0,
             STATE_TOOL_Configurated = 1,
             STATE_TOOL_Attached = 2,
-            STATE_TOOL_Enabled = 3,
-            STATE_TOOL_Disabled = 4,
             // TRANSITIONAL STATES
             STATE_TOOL_AttemptingToReadTxtFile = 10,
             STATE_TOOL_AttemptingToGetIDnext = 11,
@@ -78,12 +94,9 @@ namespace Optitrack{
 
         vnl_quaternion<double> GetOrientation( void );
 
-        ResultType Enable( void );
-
-        ResultType Disable( void );
-
         bool IsTracked( void );
-
+		/** @brief Returns true if the current position data is valid(no error during tracking, tracking error below threshold, ...) */
+		
         bool IsDataValid( void ) const;
 
         void SetDataValid(bool validate);
@@ -138,6 +151,8 @@ namespace Optitrack{
         bool IsIndeterminateValue(const float pV);
 
         bool IsInfiniteValue(const float pV);
+
+		void ConvertMatrix(vnl_matrix<double> &R, vnl_vector_fixed<double, 3> position, vnl_quaternion<double> orientation);
 
     private:
 

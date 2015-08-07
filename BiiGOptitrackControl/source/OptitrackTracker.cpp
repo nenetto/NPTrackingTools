@@ -1,28 +1,5 @@
 #include "OptitrackTracker.h"
 
-// NPTrackingTools library
-#include <NPTrackingTools.h>
-
-// ITK Libs
-#include <itksys/SystemTools.hxx>
-
-
-// Extra std libs
-#include <iostream>
-#include <stdio.h>
-#include <cstdlib>
-#include <fstream>
-#include <sstream>
-#include <vector>
-#include <time.h>
-
-//tinyxml2
-#include <tinyxml2.h>
-#ifndef XMLCheckResult
-#define XMLCheckResult(a_eResult) if (a_eResult != tinyxml2::XML_SUCCESS) { printf("Error: %i\n", a_eResult); }
-#endif
-
-
 namespace Optitrack
 {
 
@@ -47,7 +24,7 @@ namespace Optitrack
 
     OptitrackTracker::OptitrackTracker()
     {
-        fprintf(stdout, "<INFO> - [OptitrackTracker::OptitrackTracker]\n");
+        //fprintf(stdout, "<INFO> - [OptitrackTracker::OptitrackTracker]\n");
         // Set the MultiThread and Mutex
         this->m_MultiThreader = itk::MultiThreader::New();
         this->m_ToolsMutex = itk::FastMutexLock::New();
@@ -59,12 +36,11 @@ namespace Optitrack
 		this->m_State = STATE_TRACKER_Idle;
         //Clear List of tools
         this->m_LoadedTools.clear();
-		fprintf(stdout, "<INFO> - [OptitrackTracker::OptitrackTracker] #### \n");
     }
 
     OptitrackTracker::~OptitrackTracker()
     {
-        fprintf(stdout, "<INFO> - [OptitrackTracker::~OptitrackTracker]\n");
+        //fprintf(stdout, "<INFO> - [OptitrackTracker::~OptitrackTracker]\n");
 
         ResultType result;
         // If device is in Tracking mode, stop the Tracking first
@@ -85,7 +61,7 @@ namespace Optitrack
         // Call InternalClose first
         if (this->GetState() != STATE_TRACKER_Idle)
         {
-            fprintf(stdout, "<INFO> - [OptitrackTracker::~OptitrackTracker]: Calling InternalClose \n");
+            //fprintf(stdout, "<INFO> - [OptitrackTracker::~OptitrackTracker]: Calling InternalClose \n");
             result = this->Close();
 
             if(result == SUCCESS)
@@ -105,13 +81,13 @@ namespace Optitrack
 	/*! \brief Initialization of the system.
 	* 
 	* This function allows the system to be initialize by moving the rigid body to Communication Established state.
-	a normal member taking two arguments and returning an integer value.
+	* a normal member taking two arguments and returning an integer value.
 	* 
 	* @return Result of the system initialization: SUCCESS or FAILURE.
 	*/
 	ResultType OptitrackTracker::Open( void )
     {
-        fprintf(stdout, "<INFO> - [OptitrackTracker::InternalOpen]\n");
+        //fprintf(stdout, "<INFO> - [OptitrackTracker::InternalOpen]\n");
 
         OPTITRACK_TRACKER_STATE previous_state = this->GetState();
         this->SetState(STATE_TRACKER_AttemptingToEstablishCommunication);
@@ -157,7 +133,7 @@ namespace Optitrack
 	*/
     ResultType OptitrackTracker::LoadCalibration( void )
     {
-        fprintf(stdout, "<INFO> - [OptitrackTracker::LoadCalibration]\n");
+        //fprintf(stdout, "<INFO> - [OptitrackTracker::LoadCalibration]\n");
         OPTITRACK_TRACKER_STATE previous_state = this->GetState();
         this->SetState(STATE_TRACKER_AttemptingToLoadCalibration);
 
@@ -204,7 +180,7 @@ namespace Optitrack
 	*/
     ResultType OptitrackTracker::Close( void )
     {
-		fprintf(stdout, "<INFO> - [OptitrackTracker::InternalClose]\n");
+		//fprintf(stdout, "<INFO> - [OptitrackTracker::InternalClose]\n");
         OPTITRACK_TRACKER_STATE previous_state = this->GetState();
         this->SetState(STATE_TRACKER_AttemptingToCloseCommunication);
 
@@ -269,7 +245,7 @@ namespace Optitrack
 	*/
     ResultType OptitrackTracker::Reset( void )
     {
-        fprintf(stdout, "<INFO> - [OptitrackTracker::InternalReset]\n");
+        //fprintf(stdout, "<INFO> - [OptitrackTracker::InternalReset]\n");
         OPTITRACK_TRACKER_STATE previous_state = this->GetState();
         this->SetState(STATE_TRACKER_AttemptingToReset);
 
@@ -305,32 +281,31 @@ namespace Optitrack
 	*/
     ResultType OptitrackTracker::AddTrackerTool( OptitrackTool::Pointer trackerTool )
     {
-        fprintf(stdout, "<INFO> - [OptitrackTracker::AddTrackerTool]\n");
+        //fprintf(stdout, "<INFO> - [OptitrackTracker::AddTrackerTool]\n");
         OPTITRACK_TRACKER_STATE previous_state = this->GetState();
         this->SetState(STATE_TRACKER_AttemptingToAttachTrackerTool);
 
         if(previous_state == STATE_TRACKER_CalibratedState) 
         {
             ResultType resultAttach = trackerTool->AttachTrackable();
-            ResultType resultEnable = trackerTool->Enable();
 
-            if( (resultAttach == SUCCESS) && (resultEnable == SUCCESS) )
+            if( (resultAttach == SUCCESS))
             {
                 this->m_LoadedTools.push_back(trackerTool);
-                fprintf(stdout, "<INFO> - [OptitrackTracker::AddTrackerTool]: Tool Added to the InternalContainer\n");
+				fprintf(stdout, "<INFO> - [OptitrackTracker::AddTrackerTool]: Tool %s Added to the InternalContainer\n", trackerTool->GetToolName().c_str());
 				this->SetState(STATE_TRACKER_CalibratedState);
                 return SUCCESS;
             }
             else
             {
-                fprintf(stdout, "#ERROR# - [OptitrackTracker::AddTrackerTool]: System cannot attach tool from previous state\n");
+				fprintf(stdout, "#ERROR# - [OptitrackTracker::AddTrackerTool]: System cannot attach tool %s from previous state\n", trackerTool->GetToolName().c_str());
                 this->SetState(previous_state);
                 return FAILURE;
             }
         }
         else
         {
-            fprintf(stdout, "#ERROR# - [OptitrackTracker::AddTrackerTool]: System cannot attach tool from previous state\n");
+			fprintf(stdout, "#ERROR# - [OptitrackTracker::AddTrackerTool]: System cannot attach tool %s from previous state\n", trackerTool->GetToolName().c_str());
             this->SetState(previous_state);
             return FAILURE;
         }
@@ -345,16 +320,15 @@ namespace Optitrack
 	*/
     ResultType OptitrackTracker::RemoveTrackerTool( OptitrackTool::Pointer trackerTool )
     {
-        fprintf(stdout, "<INFO> - [OptitrackTracker::RemoveTrackerTool]\n");
+        //fprintf(stdout, "<INFO> - [OptitrackTracker::RemoveTrackerTool]\n");
         OPTITRACK_TRACKER_STATE previous_state = this->GetState();
         this->SetState(STATE_TRACKER_AttemptingToDetachTrackerTool);
 
         if( previous_state == STATE_TRACKER_CalibratedState )
         {
-            ResultType resultDisable = trackerTool->Disable();
 			ResultType resultDettach = trackerTool->DettachTrackable();
 
-            if( (resultDettach == SUCCESS) && (resultDisable == SUCCESS) )
+            if( (resultDettach == SUCCESS) )
             {
                 int id = trackerTool->GetOptitrackID();
                 m_LoadedTools.erase(m_LoadedTools.begin() + id);
@@ -363,7 +337,7 @@ namespace Optitrack
             }
             else
             {
-                fprintf(stdout, "#ERROR# - [OptitrackTracker::RemoveTrackerTool]: System cannot dettach tool\n");
+				fprintf(stdout, "#ERROR# - [OptitrackTracker::RemoveTrackerTool]: System cannot dettach %s tool\n", trackerTool->GetToolName().c_str());
                 this->SetState(previous_state);
                 return FAILURE;
             }
@@ -371,7 +345,7 @@ namespace Optitrack
         }
         else
         {
-            fprintf(stdout, "#ERROR# - [OptitrackTracker::RemoveTrackerTool]: System cannot dettach tool from previous state\n");
+			fprintf(stdout, "#ERROR# - [OptitrackTracker::RemoveTrackerTool]: System cannot dettach tool %s from previous state\n", trackerTool->GetToolName().c_str());
             this->SetState(previous_state);
             return FAILURE;
         }
@@ -397,7 +371,7 @@ namespace Optitrack
 	*/
     ResultType OptitrackTracker::StartTracking( void )
     {
-        fprintf(stdout, "<INFO> - [OptitrackTracker::StartTracking]\n");
+        //fprintf(stdout, "<INFO> - [OptitrackTracker::StartTracking]\n");
         OPTITRACK_TRACKER_STATE previous_state = this->GetState();
         this->SetState(STATE_TRACKER_AttemptingToStartTracking);
 
@@ -413,7 +387,7 @@ namespace Optitrack
             if(previous_state == STATE_TRACKER_CalibratedState) 
             {
 
-                fprintf(stdout, "<INFO> - [OptitrackTracker::InternalStartTracking]: Ready for Tracking\n");
+                fprintf(stdout, "<INFO> - [OptitrackTracker::InternalStartTracking]: Tracking...\n");
                 // Change the m_StopTracking Variable to false
                 this->m_StopTrackingMutex->Lock();
                 this->m_StopTracking = false;
@@ -442,7 +416,7 @@ namespace Optitrack
 	*/
     void OptitrackTracker::TrackTools()
     {
-        fprintf(stdout, "<INFO> - [OptitrackTracker::TrackTools]\n");
+        //fprintf(stdout, "<INFO> - [OptitrackTracker::TrackTools]\n");
 
         try
         {
@@ -499,7 +473,7 @@ namespace Optitrack
 	*/
     ITK_THREAD_RETURN_TYPE OptitrackTracker::ThreadStartTracking(void* pInfoStruct)
     {
-        fprintf(stdout, "<INFO> - [OptitrackTracker::ThreadStartTracking]\n");
+        //fprintf(stdout, "<INFO> - [OptitrackTracker::ThreadStartTracking]\n");
 
         /* extract this pointer from Thread Info structure */
         struct itk::MultiThreader::ThreadInfoStruct * pInfo = (struct itk::MultiThreader::ThreadInfoStruct*)pInfoStruct;
@@ -541,7 +515,7 @@ namespace Optitrack
 	*/
     ResultType OptitrackTracker::StopTracking( void )
     {
-        fprintf(stdout, "<INFO> - [OptitrackTracker::InternalStopTracking]\n");
+        //fprintf(stdout, "<INFO> - [OptitrackTracker::InternalStopTracking]\n");
         OPTITRACK_TRACKER_STATE previous_state = this->GetState();
         this->SetState(STATE_TRACKER_AttemptingToStopTracking);
 
@@ -551,7 +525,7 @@ namespace Optitrack
             previous_state == STATE_TRACKER_AttemptingToReset)
         {
 
-            fprintf(stdout, "<INFO> - [OptitrackTracker::InternalStopTracking]: Ready for Stop\n");
+            fprintf(stdout, "<INFO> - [OptitrackTracker::InternalStopTracking]: Stopping...\n");
             //Change the StopTracking value
             m_StopTrackingMutex->Lock();
             m_StopTracking = true;
@@ -581,7 +555,7 @@ namespace Optitrack
 	*/
     ResultType OptitrackTracker::SetCameraParams(int exposure, int threshold , int intensity, int videoType )
     {
-        fprintf(stdout, "<INFO> - [OptitrackTracker::SetCameraParams]\n");
+        //fprintf(stdout, "<INFO> - [OptitrackTracker::SetCameraParams]\n");
         OPTITRACK_TRACKER_STATE previous_state = this->GetState();
         this->SetState(STATE_TRACKER_AttemptingToSetCameraParams);
 
@@ -639,7 +613,7 @@ namespace Optitrack
 	*/
     unsigned int OptitrackTracker::GetCameraNumber( void )
     {
-        fprintf(stdout, "<INFO> - [OptitrackTracker::GetCameraNumber]\n");
+        //fprintf(stdout, "<INFO> - [OptitrackTracker::GetCameraNumber]\n");
         this->m_CameraNumber = 0;
         int resultUpdate;
 
@@ -656,14 +630,14 @@ namespace Optitrack
 
 	OptitrackTool::Pointer OptitrackTracker::GetOptitrackTool( unsigned int toolID)
     {
-        fprintf(stdout, "<INFO> - [OptitrackTracker::GetOptitrackTool]\n");
+        //fprintf(stdout, "<INFO> - [OptitrackTracker::GetOptitrackTool]\n");
         OptitrackTool::Pointer t = nullptr;
 
         MutexLockHolder toolsMutexLockHolder(*m_ToolsMutex); // lock and unlock the mutex ITK
         if(toolID < this->GetNumberOfAttachedTools())
         {
             t = m_LoadedTools.at(toolID);
-            fprintf(stdout, "<INFO> - [OptitrackTracker::GetOptitrackTool]: Selected tool #%d\n",toolID);
+            //fprintf(stdout, "<INFO> - [OptitrackTracker::GetOptitrackTool]: Selected tool #%d\n",toolID);
         }
         else
         {
@@ -675,7 +649,7 @@ namespace Optitrack
 
     OptitrackTool::Pointer OptitrackTracker::GetOptitrackToolByName( std::string toolName )
     {
-        fprintf(stdout, "<INFO> - [OptitrackTracker::GetOptitrackToolByName]\n");
+        //fprintf(stdout, "<INFO> - [OptitrackTracker::GetOptitrackToolByName]\n");
         OptitrackTool::Pointer t = nullptr;
 
 
@@ -685,13 +659,13 @@ namespace Optitrack
         {
                 if (toolName == this->GetOptitrackTool(i)->GetToolName())
                 {
-                    fprintf(stdout, "<INFO> - [OptitrackTracker::GetOptitrackToolByName]: Selected tool %s\n",toolName);
+                    //fprintf(stdout, "<INFO> - [OptitrackTracker::GetOptitrackToolByName]: Selected tool %s\n",toolName.c_str());
                     return this->GetOptitrackTool(i);
                 }
         }
 
 
-        fprintf(stdout, "#ERROR# - [OptitrackTracker::GetOptitrackToolByName]: Tool Named %s does not exist\n",toolName);
+		fprintf(stdout, "#ERROR# - [OptitrackTracker::GetOptitrackToolByName]: Tool Named %s does not exist\n", toolName.c_str());
         return NULL;
     }
 
@@ -718,15 +692,11 @@ namespace Optitrack
 		{
 			Sleep(5);
 			resultUpdate = TT_UpdateSingleFrame();
-			std::cout << " Update result: " << resultUpdate << std::endl;
-			//markerCount = TT_FrameMarkerCount();
-			//std::cout << " TT_FrameMarkerCount() result: " << markerCount << std::endl;
-			//numberOfCameras = TT_CameraCount();
-			//std::cout << " TT_CameraCount result: " << numberOfCameras << std::endl;
+
 			for (int cameraIndex = 0; cameraIndex < numberOfCameras; cameraIndex++)
 			{
 				cameraMarkerCount = TT_CameraMarkerCount(cameraIndex);
-				std::cout << " TT_CameraMarkerCount result: " << cameraMarkerCount << " (Camera " << cameraIndex << ")" << std::endl;
+				//std::cout << " TT_CameraMarkerCount result: " << cameraMarkerCount << " (Camera " << cameraIndex << ")" << std::endl;
 
 				if (cameraMarkerCount != 1)
 				{
@@ -1061,50 +1031,259 @@ namespace Optitrack
 
         }
 
-        //Display results (TEST)
-        std::cout << "<INFO TEST DAVID - LOADXMLCONFIGURATIONFILE() >" << std::endl;
-        std::cout << "Calibration File: " << calibrationFile << std::endl;
-        std::cout << "Camera parameters: " << " [Exposure] " << camparamExposure << " [Threshold] " << camparamThreshold << " [Intensity] " << camparamIntensity << std::endl;
-        std::cout << "Number of tools: " << toolNumber << std::endl;
-        std::cout << "Tool 1 File: " << toolFilesArray[0] << std::endl;
-        std::cout << "Tool 2 File: " << toolFilesArray[1] << std::endl;
-
-
         //== Tracking system initialization
         this->SetCalibrationFile(calibrationFile);
-
         int result = this->Open();
-        std::cout << " Open result: " << result << std::endl;
-        std::cout << " State -> " << this->GetState() << std::endl;
-
         result = this->LoadCalibration();
-        std::cout << " LoadCalibration result: " << result << std::endl;
-        std::cout << " State -> " << this->GetState() << std::endl;
 
         for (int i = 0; i < toolNumber; i++)
         {
             Optitrack::OptitrackTool::Pointer objTool = Optitrack::OptitrackTool::New();
             objTool->ConfigureToolByXmlFile(toolFilesArray[i]);
-
             result = this->AddTrackerTool(objTool);
-            std::cout << " AddTracker result: " << result << std::endl;
-            std::cout << " State -> " << this->GetState() << std::endl;
-            std::cout << " Tool State: " << objTool->GetState() << std::endl;
-            std::cout << " OptitrackID: " << objTool->GetOptitrackID() << std::endl;
-            std::cout << " Tool Name: " << objTool->GetToolName() << std::endl;
         }
 
         for (int i = 0; i < 3; i++){
             result = this->StartTracking();
-            std::cout << " StartTracking result: " << result << std::endl;
-            std::cout << " State -> " << this->GetState() << std::endl;
             Sleep(100);
             result = this->StopTracking();
-            std::cout << " StopTracking result: " << result << std::endl;
-            std::cout << " State -> " << this->GetState() << std::endl;
             system("PAUSE");
         }
 
         return SUCCESS;
     }
+
+	vnl_vector_fixed<double, 3> OptitrackTracker::Pivoting( unsigned int optitrackID, unsigned int sampleNumber)
+	{
+		fprintf(stdout, "<INFO> - [OptitrackHelper::Pivoting]\n");
+		vnl_vector_fixed<double, 3> PivotOffset;
+
+		Optitrack::OptitrackTracker::Pointer tracker = this;
+
+		if (tracker->GetState() != OptitrackTracker::STATE_TRACKER_Tracking)
+		{
+			fprintf(stdout, "#ERROR# - [OptitrackHelper::Pivoting]: tracker is not tracking!\n");
+			PivotOffset[0] = 0;
+			PivotOffset[1] = 0;
+			PivotOffset[2] = 0;
+		}
+		else
+		{
+			fprintf(stdout, "<INFO> - [OptitrackHelper::Pivoting]: Acquiring positions\n");
+			vnl_sparse_matrix<double> A(3 * sampleNumber, 6);
+			vnl_matrix<double> T_acquired(3 * sampleNumber, 4);
+			vnl_vector<double> b(3 * sampleNumber, 1);
+			b = 0;
+
+			OptitrackTool::Pointer mytool = tracker->GetOptitrackTool(optitrackID);
+
+			vcl_vector<int> cols(6);
+			vcl_vector<double> vals(6);
+			vnl_matrix<double> T;
+			for (unsigned int q = 0; q < 3 * sampleNumber; q = q + 3)
+			{
+				Sleep(500);
+				//fprintf(stdout, "Sample %d", (q / 3) + 1);
+				//Sleep(1000);
+
+				T = mytool->GetTransformMatrix();
+
+				//TEST DAVID
+				fprintf(stdout, "<test David> T(0,0)=%f T(0,1)=%f T(0,2)=%f T(0,3)=%f \n", T[0][0], T[0][1], T[0][2], T[0][3]);
+				fprintf(stdout, "<test David> T(1,0)=%f T(1,1)=%f T(1,2)=%f T(1,3)=%f \n", T[1][0], T[1][1], T[1][2], T[1][3]);
+				fprintf(stdout, "<test David> T(2,0)=%f T(2,1)=%f T(2,2)=%f T(2,3)=%f \n", T[2][0], T[2][1], T[2][2], T[2][3]);
+				fprintf(stdout, "<test David> T(3,0)=%f T(3,1)=%f T(3,2)=%f T(3,3)=%f \n", T[3][0], T[3][1], T[3][2], T[3][3]);
+
+				// Save matrix
+				for (unsigned int i = 0; i < 3; i++) //DAVID: he cambiado i < 6 por i < 4
+				{
+					for (unsigned int j = 0; j < 4; j++)//DAVID: he cambiado j < 3 por j < 4
+					{
+						T_acquired[i + q][j] = T.get(i, j);
+					}
+				}
+
+
+
+
+				for (unsigned int _c = 0; _c < 6; _c++)
+				{
+					cols[_c] = _c;
+				}
+
+
+				vals[0] = T[0][0];
+				vals[1] = T[0][1];
+				vals[2] = T[0][2];
+				vals[3] = -1.0;
+				vals[4] = 0.0;
+				vals[5] = 0.0;
+
+				A.set_row(q, cols, vals);
+
+				vals[0] = T[1][0];
+				vals[1] = T[1][1];
+				vals[2] = T[1][2];
+				vals[3] = 0.0;
+				vals[4] = -1.0;
+				vals[5] = 0.0;
+
+				A.set_row(q + 1, cols, vals);
+
+				vals[0] = T[2][0];
+				vals[1] = T[2][1];
+				vals[2] = T[2][2];
+				vals[3] = 0.0;
+				vals[4] = 0.0;
+				vals[5] = -1.0;
+
+
+				A.set_row(q + 2, cols, vals);
+
+				b[q] = -T[0][3];
+				b[q + 1] = -T[1][3];
+				b[q + 2] = -T[2][3];
+			}
+
+			// Solve the Linear System by LSQR
+			vnl_sparse_matrix_linear_system<double> linear_system(A, b);
+			vnl_lsqr lsqr(linear_system);
+			vnl_vector<double> result(6);
+			lsqr.minimize(result);
+			lsqr.diagnose_outcome(vcl_cerr);
+
+			// Calculate residuals
+
+			vnl_vector<double> residuals(3 * sampleNumber, 1);
+			A.mult(result, residuals);
+			residuals = residuals - b;
+
+			// Filtering Outliers 95% 2*sd
+			double sd_residualsx = 0.0;
+			double sd_residualsy = 0.0;
+			double sd_residualsz = 0.0;
+			for (unsigned int q = 0; q < 3 * sampleNumber; q = q + 3)
+			{
+				residuals[q] = std::abs(residuals[q]);
+				residuals[q + 1] = std::abs(residuals[q + 1]);
+				residuals[q + 2] = std::abs(residuals[q + 2]);
+
+				sd_residualsx = sd_residualsx + residuals[q] * residuals[q];
+				sd_residualsy = sd_residualsy + residuals[q + 1] * residuals[q + 1];
+				sd_residualsz = sd_residualsz + residuals[q + 2] * residuals[q + 2];
+
+			}
+			// Limit of 2*sd -> 95% of the sample
+			sd_residualsx = 2 * std::sqrt(sd_residualsx);
+			sd_residualsy = 2 * std::sqrt(sd_residualsy);
+			sd_residualsz = 2 * std::sqrt(sd_residualsz);
+
+			vnl_vector<int> valid_data(sampleNumber, 1);
+			unsigned int i = 0;
+			for (unsigned int q = 0; q < 3 * sampleNumber; q = q + 3)
+			{
+				if ((sd_residualsx >= residuals[q]) &&
+					(sd_residualsy >= residuals[q + 1]) &&
+					(sd_residualsz >= residuals[q + 2])) //DAVID: cambio <= por >=
+				{
+					// Data is valid
+					valid_data[i] = 1;
+
+				}
+				else
+				{
+					valid_data[i] = 0;
+				}
+
+				i++;
+			}
+
+			// Recalculate the result for the filtered points
+			int number_valids = valid_data.one_norm();
+
+			vnl_sparse_matrix<double> A_2(3 * number_valids, 6);
+			vnl_vector<double> b_2(3 * number_valids, 1);
+			b_2 = 0;
+
+			int q = 0;
+			for (unsigned int i = 0; i < number_valids; i = i++)
+			{
+				if (valid_data[i] == 1)
+				{
+					// Data valid, include
+
+					for (unsigned int i = 0; i < 3; i++) //David: he cambiado i<6 por i<3
+					{
+						for (unsigned int j = 0; j < 4; j++)
+						{
+							T[i][j] = T_acquired[i + q][j];//David: he cambiado i*3 por i+q
+						}
+					}
+
+					for (unsigned int _c = 0; _c <= 5; _c++)
+					{
+						cols[_c] = _c;
+					}
+
+					vals[0] = T[0][0];
+					vals[1] = T[0][1];
+					vals[2] = T[0][2];
+					vals[3] = -1.0;
+					vals[4] = 0.0;
+					vals[5] = 0.0;
+
+					A_2.set_row(q, cols, vals);
+
+					vals[0] = T[1][0];
+					vals[1] = T[1][1];
+					vals[2] = T[1][2];
+					vals[3] = 0.0;
+					vals[4] = -1.0;
+					vals[5] = 0.0;
+
+					A_2.set_row(q + 1, cols, vals);
+
+					vals[0] = T[2][0];
+					vals[1] = T[2][1];
+					vals[2] = T[2][2];
+					vals[3] = 0.0;
+					vals[4] = 0.0;
+					vals[5] = -1.0;
+
+
+					A_2.set_row(q + 2, cols, vals);
+
+					b_2[q] = -T[0][3];
+					b_2[q + 1] = -T[1][3];
+					b_2[q + 2] = -T[2][3];
+
+
+					q = q + 3;
+				}
+				else
+				{
+					// Data no valid, not include
+				}
+			}
+
+			// Solve the Linear System by LSQR
+			vnl_sparse_matrix_linear_system<double> linear_system_2(A_2, b_2);
+			vnl_lsqr lsqr_2(linear_system_2);
+			vnl_vector<double> result_2(6);
+			lsqr_2.minimize(result_2);
+			lsqr_2.diagnose_outcome(vcl_cerr);
+
+			PivotOffset[0] = result_2[0];
+			PivotOffset[1] = result_2[1];
+			PivotOffset[2] = result_2[2];
+
+			fprintf(stdout, "<Result Offset> p1=%f p2=%f p3=%f ", result[0], result[1], result[2]);
+			fprintf(stdout, "<Result Offset> p4=%f p5=%f p6=%f ", result[3], result[4], result[5]);
+			fprintf(stdout, "<Result 2 Offset> p1=%f p2=%f p3=%f ", result_2[0], result_2[1], result_2[2]);
+			fprintf(stdout, "<Result 2 Offset> p4=%f p5=%f p6=%f ", result_2[3], result_2[4], result_2[5]);
+		}
+
+		return PivotOffset;
+	}
+
 }
