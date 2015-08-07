@@ -1,5 +1,14 @@
 #include "OptitrackTool.h"
 
+//tinyxml2 lib
+#include <tinyxml2.h>
+#ifndef XMLCheckResult
+#define XMLCheckResult(a_eResult) if (a_eResult != tinyxml2::XML_SUCCESS) { printf("Error: %i\n", a_eResult); }
+#endif
+
+// NPTrackingTools (Optitrack API) 
+#include <NPTrackingTools.h>
+
 namespace Optitrack
 {
 
