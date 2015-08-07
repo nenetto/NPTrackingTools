@@ -27,6 +27,7 @@ namespace Optitrack
         this->m_Orientation[1] = 0.0f;
         this->m_Orientation[2] = 0.0f;
         this->m_Orientation[3] = 0.0f;
+		this->m_TransformMatrix = vnl_matrix<double>(4, 4);
     }
 
     OptitrackTool::~OptitrackTool()
@@ -774,25 +775,25 @@ namespace Optitrack
 		qw = orientation[3];
 
 
-		R[0][0] = -2 * qy*qy - 2 * qz*qz + 1;
-		R[0][0] = 2 * qw*qz + 2 * qx*qy;
-		R[0][0] = 2 * qw*qy - 2 * qx*qz;
-		R[0][0] = x;
+		R(0, 0) = -2 * qy*qy - 2 * qz*qz + 1;
+		R(0, 1) = 2 * qw*qz + 2 * qx*qy;
+		R(0, 2) = 2 * qw*qy - 2 * qx*qz;
+		R(0, 3) = x;
 
-		R[0][0] = 2 * qx*qy - 2 * qw*qz;
-		R[0][0] = -2 * qx*qx - 2 * qz*qz + 1;
-		R[0][0] = -2 * qw*qx - 2 * qy*qz;
-		R[0][0] = y;
+		R(1, 0) = 2 * qx*qy - 2 * qw*qz;
+		R(1, 1) = -2 * qx*qx - 2 * qz*qz + 1;
+		R(1, 2) = -2 * qw*qx - 2 * qy*qz;
+		R(1, 3) = y;
 
-		R[0][0] = -2 * qw*qy - 2 * qx*qz;
-		R[0][0] = 2 * qw*qx - 2 * qy*qz;
-		R[0][0] = -2 * qx*qx - 2 * qy*qy + 1;
-		R[0][0] = z;
+		R(2, 0) = -2 * qw*qy - 2 * qx*qz;
+		R(2, 1) = 2 * qw*qx - 2 * qy*qz;
+		R(2, 2) = -2 * qx*qx - 2 * qy*qy + 1;
+		R(2, 3) = z;
 
-		R[0][0] = 0.0;
-		R[0][0] = 0.0;
-		R[0][0] = 0.0;
-		R[0][0] = 1.0;
+		R(3, 0) = 0.0;
+		R(3, 1) = 0.0;
+		R(3, 2) = 0.0;
+		R(3, 3) = 1.0;
 
 	}
 
