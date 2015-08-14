@@ -108,6 +108,12 @@ namespace Optitrack{
         /** @brief Gets the tool NumberOfMarkers. */
         itkGetMacro(NumberOfMarkers,unsigned int);
 
+        /** @brief Sets the tool NumberOfSeenMarkers */
+        itkSetMacro(NumberOfSeenMarkers,unsigned int);
+
+        /** @brief Gets the tool NumberOfSeenMarkers. */
+        itkGetMacro(NumberOfSeenMarkers,unsigned int);
+
         /** @brief Sets the tool FileConfiguration */
         itkSetMacro(FileConfiguration,std::string);
 
@@ -164,6 +170,11 @@ namespace Optitrack{
         * \brief Optitrack ID number of the tool
         */
         int m_OptitrackID;
+
+        /**
+        * \brief Optitrack Number of markers detected
+        */
+        unsigned int m_NumberOfSeenMarkers;
 
         /**
         * \brief Optitrack ID number of the tool

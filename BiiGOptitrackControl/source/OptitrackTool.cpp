@@ -6,7 +6,7 @@
 #define XMLCheckResult(a_eResult) if (a_eResult != tinyxml2::XML_SUCCESS) { printf("Error: %i\n", a_eResult); }
 #endif
 
-// NPTrackingTools (Optitrack API) 
+// NPTrackingTools (Optitrack API)
 #include <NPTrackingTools.h>
 
 namespace Optitrack
@@ -19,7 +19,7 @@ namespace Optitrack
         this->m_OptitrackID = -1;
         this->m_Visible = true;
         this->m_DataValid = false;
-        
+
 		this->m_Position[0] = 0.0f;
         this->m_Position[1] = 0.0f;
         this->m_Position[2] = 0.0f;
@@ -34,7 +34,6 @@ namespace Optitrack
     {
         this->m_MyMutex->Unlock();
         this->m_StateMutex->Unlock();
-		
     }
 
     void OptitrackTool::SetState(OptitrackTool::OPTITRACK_TOOL_STATE state_)
@@ -229,7 +228,7 @@ namespace Optitrack
 		OPTITRACK_TOOL_STATE previous_state = this->GetState();
 		this->SetState(STATE_TOOL_AttemptingToReadXmlFile);
 
-		//Variable definition	
+		//Variable definition
 		//Calibration Date
 		int dayCurrentDate, monthCurrentDate, yearCurrentDate;
 		//Calibration Error
@@ -711,6 +710,7 @@ namespace Optitrack
 
         float yaw,pitch,roll;
         float data[7];
+        unsigned int numberOfSeenMarkers;
 
         if(this->IsTracked())
         {
@@ -781,6 +781,8 @@ namespace Optitrack
 
 			//fprintf(stdout, "%s Matrix:[%f,%f,%f,%f]\n", this->GetToolName().c_str(), this->m_TransformMatrix(0, 0), this->m_TransformMatrix(0, 1), m_TransformMatrix(0, 2), m_TransformMatrix(0, 3));
 
+            numberOfSeenMarkers = TT_TrackableMarkerCount(this->m_OptitrackID);
+            this->SetNumberOfSeenMarkers(numberOfSeenMarkers);
 
             this->SetDataValid(true);
 
