@@ -743,7 +743,7 @@ namespace Optitrack
 
 			orientation.x() = data[3];
 			orientation.y() = data[4];
-			orientation.z() = -data[5];
+			orientation.z() = data[5];
 			orientation.r() = data[6];
 			this->SetOrientation(orientation);
 			//fprintf(stdout, "%s Orientation:[%f,%f,%f]\n",this->GetToolName().c_str(), this->m_Orientation.x(), this->m_Orientation.y(), this->m_Orientation.z(), this->m_Orientation.r());
