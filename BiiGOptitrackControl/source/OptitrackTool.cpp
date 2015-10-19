@@ -680,9 +680,9 @@ namespace Optitrack
             for( int i=OPTITRACK_ATTEMPTS; i>0; i--)
             {
                 resultTrackableTranslatePivot = TT_TrackableTranslatePivot(this->m_OptitrackID,this->m_PivotPoint[0],this->m_PivotPoint[1],this->m_PivotPoint[2]);
-                if(NPRESULT_SUCCESS == resultCreateTrackable)
+                if(NPRESULT_SUCCESS == resultTrackableTranslatePivot)
                 {
-                    //fprintf(stdout, "<INFO> - [OptitrackTool::AttachTrackable]: Pivot Translation Successfull\n");
+                    fprintf(stdout, "<INFO> - [OptitrackTool::AttachTrackable]: Pivot Translation Successfull\n");
                     this->SetState(STATE_TOOL_Attached);
                     return ResultType_SUCCESS;
                 }
