@@ -1,4 +1,4 @@
-#include "OptitrackTool.h"
+ #include "OptitrackTool.h"
 
 //tinyxml2 lib
 #include <tinyxml2.h>
@@ -35,7 +35,11 @@ namespace Optitrack
         this->m_MyMutex->Unlock();
         this->m_StateMutex->Unlock();
     }
-
+	
+	/*! \brief Set OptiTrack tool state.
+	*
+	* This function sets a given state to the tool.
+	*/
     void OptitrackTool::SetState(OptitrackTool::OPTITRACK_TOOL_STATE state_)
     {
         MutexLockHolder lock(*m_StateMutex);
@@ -50,6 +54,12 @@ namespace Optitrack
         this->m_StateMutex->Unlock();
     }
 
+	/*! \brief Get OptiTrack tool state..
+	*
+	* This function gets the state of a tool.
+	*
+	* @return OptiTrack tool state.
+	*/
     OptitrackTool::OPTITRACK_TOOL_STATE OptitrackTool::GetState( void )
     {
         MutexLockHolder lock(*m_StateMutex);
@@ -57,6 +67,13 @@ namespace Optitrack
         this->m_StateMutex->Unlock();
     }
 
+	/*! \brief Tool configuration by .txt file.
+	*
+	* This function configures a tool from a given ".txt" file.
+	*
+	* @param nameFile: the .txt configuration file path.
+	* @return Result of the tool configuration.
+	*/
     ResultType OptitrackTool::ConfigureToolByTxtFile(std::string nameFile)
     {
         //fprintf(stdout, "<INFO> - [OptitrackTool::SetToolByTxtFile]\n");
@@ -71,7 +88,7 @@ namespace Optitrack
             fprintf(stdout, "#ERROR# - [OptitrackTool::SetToolByTxtFile]: Cannot Read file\n");
             this->SetFileConfiguration("");
             this->SetState(previous_state);
-            return FAILURE;
+            return ResultType_FAILURE;
         }
 
         // Open the file
@@ -81,7 +98,7 @@ namespace Optitrack
             fprintf(stdout, "#ERROR# - [OptitrackTool::SetToolByTxtFile]: Cannot open file\n");
             this->SetFileConfiguration("");
             this->SetState(previous_state);
-            return FAILURE;
+            return ResultType_FAILURE;
         }
 
 
@@ -96,7 +113,7 @@ namespace Optitrack
             fprintf(stdout, "#ERROR# - [OptitrackTool::SetToolByTxtFile]: No name found in the tool configuration file\n");
             this->SetFileConfiguration("");
             this->SetState(previous_state);
-            return FAILURE;
+            return ResultType_FAILURE;
         }
 
         fprintf(stdout, "<INFO> - [OptitrackTool::SetToolByTxtFile]: Tool Name %s\n", this->GetToolName().c_str());
@@ -113,7 +130,7 @@ namespace Optitrack
             this->SetNumberOfMarkers(0);
             this->SetState(previous_state);
             fclose(calib_file);
-            return FAILURE;
+            return ResultType_FAILURE;
         }
 
         fprintf(stdout, "<INFO> - [OptitrackTool::SetToolByTxtFile]: Numer of Markers %i\n", this->GetNumberOfMarkers());
@@ -132,7 +149,7 @@ namespace Optitrack
                 delete this->m_CalibrationPoints;
                 this->SetState(previous_state);
                 fclose(calib_file);
-                return FAILURE;
+                return ResultType_FAILURE;
              }
 
              resultFscan = fscanf(calib_file,"%fe ",    &this->m_CalibrationPoints[i*3+1]);
@@ -144,7 +161,7 @@ namespace Optitrack
                 delete this->m_CalibrationPoints;
                 this->SetState(previous_state);
                 fclose(calib_file);
-                return FAILURE;
+                return ResultType_FAILURE;
              }
 
              resultFscan = fscanf(calib_file,"%fe\n",    &this->m_CalibrationPoints[i*3+2]);
@@ -156,7 +173,7 @@ namespace Optitrack
                 delete this->m_CalibrationPoints;
                 this->SetState(previous_state);
                 fclose(calib_file);
-                return FAILURE;
+                return ResultType_FAILURE;
              }
              fprintf(stdout, "<INFO> - [OptitrackTool::SetToolByTxtFile]: Marker %i: [%f, %f, %f]\n", i, this->m_CalibrationPoints[i*3+0], this->m_CalibrationPoints[i*3+1], this->m_CalibrationPoints[i*3+2]);
 
@@ -179,7 +196,7 @@ namespace Optitrack
             delete this->m_PivotPoint;
             this->SetState(previous_state);
             fclose(calib_file);
-            return FAILURE;
+            return ResultType_FAILURE;
         }
 
         resultFscan = fscanf(calib_file,"%fe ",    &this->m_PivotPoint[1]);
@@ -192,7 +209,7 @@ namespace Optitrack
             delete this->m_PivotPoint;
             this->SetState(previous_state);
             fclose(calib_file);
-            return FAILURE;
+            return ResultType_FAILURE;
         }
 
         resultFscan = fscanf(calib_file,"%fe\n",    &this->m_PivotPoint[2]);
@@ -205,7 +222,7 @@ namespace Optitrack
             delete this->m_PivotPoint;
             this->SetState(previous_state);
             fclose(calib_file);
-            return FAILURE;
+            return ResultType_FAILURE;
          }
         fprintf(stdout, "<INFO> - [OptitrackTool::SetToolByTxtFile]: Pivot: [%f, %f, %f]\n", m_PivotPoint[0], m_PivotPoint[1], m_PivotPoint[2]);
 
@@ -219,9 +236,17 @@ namespace Optitrack
         fprintf(stdout, "<INFO> - [OptitrackTool::SetToolByTxtFile]: Configuration Successfull\n");
                     fclose(calib_file);
                     this->SetState(STATE_TOOL_Configurated);
-                    return SUCCESS;
+                    return ResultType_SUCCESS;
     }
 
+
+	/*! \brief Tool configuration by .xml file.
+	*
+	* This function configures a tool from a given ".xml" file.
+	*
+	* @param nameFile [: the .xml configuration file path.
+	* @return Result of the tool configuration [int].
+	*/
 	ResultType OptitrackTool::ConfigureToolByXmlFile(std::string nameFile)
 	{
 		//fprintf(stdout, "<INFO> - [OptitrackTool::SetToolByXmlFile]\n");
@@ -245,30 +270,30 @@ namespace Optitrack
 		char* char_Path = (char*)nameFile.c_str(); //Conversion from string to char*.
 		tinyxml2::XMLError eResult = xmlDoc.LoadFile(char_Path);
 		XMLCheckResult(eResult);
-		if (eResult != tinyxml2::XMLError::XML_SUCCESS){
+		if (eResult != tinyxml2::XML_SUCCESS){
 			fprintf(stdout, "#ERROR# - [OptitrackTool::SetToolByXmlFile]: Problem loading the file! \n");
 			this->SetFileConfiguration("");
 			this->SetState(previous_state);
-			return FAILURE;
+			return ResultType_FAILURE;
 		}
 
 		tinyxml2::XMLElement * pRoot = xmlDoc.FirstChildElement("NPTrackingTools");
-		if (pRoot == nullptr) eResult = tinyxml2::XMLError::XML_ERROR_FILE_READ_ERROR;
+		if (pRoot ==  0) eResult = tinyxml2::XML_ERROR_FILE_READ_ERROR;
 		XMLCheckResult(eResult);
-		if (eResult != tinyxml2::XMLError::XML_SUCCESS){
+		if (eResult != tinyxml2::XML_SUCCESS){
 			fprintf(stdout, "#ERROR# - [OptitrackTool::SetToolByXmlFile]: Problem accesing to NPTrackingTools element! \n");
-			return FAILURE;
+			return ResultType_FAILURE;
 		}
 
 		//FileType
 		tinyxml2::XMLElement * pFileType = pRoot->FirstChildElement("FileType");
-		if (pFileType == nullptr) eResult = tinyxml2::XMLError::XML_ERROR_PARSING_ELEMENT;
+		if (pFileType ==  0) eResult = tinyxml2::XML_ERROR_PARSING_ELEMENT;
 		XMLCheckResult(eResult);
-		if (eResult != tinyxml2::XMLError::XML_SUCCESS){
+		if (eResult != tinyxml2::XML_SUCCESS){
 			fprintf(stdout, "#ERROR# - [OptitrackTool::SetToolByXmlFile]: Problem parsing the element FileType! \n");
 			this->SetFileConfiguration("");
 			this->SetState(previous_state);
-			return FAILURE;
+			return ResultType_FAILURE;
 		}
 
 
@@ -290,70 +315,70 @@ namespace Optitrack
 		{
 			eResult = pCalibrationError->QueryFloatAttribute("RMS", &calibrationErrorRMS);
 			XMLCheckResult(eResult);
-			if (eResult != tinyxml2::XMLError::XML_SUCCESS){
+			if (eResult != tinyxml2::XML_SUCCESS){
 				fprintf(stdout, "#ERROR# - [OptitrackTool::SetToolByXmlFile]: Problem parsing the attribute RMS! \n");
 				this->SetFileConfiguration("");
 				this->SetState(previous_state);
-				return FAILURE;
+				return ResultType_FAILURE;
 			}
 
 			eResult = pCalibrationError->QueryFloatAttribute("Mean", &calibrationErrorMean);
 			XMLCheckResult(eResult);
-			if (eResult != tinyxml2::XMLError::XML_SUCCESS){
+			if (eResult != tinyxml2::XML_SUCCESS){
 				fprintf(stdout, "#ERROR# - [OptitrackTool::SetToolByXmlFile]: Problem parsing the attribute Mean! \n");
 				this->SetFileConfiguration("");
 				this->SetState(previous_state);
-				return FAILURE;
+				return ResultType_FAILURE;
 			}
 
 			eResult = pCalibrationError->QueryFloatAttribute("SD", &calibrationErrorSD);
 			XMLCheckResult(eResult);
-			if (eResult != tinyxml2::XMLError::XML_SUCCESS){
+			if (eResult != tinyxml2::XML_SUCCESS){
 				fprintf(stdout, "#ERROR# - [OptitrackTool::SetToolByXmlFile]: Problem parsing the attribute SD! \n");
 				this->SetFileConfiguration("");
 				this->SetState(previous_state);
-				return FAILURE;
+				return ResultType_FAILURE;
 			}
 
 			eResult = pCalibrationError->QueryFloatAttribute("Median", &calibrationErrorMedian);
 			XMLCheckResult(eResult);
-			if (eResult != tinyxml2::XMLError::XML_SUCCESS){
+			if (eResult != tinyxml2::XML_SUCCESS){
 				fprintf(stdout, "#ERROR# - [OptitrackTool::SetToolByXmlFile]: Problem parsing the attribute Median! \n");
 				this->SetFileConfiguration("");
 				this->SetState(previous_state);
-				return FAILURE;
+				return ResultType_FAILURE;
 			}
 
 			eResult = pCalibrationError->QueryFloatAttribute("Q1", &calibrationErrorQ1);
 			XMLCheckResult(eResult);
-			if (eResult != tinyxml2::XMLError::XML_SUCCESS){
+			if (eResult != tinyxml2::XML_SUCCESS){
 				fprintf(stdout, "#ERROR# - [OptitrackTool::SetToolByXmlFile]: Problem parsing the attribute Q1! \n");
 				this->SetFileConfiguration("");
 				this->SetState(previous_state);
-				return FAILURE;
+				return ResultType_FAILURE;
 			}
 
 
 			eResult = pCalibrationError->QueryFloatAttribute("Q3", &calibrationErrorQ3);
 			XMLCheckResult(eResult);
-			if (eResult != tinyxml2::XMLError::XML_SUCCESS){
+			if (eResult != tinyxml2::XML_SUCCESS){
 				fprintf(stdout, "#ERROR# - [OptitrackTool::SetToolByXmlFile]: Problem parsing the attribute Q3! \n");
 				this->SetFileConfiguration("");
 				this->SetState(previous_state);
-				return FAILURE;
+				return ResultType_FAILURE;
 			}
 		}
 
 
 		//ToolName
 		tinyxml2::XMLElement *pToolName = pRoot->FirstChildElement("ToolName");
-		if (pToolName == nullptr) eResult = tinyxml2::XMLError::XML_ERROR_PARSING_ELEMENT;
+		if (pToolName ==  0) eResult = tinyxml2::XML_ERROR_PARSING_ELEMENT;
 		XMLCheckResult(eResult);
-		if (eResult != tinyxml2::XMLError::XML_SUCCESS){
+		if (eResult != tinyxml2::XML_SUCCESS){
 			fprintf(stdout, "#ERROR# - [OptitrackTool::SetToolByXmlFile]: Problem parsing the element ToolName! \n");
 			this->SetFileConfiguration("");
 			this->SetState(previous_state);
-			return FAILURE;
+			return ResultType_FAILURE;
 		}
 		toolName = pToolName->GetText();
 		this->SetToolName(toolName);
@@ -361,13 +386,13 @@ namespace Optitrack
 
 		//ToolMarkersNum
 		tinyxml2::XMLElement *pToolMarkersNum = pRoot->FirstChildElement("ToolMarkersNum");
-		if (pToolMarkersNum == nullptr) eResult = tinyxml2::XMLError::XML_ERROR_PARSING_ELEMENT;
+		if (pToolMarkersNum ==  0) eResult = tinyxml2::XML_ERROR_PARSING_ELEMENT;
 		XMLCheckResult(eResult);
-		if (eResult != tinyxml2::XMLError::XML_SUCCESS){
+		if (eResult != tinyxml2::XML_SUCCESS){
 			fprintf(stdout, "#ERROR# - [OptitrackTool::SetToolByXmlFile]: Problem parsing the element ToolMarkersNum! \n");
 			this->SetFileConfiguration("");
 			this->SetState(previous_state);
-			return FAILURE;
+			return ResultType_FAILURE;
 		}
 		eResult = pToolMarkersNum->QueryIntText(&toolNumberOfMarkers);
 		XMLCheckResult(eResult);
@@ -376,18 +401,18 @@ namespace Optitrack
 
 		//ToolMarkers
 		tinyxml2::XMLElement *pElement = pRoot->FirstChildElement("ToolMarkers");
-		if (pElement == nullptr) eResult = tinyxml2::XMLError::XML_ERROR_PARSING_ELEMENT;
+		if (pElement ==  0) eResult = tinyxml2::XML_ERROR_PARSING_ELEMENT;
 		XMLCheckResult(eResult);
-		if (eResult != tinyxml2::XMLError::XML_SUCCESS){
+		if (eResult != tinyxml2::XML_SUCCESS){
 			fprintf(stdout, "#ERROR# - [OptitrackTool::SetToolByXmlFile]: Problem parsing the element ToolMarkers! \n");
 			this->SetFileConfiguration("");
 			this->SetState(previous_state);
-			return FAILURE;
+			return ResultType_FAILURE;
 		}
 		this->m_CalibrationPoints = new float[3 * this->GetNumberOfMarkers()];
 		int counter = 0, markerLocation = 0;
 		tinyxml2::XMLElement * pListElement = pElement->FirstChildElement("m1");
-		while ((counter < (toolNumberOfMarkers * 3)) && (pListElement != nullptr))
+		while ((counter < (toolNumberOfMarkers * 3)) && (pListElement !=  0))
 		{
 			eResult = pListElement->QueryFloatAttribute("x", &this->m_CalibrationPoints[counter * 3 + 0]);
 			XMLCheckResult(eResult);
@@ -417,13 +442,13 @@ namespace Optitrack
 		//ToolPivot
 		this->m_PivotPoint = new float[3];
 		tinyxml2::XMLElement *pToolPivot = pRoot->FirstChildElement("ToolPivot");
-		if (pToolPivot == nullptr) eResult = tinyxml2::XMLError::XML_ERROR_PARSING_ELEMENT;
+		if (pToolPivot ==  0) eResult = tinyxml2::XML_ERROR_PARSING_ELEMENT;
 		XMLCheckResult(eResult);
-		if (eResult != tinyxml2::XMLError::XML_SUCCESS){
+		if (eResult != tinyxml2::XML_SUCCESS){
 			fprintf(stdout, "#ERROR# - [OptitrackTool::SetToolByXmlFile]: Problem parsing the element ToolPivot! \n");
 			this->SetFileConfiguration("");
 			this->SetState(previous_state);
-			return FAILURE;
+			return ResultType_FAILURE;
 		}
 		eResult = pToolPivot->QueryFloatAttribute("x", &this->m_PivotPoint[0]);
 		XMLCheckResult(eResult);
@@ -447,8 +472,9 @@ namespace Optitrack
 
 		fprintf(stdout, "<INFO> - [OptitrackTool::SetToolByXmlFile]: Configuration Successfull\n");
 		this->SetState(STATE_TOOL_Configurated);
-		return SUCCESS;
+		return ResultType_SUCCESS;
 	}
+
 
     int OptitrackTool::GetIDnext( void )
     {
@@ -474,6 +500,13 @@ namespace Optitrack
 
     }
 
+
+	/*! \brief Trackable detachment.
+	*
+	* This function removes an individual rigid body from the list of tracked rigid bodies. 
+	*
+	* @return Result of the detachment [int].
+	*/
     ResultType OptitrackTool::DettachTrackable( void )
     {
         //fprintf(stdout, "<INFO> - [OptitrackTool::DeleteTrackable]\n");
@@ -487,20 +520,26 @@ namespace Optitrack
         {
             fprintf(stdout, "#ERROR# - [OptitrackTool::DeleteTrackable]: Cannot Remove Trackable %s \n",this->GetToolName().c_str());
             this->SetState(previous_state);
-            return FAILURE;
+            return ResultType_FAILURE;
         }
         else
         {
-            fprintf(stdout, "<INFO> - [OptitrackTool::DeleteTrackable]: %s Deleted \n",this->GetToolName());
+            fprintf(stdout, "<INFO> - [OptitrackTool::DeleteTrackable]: %s Deleted \n",this->GetToolName().c_str());
             this->SetState(STATE_TOOL_Configurated);
-            return SUCCESS;
+            return ResultType_SUCCESS;
         }
 
-        fprintf(stdout, "#ERROR# - [OptitrackTool::DeleteTrackable]: Cannot Remove Trackable %s \n",this->GetToolName());
+        fprintf(stdout, "#ERROR# - [OptitrackTool::DeleteTrackable]: Cannot Remove Trackable %s \n",this->GetToolName().c_str());
         this->SetState(previous_state);
-        return FAILURE;
+        return ResultType_FAILURE;
     }
 
+	/*! \brief Set tool position.
+	*
+	* This function sets a given position to the tool.
+	*
+	* @return Result of the position setting [int].
+	*/
     ResultType OptitrackTool::SetPosition(vnl_vector_fixed<double,3> position)
     {
         //fprintf(stdout, "<INFO> - [OptitrackTool::SetPosition]\n");
@@ -510,9 +549,15 @@ namespace Optitrack
         this->m_Position[2] = position[2];
 
         //fprintf(stdout, "<INFO> - [OptitrackTool::SetPosition]: SUCESS \n");
-        return SUCCESS;
+        return ResultType_SUCCESS;
     }
 
+	/*! \brief Set tool transformation matrix.
+	*
+	* This function sets a given transformation matrix to the tool.
+	*
+	* @return Result of the transformation matrix setting [int].
+	*/
 	ResultType OptitrackTool::SetTransformMatrix(vnl_matrix<double> transform)
 	{
 		//fprintf(stdout, "<INFO> - [OptitrackTool::SetTransformMatrix]\n");
@@ -525,9 +570,15 @@ namespace Optitrack
 		}
 
 		//fprintf(stdout, "<INFO> - [OptitrackTool::SetTransformMatrix]: SUCESS \n");
-		return SUCCESS;
+		return ResultType_SUCCESS;
 	}
 
+	/*! \brief Set tool orientation.
+	*
+	* This function sets a given orientation to the tool.
+	*
+	* @return Result of the orientation setting [int].
+	*/
     ResultType OptitrackTool::SetOrientation(vnl_quaternion<double> orientation)
     {
         //fprintf(stdout, "<INFO> - [OptitrackTool::SetOrientation]\n");
@@ -538,9 +589,15 @@ namespace Optitrack
         this->m_Orientation.r() = orientation.r();
 
         //fprintf(stdout, "<INFO> - [OptitrackTool::SetPosition]: SUCESS \n");
-        return SUCCESS;
+        return ResultType_SUCCESS;
     }
 
+	/*! \brief Get tool position.
+	*
+	* This function gets the tool position.
+	*
+	* @return Tool position [vnl_vector_fixed<double,3>].
+	*/
     vnl_vector_fixed<double,3> OptitrackTool::GetPosition( void )
     {
         //fprintf(stdout, "<INFO> - [OptitrackTool::GetPosition]\n");
@@ -548,6 +605,12 @@ namespace Optitrack
         return this->m_Position;
     }
 
+	/*! \brief Get tool orientation.
+	*
+	* This function gets the tool orientation.
+	*
+	* @return Tool orientation [vnl_quaternion<double>].
+	*/
     vnl_quaternion<double> OptitrackTool::GetOrientation( void )
     {
         //fprintf(stdout, "<INFO> - [OptitrackTool::GetOrientation]\n");
@@ -555,6 +618,12 @@ namespace Optitrack
         return this->m_Orientation;
     }
 
+	/*! \brief Get tool transformation matrix.
+	*
+	* This function gets the tool transformation matrix.
+	*
+	* @return Tool transformation matrix [vnl_matrix<double>].
+	*/
 	vnl_matrix<double> OptitrackTool::GetTransformMatrix(void)
 	{
 		//fprintf(stdout, "<INFO> - [OptitrackTool::GetTransformMatrix]\n");
@@ -562,6 +631,12 @@ namespace Optitrack
 		return this->m_TransformMatrix;
 	}
 
+	/*! \brief Trackable attachment.
+	*
+	* This function adds an individual rigid body from the list of tracked rigid bodies.
+	*
+	* @return Result of the attachment [int].
+	*/
     ResultType OptitrackTool::AttachTrackable( void )
     {
         //fprintf(stdout, "<INFO> - [OptitrackTool::AttachTrackable]\n");
@@ -596,87 +671,81 @@ namespace Optitrack
                         delete this->m_PivotPoint;
                         this->m_OptitrackID = -1;
                         this->SetState(previous_state);
-                        return FAILURE;
+                        return ResultType_FAILURE;
                     }
                 }
             }
 
-            NPRESULT resultUpdate;
             NPRESULT resultTrackableTranslatePivot;
             for( int i=OPTITRACK_ATTEMPTS; i>0; i--)
             {
-                resultUpdate = TT_Update();
-                if(NPRESULT_SUCCESS == resultUpdate)
+                resultTrackableTranslatePivot = TT_TrackableTranslatePivot(this->m_OptitrackID,this->m_PivotPoint[0],this->m_PivotPoint[1],this->m_PivotPoint[2]);
+                if(NPRESULT_SUCCESS == resultCreateTrackable)
                 {
-                    resultTrackableTranslatePivot = TT_TrackableTranslatePivot(this->m_OptitrackID,this->m_PivotPoint[0],this->m_PivotPoint[1],this->m_PivotPoint[2]);
-                    if(NPRESULT_SUCCESS == resultCreateTrackable)
-                    {
-                        //fprintf(stdout, "<INFO> - [OptitrackTool::AttachTrackable]: Pivot Translation Successfull\n");
-                        this->SetState(STATE_TOOL_Attached);
-                        return SUCCESS;
-                    }
-                    else
-                    {
-                        if(i == 1)
-                        {
-                            fprintf(stdout, "#ERROR# - [OptitrackTool::AttachTrackable]: Cannot do Pivot Translation\n");
-                            this->SetFileConfiguration("");
-                            this->SetNumberOfMarkers(0);
-                            delete this->m_CalibrationPoints;
-                            delete this->m_PivotPoint;
-                            this->m_OptitrackID = -1;
-                            this->SetState(previous_state);
-                            NPRESULT resultRemoveTrackable = TT_RemoveTrackable(this->GetOptitrackID());
-                            if(resultRemoveTrackable != NPRESULT_SUCCESS)
-                            {
-                                fprintf(stdout, "#FATAL ERROR# - [OptitrackTool::AttachTrackable]: Tool Was created but Pivot was not set correctly\n");
-                            }
-                            return FAILURE;
-                        }
-                    }
+                    //fprintf(stdout, "<INFO> - [OptitrackTool::AttachTrackable]: Pivot Translation Successfull\n");
+                    this->SetState(STATE_TOOL_Attached);
+                    return ResultType_SUCCESS;
                 }
                 else
                 {
                     if(i == 1)
+                    {
+                        fprintf(stdout, "#ERROR# - [OptitrackTool::AttachTrackable]: Cannot do Pivot Translation\n");
+                        this->SetFileConfiguration("");
+                        this->SetNumberOfMarkers(0);
+                        delete this->m_CalibrationPoints;
+                        delete this->m_PivotPoint;
+                        this->m_OptitrackID = -1;
+                        this->SetState(previous_state);
+                        NPRESULT resultRemoveTrackable = TT_RemoveTrackable(this->GetOptitrackID());
+                        if(resultRemoveTrackable != NPRESULT_SUCCESS)
                         {
-                            fprintf(stdout, "#ERROR# - [OptitrackTool::AttachTrackable]: Cannot do Pivot Translation\n");
-                            this->SetFileConfiguration("");
-                            this->SetNumberOfMarkers(0);
-                            delete this->m_CalibrationPoints;
-                            delete this->m_PivotPoint;
-                            this->m_OptitrackID = -1;
-                            this->SetState(previous_state);
-                            NPRESULT resultRemoveTrackable = TT_RemoveTrackable(this->GetOptitrackID());
-                            if(resultRemoveTrackable != NPRESULT_SUCCESS)
-                            {
-                                fprintf(stdout, "#FATAL ERROR# - [OptitrackTool::AttachTrackable]: Tool Was created but Pivot was not set correctly\n");
-                            }
-                            return FAILURE;
+                            fprintf(stdout, "#FATAL ERROR# - [OptitrackTool::AttachTrackable]: Tool Was created but Pivot was not set correctly\n");
                         }
+                        return ResultType_FAILURE;
+                    }
                 }
             }
 
         }
         else
         {
-            fprintf(stdout, "#ERROR# - [OptitrackTool::AttachTrackable]: Tool %s is not Configurated \n",this->GetToolName());
+            fprintf(stdout, "#ERROR# - [OptitrackTool::AttachTrackable]: Tool %s is not Configurated \n",this->GetToolName().c_str());
             this->SetState(previous_state);
-            return FAILURE;
+            return ResultType_FAILURE;
         }
     }
 
+	/*! \brief Check if a tool is being tracked.
+	*
+	* This function returns information about whether the selected rigid body is found in the current frame.
+	*
+	* @return  Result of tracking assessment [bool]: True if the selected rigid body is found in the current frame.
+	*/
     bool OptitrackTool::IsTracked( void )
     {
         //fprintf(stdout, "<INFO> - [OptitrackTool::IsTracked]\n");
         return TT_IsTrackableTracked(this->GetOptitrackID());
     }
 
+	/*! \brief Check if tool data is valid.
+	*
+	* This function checks if tool data is valid.
+	*
+	* @return  Result of data assessment [bool]: True if data is valid.
+	*/
     bool OptitrackTool::IsDataValid( void ) const
     {
         //fprintf(stdout, "<INFO> - [OptitrackTool::IsDataValid]\n");
         return this->m_DataValid;
     }
 
+	/*! \brief Set data validity.
+	*
+	* This function sets tool data validity.
+	*
+	* @param  validate [bool]: boolean indicating data validity to be set.
+	*/
     void OptitrackTool::SetDataValid(bool validate)
     {
         //fprintf(stdout, "<INFO> - [OptitrackTool::SetDataValid]\n");
@@ -684,16 +753,35 @@ namespace Optitrack
         this->m_DataValid = validate;
     }
 
+	/*! \brief Check indetermination.
+	*
+	* This function checks if a given float number is an indeterminate value.
+	*
+	* @return  Result of indetermination assessment [bool].
+	*/
     bool OptitrackTool::IsIndeterminateValue(const float pV)
     {
         return (pV != pV);
     }
 
+	/*! \brief Check infinite value.
+	*
+	* This function checks if a given float number is an infinite value.
+	*
+	* @return  Result of infinite value assessment [bool].
+	*/
     bool OptitrackTool::IsInfiniteValue(const float pV)
     {
         return (fabs(pV) == std::numeric_limits<float>::infinity());
     }
 
+
+	/*! \brief Update tool.
+	*
+	* This function updates the tool: getting the position, orientation, and setting the transformation matrix.
+	*
+	* @return  Result of the data update [int].
+	*/
     ResultType OptitrackTool::UpdateTool( void )
     {
         //fprintf(stdout, "<INFO> - [OptitrackTool::UpdateTool]\n");
@@ -702,10 +790,10 @@ namespace Optitrack
 
         if( previous_state != STATE_TOOL_Attached)
         {
-            fprintf(stdout, "#ERROR# - [OptitrackTool::UpdateTool]: Tool %s is not in Attached State \n",this->GetToolName());
+            fprintf(stdout, "#ERROR# - [OptitrackTool::UpdateTool]: Tool %s is not in Attached State \n",this->GetToolName().c_str());
             this->SetState(previous_state);
             this->SetDataValid(false);
-            return FAILURE;
+            return ResultType_FAILURE;
         }
 
         float yaw,pitch,roll;
@@ -725,7 +813,7 @@ namespace Optitrack
                     this->SetDataValid(false);
 					this->SetState(previous_state);
                     fprintf(stdout, "<INFO> - [OptitrackTool::UpdateTool]: Data set to INF by the system\n");
-                    return FAILURE;
+                    return ResultType_FAILURE;
                 }
             }
 
@@ -787,21 +875,29 @@ namespace Optitrack
             this->SetDataValid(true);
 
 			this->SetState(STATE_TOOL_Attached);
-            return SUCCESS;
+            return ResultType_SUCCESS;
         }
         else
         {
             this->SetDataValid(false);
 			this->SetState(previous_state);
-        fprintf(stdout, "<INFO> - [OptitrackTool::UpdateTool]: Trackable %s NOT tracked\n", this->GetToolName());
+        fprintf(stdout, "<INFO> - [OptitrackTool::UpdateTool]: Trackable %s NOT tracked\n", this->GetToolName().c_str());
         }
 
          //fprintf(stdout, "<INFO> - [OptitrackTool::UpdateTool]: Failed API Updating\n");
          this->SetState(previous_state);
          this->SetDataValid(false);
-         return FAILURE;
+         return ResultType_FAILURE;
     }
 
+	/*! \brief Creates tool transformation matrix.
+	*
+	* This function creates the tool transformation matrix from position and orientation data.
+	*
+	* @param R [vnl_matrix<double>]: transformation matrix.
+	* @param position [vnl_vector_fixed<double, 3>]: position of the tool.
+	* @param orientation [vnl_quaternion<double>]: orientation of the tool.
+	*/
 	void OptitrackTool::ConvertMatrix(vnl_matrix<double> &R, vnl_vector_fixed<double, 3> position, vnl_quaternion<double> orientation)
 	{
 		//fprintf(stdout, "<INFO> - [OptitrackTool::ConvertMatrix]\n");

@@ -19,6 +19,7 @@
 #include <limits.h>
 #include <math.h>
 #include <time.h>
+#include <string>
 
 // NPTrackingTools library
 #include <NPTrackingTools.h>
@@ -33,7 +34,34 @@
 namespace Optitrack
 {
 
-    void OptitrackTracker::SetState(OptitrackTracker::OPTITRACK_TRACKER_STATE state_)
+#ifdef _WIN32
+#include <windows.h>
+
+    void sleep(unsigned milliseconds)
+    {
+        Sleep(milliseconds);
+    }
+#else
+#include <unistd.h>
+
+    void sleep(unsigned milliseconds)
+    {
+        usleep(milliseconds * 1000); // takes microseconds
+    }
+#endif
+
+    template < typename T > std::string to_string(const T& n)
+    {
+        std::ostringstream stm;
+        stm << n;
+        return stm.str();
+    }
+
+	/*! \brief Set tracker state.
+	*
+	* This function sets the tracker state.
+	*/
+	void OptitrackTracker::SetState(OptitrackTracker::OPTITRACK_TRACKER_STATE state_)
     {
         MutexLockHolder lock(*m_StateMutex);
         if (m_State == state_)
@@ -47,6 +75,12 @@ namespace Optitrack
         return;
     }
 
+	/*! \brief Get tracker state.
+	*
+	* This function gets the tracker state.
+	*
+	* @return Tracker state.
+	*/
     OptitrackTracker::OPTITRACK_TRACKER_STATE OptitrackTracker::GetState( void )
     {
         return this->m_State;
@@ -79,7 +113,7 @@ namespace Optitrack
             fprintf(stdout, "<INFO> - [OptitrackTracker::~OptitrackTracker]: in Tracking State -> Stopping Tracking \n");
             result = this->StopTracking();
 
-            if(result == SUCCESS){
+            if(result == ResultType_SUCCESS){
                 fprintf(stdout, "<INFO> - [OptitrackTracker::~OptitrackTracker]: Device Stopped \n");
             }
             else
@@ -94,7 +128,7 @@ namespace Optitrack
             //fprintf(stdout, "<INFO> - [OptitrackTracker::~OptitrackTracker]: Calling InternalClose \n");
             result = this->Close();
 
-            if(result == SUCCESS)
+            if(result == ResultType_SUCCESS)
             {
                 fprintf(stdout, "<INFO> - [OptitrackTracker::~OptitrackTracker]: InternalClose SUCCESS \n");
             }
@@ -109,10 +143,9 @@ namespace Optitrack
     }
 
 	/*! \brief Initialization of the system.
-	* 
-	* This function allows the system to be initialize by moving the rigid body to Communication Established state.
-	* a normal member taking two arguments and returning an integer value.
-	* 
+	*
+	* This function allows the system to be initialized.
+	*
 	* @return Result of the system initialization: SUCCESS or FAILURE.
 	*/
 	ResultType OptitrackTracker::Open( void )
@@ -126,7 +159,7 @@ namespace Optitrack
         {
             fprintf(stdout, "<INFO> - [OptitrackTracker::InternalOpen]: System was initialized before\n");
             this->SetState(STATE_TRACKER_CommunicationEstablished);
-            return SUCCESS;
+            return ResultType_SUCCESS;
         }
 		else if (previous_state == STATE_TRACKER_Idle)
 		{
@@ -136,28 +169,28 @@ namespace Optitrack
 			{
 				this->SetState(STATE_TRACKER_CommunicationEstablished);
 				fprintf(stdout, "<INFO> - [OptitrackTracker::InternalOpen]: System was Initialized\n");
-				Sleep(30);
-				return SUCCESS;
+				sleep(30);
+				return ResultType_SUCCESS;
 			}
 			else
 			{
 				this->SetState(STATE_TRACKER_Idle);
 				fprintf(stdout, "#ERROR# - [OptitrackTracker::InternalOpen]: TT_Initialize failed\n");
-				return FAILURE;
+				return ResultType_FAILURE;
 			}
 		}
 		else
 		{
 			this->SetState(previous_state);
 			fprintf(stdout, "#ERROR# - [OptitrackTracker::InternalOpen]: System cannot be initialized from that state!\n");
-			return FAILURE;
+			return ResultType_FAILURE;
 		}
     }
 
 	/*! \brief Load the calibration file.
 	*
 	* This function allows the system to load the calibration file of the OptiTrack system. For a correct loading of the file
-	* the system must be initialized and the file must be optimum (.cal extension).
+	* the system must have been initialized and the file must be optimum (.cal extension).
 	*
 	* @return Result of calibration file loading: SUCCESS or FAILURE.
 	*/
@@ -171,13 +204,13 @@ namespace Optitrack
         {
             fprintf(stdout, "#ERROR# - [OptitrackTracker::LoadCalibration]: System has not been Initialized/Open\n");
             this->SetState(previous_state);
-            return FAILURE;
+            return ResultType_FAILURE;
         }
 
         if(this->GetCalibrationFile().empty()){
             fprintf(stdout, "#ERROR# - [OptitrackTracker::LoadCalibration]: Calibration File is empty\n");
             this->SetState(STATE_TRACKER_CommunicationEstablished);
-            return FAILURE;
+            return ResultType_FAILURE;
         }
 
         for( int i=OPTITRACK_ATTEMPTS; i>0; i--)
@@ -188,14 +221,14 @@ namespace Optitrack
             {
                 fprintf(stdout, "#ERROR# - [OptitrackTracker::LoadCalibration]: TT_LoadCalibration failed\n");
                 this->SetState(STATE_TRACKER_CommunicationEstablished);
-                return FAILURE;
+                return ResultType_FAILURE;
             }
             else
             {
                 fprintf(stdout, "<INFO> - [OptitrackTracker::LoadCalibration]: Calibration was successfully loaded\n");
                 this->SetState(STATE_TRACKER_CalibratedState);
-				Sleep(30);
-                return SUCCESS;
+				sleep(30);
+                return ResultType_SUCCESS;
             }
 
         }
@@ -203,9 +236,9 @@ namespace Optitrack
 
 	/*! \brief Shutdown of the system.
 	*
-	* This function closes the system. First, it stops the tracking Then, the system is shutdown. Finally, the function shuts 
+	* This function closes the system. First, it stops the tracking. Then, the system is shutdown. Finally, the function shuts
 	* down the camera device driver and ensures all the driver threads are terminated properly.
-	* 
+	*
 	* @return Result of the system shutdown: SUCCESS or FAILURE.
 	*/
     ResultType OptitrackTracker::Close( void )
@@ -219,11 +252,11 @@ namespace Optitrack
 
 			//fprintf(stdout, "<INFO> - [OptitrackTracker::InternalClose]: Stopping the Tracking\n");
 			//ResultType resultStop = this->StopTracking();
-			//if (resultStop == FAILURE)
+			//if (resultStop == ResultType_FAILURE)
 			//{
 			//	fprintf(stdout, "#ERROR# - [OptitrackTracker::InternalClose]: Cannot Stop the Tracking\n");
 			//	this->SetState(previous_state);
-			//	return FAILURE;
+			//	return ResultType_FAILURE;
 			//}
 
 
@@ -236,16 +269,16 @@ namespace Optitrack
 				{
 					this->m_LoadedTools.clear();
 					fprintf(stdout, "<INFO> - [OptitrackTracker::InternalClose]: System has been Shutdown Correctly\n");
-					Sleep(2000);
+					sleep(2000);
 					this->SetState(STATE_TRACKER_Idle);
 
 					NPRESULT resultFinalCleanup = TT_FinalCleanup();
 					if (resultFinalCleanup == NPRESULT_SUCCESS)
 					{
-						return SUCCESS;
+						return ResultType_SUCCESS;
 					}
 					fprintf(stdout, "#ERROR# - [OptitrackTracker::InternalClose]: FinalCleanUp was not performed correctly!\n");
-					return FAILURE;
+					return ResultType_FAILURE;
 				}
 				else
 				{
@@ -255,20 +288,20 @@ namespace Optitrack
 
 			fprintf(stdout, "#ERROR# - [OptitrackTracker::InternalClose]: System cannot ShutDown now\n");
 			this->SetState(previous_state);
-			return FAILURE;
+			return ResultType_FAILURE;
 
 		}
 		else
 		{
 			fprintf(stdout, "#ERROR# - [OptitrackTracker::InternalClose]: System cannot be closed from previous state!\n");
 			this->SetState(previous_state);
-			return FAILURE;
+			return ResultType_FAILURE;
 		}
     }
 
 	/*! \brief Reset of the system.
 	*
-	* This function resets the system. The tracking is stopped and all currently loaded rigid body definitions are removed. This resetting enables the 
+	* This function resets the system. The tracking is stopped and all currently loaded rigid body definitions are removed. This reset enables the 
 	* system to load a new calibration file.
 	*
 	* @return Result of the system reset: SUCCESS or FAILURE.
@@ -283,22 +316,22 @@ namespace Optitrack
         {
             fprintf(stdout, "#ERROR# - [OptitrackTracker::InternalReset]: System cannot be Reset from other State but Tracking\n");
             this->SetState(previous_state);
-            return FAILURE;
+            return ResultType_FAILURE;
         }
         else
         {
             fprintf(stdout, "<INFO> - [OptitrackTracker::InternalReset]: Stopping the Tracking and Reset to calibration\n");
             ResultType resultStop = this->StopTracking();
-            if(resultStop == FAILURE)
+            if(resultStop == ResultType_FAILURE)
             {
                 fprintf(stdout, "#ERROR# - [OptitrackTracker::InternalReset]: Cannot Stop the Tracking\n");
                 this->SetState(previous_state);
-                return FAILURE;
+                return ResultType_FAILURE;
             }
 
 			TT_ClearTrackableList(); //Añadido por DAVID
 			this->SetState(STATE_TRACKER_CommunicationEstablished);
-            return SUCCESS;
+            return ResultType_SUCCESS;
         }
     }
 
@@ -319,25 +352,25 @@ namespace Optitrack
         {
             ResultType resultAttach = trackerTool->AttachTrackable();
 
-            if( (resultAttach == SUCCESS))
+            if( (resultAttach == ResultType_SUCCESS))
             {
                 this->m_LoadedTools.push_back(trackerTool);
 				fprintf(stdout, "<INFO> - [OptitrackTracker::AddTrackerTool]: Tool %s Added to the InternalContainer\n", trackerTool->GetToolName().c_str());
 				this->SetState(STATE_TRACKER_CalibratedState);
-                return SUCCESS;
+                return ResultType_SUCCESS;
             }
             else
             {
 				fprintf(stdout, "#ERROR# - [OptitrackTracker::AddTrackerTool]: System cannot attach tool %s from previous state\n", trackerTool->GetToolName().c_str());
                 this->SetState(previous_state);
-                return FAILURE;
+                return ResultType_FAILURE;
             }
         }
         else
         {
 			fprintf(stdout, "#ERROR# - [OptitrackTracker::AddTrackerTool]: System cannot attach tool %s from previous state\n", trackerTool->GetToolName().c_str());
             this->SetState(previous_state);
-            return FAILURE;
+            return ResultType_FAILURE;
         }
     }
 
@@ -358,18 +391,18 @@ namespace Optitrack
         {
 			ResultType resultDettach = trackerTool->DettachTrackable();
 
-            if( (resultDettach == SUCCESS) )
+            if( (resultDettach == ResultType_SUCCESS) )
             {
                 int id = trackerTool->GetOptitrackID();
                 m_LoadedTools.erase(m_LoadedTools.begin() + id);
                 this->SetState(STATE_TRACKER_CalibratedState);
-                return SUCCESS;
+                return ResultType_SUCCESS;
             }
             else
             {
 				fprintf(stdout, "#ERROR# - [OptitrackTracker::RemoveTrackerTool]: System cannot dettach %s tool\n", trackerTool->GetToolName().c_str());
                 this->SetState(previous_state);
-                return FAILURE;
+                return ResultType_FAILURE;
             }
 
         }
@@ -377,15 +410,15 @@ namespace Optitrack
         {
 			fprintf(stdout, "#ERROR# - [OptitrackTracker::RemoveTrackerTool]: System cannot dettach tool %s from previous state\n", trackerTool->GetToolName().c_str());
             this->SetState(previous_state);
-            return FAILURE;
+            return ResultType_FAILURE;
         }
     }
 
-	/*! \brief Obtain number of tools attached to the system.
+	/*! \brief Obtaining the number of tools attached to the system.
 	*
 	* This function provides the number of tools which are attached to the system.
 	*
-	* @return Number of tools attached (unsigned int).
+	* @return Number of tools attached [unsigned int].
 	*/
     unsigned int OptitrackTracker::GetNumberOfAttachedTools( void )
     {
@@ -393,7 +426,7 @@ namespace Optitrack
         return this->m_LoadedTools.size();
     }
 
-	/*! \brief Start the tracking of tools.
+	/*! \brief Starting the tracking of tools.
 	*
 	* This function starts the tracking of all tools attached by launching a thread.
 	*
@@ -410,7 +443,7 @@ namespace Optitrack
         {
             fprintf(stdout, "#ERROR# - [OptitrackTracker::StartTracking]: Number of Attached Tools is 0\n");
             this->SetState(previous_state);
-            return FAILURE;
+            return ResultType_FAILURE;
         }
         else
         {
@@ -427,14 +460,14 @@ namespace Optitrack
                 // Launch multiThreader using the Function ThreadStartTracking that executes the TrackTools() method
                 m_ThreadID = m_MultiThreader->SpawnThread(this->ThreadStartTracking, this);
                 this->SetState(STATE_TRACKER_Tracking);
-                return SUCCESS;
+                return ResultType_SUCCESS;
 
             }
             else
             {
                 fprintf(stdout, "#ERROR# - [OptitrackTracker::InternalStartTracking]: Previous State is not valid to Start Tracking\n");
                 this->SetState(previous_state);
-                return FAILURE;
+                return ResultType_FAILURE;
             }
 
         }
@@ -468,7 +501,7 @@ namespace Optitrack
 					for (unsigned int i = 0; i < this->GetNumberOfAttachedTools(); ++i)  // use mutexed methods to access tool container
 					{
 						OptitrackTool::Pointer currentTool = this->GetOptitrackTool(i);
-						if (currentTool != nullptr)
+						if (currentTool.IsNotNull())
 						{
 							currentTool->UpdateTool();
 							//fprintf(stdout, "Updating tool named: %s", currentTool->GetToolName().c_str());
@@ -483,7 +516,7 @@ namespace Optitrack
 					this->m_StopTrackingMutex->Lock();
 					localStopTracking = this->m_StopTracking;
 					this->m_StopTrackingMutex->Unlock();
-					Sleep(2);
+					sleep(2);
 				}
 				else{
 					//fprintf(stdout, "#ERROR# - [OptitrackTracker::TrackTools]: Update Failed");
@@ -544,7 +577,7 @@ namespace Optitrack
         return 0;
     }
 
-	/*! \brief Stop the tracking of tools.
+	/*! \brief Stopping the tracking of tools.
 	*
 	* This function stops the tracking of tools.
 	*
@@ -569,24 +602,26 @@ namespace Optitrack
             m_StopTrackingMutex->Unlock();
             m_TrackingFinishedMutex->Lock();
 			this->SetState(STATE_TRACKER_CommunicationEstablished);
-            return SUCCESS;
+            return ResultType_SUCCESS;
 
         }
         else
         {
             fprintf(stdout, "#ERROR# - [OptitrackTracker::InternalStopTracking]: Previous State is not valid to Stop Tracking\n");
             this->SetState(previous_state);
-            return FAILURE;
+            return ResultType_FAILURE;
         }
     }
 
-	/*! \brief Setting of camera parameter.
+	/*! \brief Setting of camera parameters.
 	*
-	* This function allows to set some of the camera settings to the whole set of cameras, such as exposure, threshold, illumination, and video mode.	*
+	* This function allows to set some of the camera settings to the whole set of cameras, such as exposure, threshold, illumination, and video mode.
+	*
 	* @param exposure: Valid values are 1-480.
 	* @param threshold: Pixels with intensities darker than this value will be filtered out when using processed video modes. Valid values are 0-255.
 	* @param intensity: This should be set to 15 for almost all situations. The recommended method for reducing IR LED brightness is to lower the
-    * camera exposure setting, this has the effect of shortening the IR strobe duration. Valid values are 0-15.	* @param videoType: The desired in-camera video processing mode. Valid values are: Segment Mode (0), Grayscale Mode (1), Object Mode (2), 
+    * camera exposure setting, this has the effect of shortening the IR strobe duration. Valid values are 0-15.
+	* @param videoType: The desired in-camera video processing mode. Valid values are: Segment Mode (0), Grayscale Mode (1), Object Mode (2), 
 	* Precision Mode (4), and MJPEG Mode (V100R2 only) (6).
 	* @return Result of the camera parameters setting: SUCCESS or FAILURE.
 	*/
@@ -606,7 +641,7 @@ namespace Optitrack
         {
             fprintf(stdout, "#ERROR# - [OptitrackTracker::SetCameraParams]: Number of Connected Cameras is 0\n");
             this->SetState(previous_state);
-            return FAILURE;
+            return ResultType_FAILURE;
         }
 
         for(int cam = 0; cam < camera_number; cam++) // for all connected cameras
@@ -631,7 +666,7 @@ namespace Optitrack
                     {
                         fprintf(stdout, "#ERROR# - [OptitrackTracker::SetCameraParams]: Carmera #%d failed\n",cam);
                         this->SetState(previous_state);
-                        return FAILURE;
+                        return ResultType_FAILURE;
                     }
                 }
             }
@@ -639,14 +674,14 @@ namespace Optitrack
 
         fprintf(stdout, "<INFO> - [OptitrackTracker::SetCameraParams]: Succsess\n");
         this->SetState(previous_state);
-        return SUCCESS;
+        return ResultType_SUCCESS;
     }
 
-	/*! \brief Get the number of connected cameras.
+	/*! \brief Getting the number of connected cameras.
 	*
 	* This function provides the number of connected cameras.
 	*
-	* @return Number of connected cameras (unsigned int).
+	* @return Number of connected cameras [unsigned int].
 	*/
     unsigned int OptitrackTracker::GetCameraNumber( void )
     {
@@ -665,10 +700,17 @@ namespace Optitrack
         return this->m_CameraNumber;
     }
 
+	/*! \brief Getting an OptiTrack tool by ID.
+	*
+	* This function provides an OptiTrack tool pointer given an specific tool ID.
+	*
+	* @param toolID: identification number of the tool [unsigned int].
+	* @return OptiTrack tool pointer.
+	*/
 	OptitrackTool::Pointer OptitrackTracker::GetOptitrackTool( unsigned int toolID)
     {
         //fprintf(stdout, "<INFO> - [OptitrackTracker::GetOptitrackTool]\n");
-        OptitrackTool::Pointer t = nullptr;
+        OptitrackTool::Pointer t =  0;
 
         MutexLockHolder toolsMutexLockHolder(*m_ToolsMutex); // lock and unlock the mutex ITK
         if(toolID < this->GetNumberOfAttachedTools())
@@ -684,10 +726,17 @@ namespace Optitrack
         return t;
     }
 
+	/*! \brief Getting an OptiTrack tool by name.
+	*
+	* This function provides an OptiTrack tool pointer given an specific tool name.
+	*
+	* @param toolID: name of the tool [string].
+	* @return OptiTrack tool pointer.
+	*/
     OptitrackTool::Pointer OptitrackTracker::GetOptitrackToolByName( std::string toolName )
     {
         //fprintf(stdout, "<INFO> - [OptitrackTracker::GetOptitrackToolByName]\n");
-        OptitrackTool::Pointer t = nullptr;
+        OptitrackTool::Pointer t =  0;
 
 
         unsigned int toolCount = this->GetNumberOfAttachedTools();
@@ -706,12 +755,14 @@ namespace Optitrack
         return NULL;
     }
 
-	void sleep(unsigned int mseconds)
-	{
-		clock_t goal = mseconds + clock();
-		while (goal > clock());
-	}
-
+	/*! \brief Checking single optical marker in FOV.
+	*
+	* This function checks if every camera in the system is visualizing a single marker. If every camera is visualizing
+	* one marker it returns SUCCESS. Otherwise, it returns FAILURE, and cameras visualizing more than one marker are 
+	* identified. 
+	*
+	* @return Result of single marker visualization: SUCCESS or FAILURE.
+	*/
 	ResultType OptitrackTracker::CheckNumberOfMarkers(void)
 	{
 		// Check number of Cameras
@@ -727,7 +778,7 @@ namespace Optitrack
 
 		while (iterations < maxIterationNumber)
 		{
-			Sleep(5);
+			sleep(5);
 			resultUpdate = TT_UpdateSingleFrame();
 
 			for (int cameraIndex = 0; cameraIndex < numberOfCameras; cameraIndex++)
@@ -745,18 +796,25 @@ namespace Optitrack
 		}
 
 		for (int cameraIndex = 0; cameraIndex < numberOfCameras; cameraIndex++){
-			if ((trackingFailureArray[cameraIndex] / 50) >= 0.3)
+			if ((trackingFailureArray[cameraIndex] / maxIterationNumber) >= 0.3)
 			{
 				// Camera pair is watching more than one marker
 				fprintf(stdout, "Camera %i is not visualizing just one marker.\n", cameraIndex);
 				fprintf(stdout, "[ABORTING]: Please make sure only one marker is visible in the field of view of each camera.\n");
-				return ResultType::FAILURE;
+				return ResultType_FAILURE;
 			}
 		}
 
-		return ResultType::SUCCESS;
+		return ResultType_SUCCESS;
     }
 
+	/*! \brief Correspondance between API and TrackingTools software camera IDs.
+	*
+	* This function provides the TrackingTools software camera ID corresponding to a given API camera ID.
+	* @param  numberOfCameras: total number of cameras composing the system.
+	* @param  CameraNumber: API camera ID wanted to be converted.
+	* @return TrackingTools software camera ID [int].
+	*/
 	int CameraCorrespondeceBetweenAPIandTrackingTools(int numberOfCameras, int CameraNumber)
 	{
 		if (numberOfCameras == 8)
@@ -803,6 +861,18 @@ namespace Optitrack
 		}
 	}
 
+	/*! \brief Getting 3D and 2D position of single marker using a pair of cameras.
+	*
+	* This function acquires 1000 samples of the 3D position of the markers using a pair of cameras. Also, it acquires
+	* 1000 samples of the 2D position of the markers in the plane of each camera within the pair. All data (cameras 
+	* involved, 2D positions, and 3D positions) is saved into a ".csv" file.
+	*
+	* @param  numberOfCameras: total number of cameras composing the system.
+	* @param  Camera1: API ID of the first camera belonging to the pair.
+	* @param  Camera2: API ID of the second camera belonging to the pair.
+	* @return Result of data updating [int]: 0 if success, 11 if TrackingTools license is invalid, and 14 if there is no
+	* available frame.
+	*/
 	int GetMarkerPosition2D3D(std::ostream* stream, int numberOfCameras, int Camera1, int Camera2)
 	{
 		NPRESULT resultUpdate;
@@ -824,7 +894,7 @@ namespace Optitrack
 		int TrackingToolsCamera1 = CameraCorrespondeceBetweenAPIandTrackingTools(numberOfCameras, Camera1 + 1);
 		int TrackingToolsCamera2 = CameraCorrespondeceBetweenAPIandTrackingTools(numberOfCameras, Camera2 + 1);
 
-		std::string camera_pair = "_" + std::to_string(TrackingToolsCamera1) + std::to_string(TrackingToolsCamera2);
+		std::string camera_pair = "_" + to_string(TrackingToolsCamera1) + to_string(TrackingToolsCamera2);
 
 		float FrameMarkerX, FrameMarkerY, FrameMarkerZ;
 		float X1, Y1, X2, Y2 = 0;
@@ -860,6 +930,18 @@ namespace Optitrack
 		return resultUpdate;
 	}
 
+	/*! \brief Creating a data file to check calibration state of the system.
+	*
+	* This function acquires 1000 samples of the 3D position of the markers using all cameras in the system. Also, it 
+	* acquires 1000 samples of the 3D position and the 2D position of the markers using all possible combinations of 
+	* camera pairs . All data (cameras involved, 2D positions, and 3D positions) is saved into a ".csv" file. 
+	* Calibration state can be inferred placing a single and static reflective marker in the FOV of the cameras, and 
+	* comparing the 3D position of the marker acquired using the complete system and all differente camera pairs.
+	*
+	* @param  FileName: name of the ".csv" file to save tracking information.
+	* @return Result of data updating: 0 if success, 11 if TrackingTools license is invalid, and 14 if there is no
+	* available frame.
+	*/
 	ResultType OptitrackTracker::TestCalibration(std::string FileName)
 	{
 		fprintf(stdout, "<INFO> - [OptitrackTracker::TestCalibration]\n");
@@ -874,7 +956,7 @@ namespace Optitrack
 
 			// Prepare the file
 			std::ostream* stream; ///< the output stream
-			stream = new std::ofstream(FileName);
+			stream = new std::ofstream(FileName.c_str());
 			stream->precision(10);
 			//File header
 			*stream << "TimeStamp" << ";MarkerIndex" << ";X_3D" << ";Y_3D" << ";Z_3D" << ";CameraUsed1" << ";CameraUsed2" << ";XCam1" << ";YCam1" << ";XCam2" << ";YCam2" << ";CameraPair" << "\n";
@@ -949,19 +1031,27 @@ namespace Optitrack
 
 			stream->flush();
 			this->SetState(previous_state);
-			return SUCCESS;
+			return ResultType_SUCCESS;
 
 		}
 		else
 		{
 			fprintf(stdout, "#ERROR# - [OptitrackTracker::TestCalibration]: Previous State is not valid to Perform Test\n");
 			this->SetState(previous_state);
-			return FAILURE;
+			return ResultType_FAILURE;
 		}
 
 
 	}
 
+	/*! \brief Loading XML configuration file.
+	*
+	* This function loads the configuration file of the system containing: the calibration file path, the camera settings 
+	* (exposure, threshold, and intensity), and the list of used tools.
+	*
+	* @param  nameFile: path of the ".xml" configuration file.
+	* @return Result of the file loading: SUCESS (1) or FAILURE (0).
+	*/
     ResultType OptitrackTracker::LoadXMLConfigurationFile(std::string nameFile)
     {
         //== XML Configuration File reading
@@ -976,28 +1066,28 @@ namespace Optitrack
         char* char_Path = (char*)nameFile.c_str(); //Conversion from string to char*.
         tinyxml2::XMLError eResult = xmlDoc.LoadFile(char_Path);
         XMLCheckResult(eResult);
-        if (eResult != tinyxml2::XMLError::XML_SUCCESS){
-			fprintf(stdout, "[XML READING ERROR] Problem loading the file! %s\n", nameFile);
-            return FAILURE;
+        if (eResult != tinyxml2::XML_SUCCESS){
+			fprintf(stdout, "[XML READING ERROR] Problem loading the file! %s\n", nameFile.c_str());
+            return ResultType_FAILURE;
 
         }
 
         tinyxml2::XMLElement * pRoot = xmlDoc.FirstChildElement("ConfigurationFile");
-        if (pRoot == nullptr) eResult = tinyxml2::XMLError::XML_ERROR_FILE_READ_ERROR;
+        if (pRoot ==  0) eResult = tinyxml2::XML_ERROR_FILE_READ_ERROR;
         XMLCheckResult(eResult);
-        if (eResult != tinyxml2::XMLError::XML_SUCCESS){
+        if (eResult != tinyxml2::XML_SUCCESS){
             fprintf(stdout, "[XML READING ERROR] Problem accesing to NPTrackingTools element! \n");
-            return FAILURE;
+            return ResultType_FAILURE;
 
         }
 
         //CalibrationFile
         tinyxml2::XMLElement * pElement = pRoot->FirstChildElement("CalibrationFile");
-        if (pElement == nullptr) eResult = tinyxml2::XMLError::XML_ERROR_PARSING_ELEMENT;
+        if (pElement ==  0) eResult = tinyxml2::XML_ERROR_PARSING_ELEMENT;
         XMLCheckResult(eResult);
-        if (eResult != tinyxml2::XMLError::XML_SUCCESS){
+        if (eResult != tinyxml2::XML_SUCCESS){
             fprintf(stdout, "[XML READING ERROR] Problem parsing the element CalibrationFile! \n");
-            return FAILURE;
+            return ResultType_FAILURE;
 
         }
         try
@@ -1008,13 +1098,13 @@ namespace Optitrack
         {
             fprintf(stdout, "[XML READING ERROR] Problem reading attribute File from CalibrationFile element! \n");
             std::cout << e << std::endl;
-            return FAILURE;
+            return ResultType_FAILURE;
         }
 
         //CameraParameters
         pElement = pRoot->FirstChildElement("CameraParameters");
-        if (pElement == nullptr) eResult = tinyxml2::XMLError::XML_ERROR_PARSING_ELEMENT;
-        if (eResult == tinyxml2::XMLError::XML_SUCCESS){ //If CalibrationError element do not exist, attributes are not accessed.
+        if (pElement ==  0) eResult = tinyxml2::XML_ERROR_PARSING_ELEMENT;
+        if (eResult == tinyxml2::XML_SUCCESS){ //If CalibrationError element do not exist, attributes are not accessed.
             eResult = pElement->QueryFloatAttribute("Exposure", &camparamExposure);
             XMLCheckResult(eResult);
 
@@ -1028,11 +1118,11 @@ namespace Optitrack
 
         //ToolNumber
         pElement = pRoot->FirstChildElement("ToolNumber");
-        if (pElement == nullptr) eResult = tinyxml2::XMLError::XML_ERROR_PARSING_ELEMENT;
+        if (pElement ==  0) eResult = tinyxml2::XML_ERROR_PARSING_ELEMENT;
         XMLCheckResult(eResult);
-        if (eResult != tinyxml2::XMLError::XML_SUCCESS){
+        if (eResult != tinyxml2::XML_SUCCESS){
             fprintf(stdout, "[XML READING ERROR] Problem parsing the element ToolMarkersNum! \n");
-            return FAILURE;
+            return ResultType_FAILURE;
 
         }
         eResult = pElement->QueryIntAttribute("Ntool", &toolNumber);
@@ -1040,15 +1130,15 @@ namespace Optitrack
 
         //Tools
         pElement = pRoot->FirstChildElement("ToolsList");
-        if (pElement == nullptr) eResult = tinyxml2::XMLError::XML_ERROR_PARSING_ELEMENT;
+        if (pElement ==  0) eResult = tinyxml2::XML_ERROR_PARSING_ELEMENT;
         XMLCheckResult(eResult);
-        if (eResult != tinyxml2::XMLError::XML_SUCCESS){
+        if (eResult != tinyxml2::XML_SUCCESS){
             fprintf(stdout, "[XML READING ERROR] Problem parsing the element Tools! \n");
-            return FAILURE;
+            return ResultType_FAILURE;
         }
         int counter = 0;
         tinyxml2::XMLElement * pListElement = pElement->FirstChildElement("Tool");
-        while ((counter < toolNumber) && (pListElement != nullptr))
+        while ((counter < toolNumber) && (pListElement !=  0))
         {
             try
             {
@@ -1059,7 +1149,7 @@ namespace Optitrack
             {
                 fprintf(stdout, "[XML READING ERROR] Problem reading attribute File from CalibrationFile element! \n");
                 std::cout << e << std::endl;
-                return FAILURE;
+                return ResultType_FAILURE;
             }
 
             counter = counter + 1;
@@ -1082,14 +1172,22 @@ namespace Optitrack
 
         for (int i = 0; i < 3; i++){
             result = this->StartTracking();
-            Sleep(100);
+            sleep(100);
             result = this->StopTracking();
             system("PAUSE");
         }
 
-        return SUCCESS;
+        return ResultType_SUCCESS;
     }
 
+	/*! \brief Tool pivot calibration.
+	*
+	* This function acquires a number of samples of the pivoting procedure and computes the resultant pivot offset.
+	*
+	* @param optitrackID: OptiTrack identification number of the tool used for pivoting.
+	* @param sampleNumber: number of samples acquired during the pivoting.
+	* @return Pivot offset [vnl_vector_fixed].
+	*/
 	vnl_vector_fixed<double, 3> OptitrackTracker::Pivoting( unsigned int optitrackID, unsigned int sampleNumber)
 	{
 		fprintf(stdout, "<INFO> - [OptitrackHelper::Pivoting]\n");
@@ -1119,7 +1217,7 @@ namespace Optitrack
 			vnl_matrix<double> T;
 			for (unsigned int q = 0; q < 3 * sampleNumber; q = q + 3)
 			{
-				Sleep(500);
+				sleep(500);
 				//fprintf(stdout, "Sample %d", (q / 3) + 1);
 				//Sleep(1000);
 
@@ -1139,16 +1237,12 @@ namespace Optitrack
 						T_acquired[i + q][j] = T.get(i, j);
 					}
 				}
-
-
-
-
+				
 				for (unsigned int _c = 0; _c < 6; _c++)
 				{
 					cols[_c] = _c;
 				}
-
-
+				
 				vals[0] = T[0][0];
 				vals[1] = T[0][1];
 				vals[2] = T[0][2];

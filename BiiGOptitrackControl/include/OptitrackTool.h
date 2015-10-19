@@ -85,7 +85,7 @@ namespace Optitrack{
 
         vnl_quaternion<double> GetOrientation( void );
 
-		vnl_matrix<double> OptitrackTool::GetTransformMatrix(void);
+		vnl_matrix<double> GetTransformMatrix(void);
 
         bool IsTracked( void );
 		/** @brief Returns true if the current position data is valid(no error during tracking, tracking error below threshold, ...) */
@@ -141,7 +141,7 @@ namespace Optitrack{
 
         ResultType SetOrientation(vnl_quaternion<double> orientation);
 
-		ResultType OptitrackTool::SetTransformMatrix(vnl_matrix<double> transform);
+		ResultType SetTransformMatrix(vnl_matrix<double> transform);
 
         bool IsIndeterminateValue(const float pV);
 

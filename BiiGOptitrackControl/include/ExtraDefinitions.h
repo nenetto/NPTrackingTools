@@ -13,11 +13,10 @@ typedef itk::MutexLockHolder<itk::FastMutexLock> MutexLockHolder;
 /**
 * \brief Different options for the result of the functions
 */
-typedef enum
-{
-    FAILURE = 0,
-    SUCCESS = 1
-} ResultType;
+#define ResultType int
+#define ResultType_FAILURE 0
+#define ResultType_SUCCESS 1
+
 
 
 #define BiiGOptitrackControlClassMacro(className,SuperClassName) \
