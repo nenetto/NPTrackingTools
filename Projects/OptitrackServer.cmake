@@ -4,7 +4,7 @@
 set(EP_OPTION_NAME "USE_${EP_NAME}")
 set(EP_REQUIRED_PROJECTS BiiGOptitrackControl ITK OpenIGTLink)
 set(EP_OPTION_DESCRIPTION "OptitrackServer")
-set(EP_OPTION_DEFAULT ON)
+set(EP_OPTION_DEFAULT OFF)
 
 
 cma_end_definition()

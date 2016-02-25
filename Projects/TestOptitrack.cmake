@@ -4,7 +4,7 @@
 set(EP_OPTION_NAME "USE_${EP_NAME}")
 set(EP_REQUIRED_PROJECTS BiiGOptitrackControl NPTrackingTools tinyxml2 ITK)
 set(EP_OPTION_DESCRIPTION "Test Optitrack")
-set(EP_OPTION_DEFAULT ON)
+set(EP_OPTION_DEFAULT OFF)
 
 
 cma_end_definition()
